@@ -22,15 +22,15 @@ export function Navbar() {
   }, []);
 
   return (
-    <header className="sticky top-0 z-50 w-full border-b border-border bg-background/80 backdrop-blur-lg px-4 lg:px-6 h-14 flex items-center justify-between gap-4">
-      <div className="flex items-center gap-6">
+    <header className="sticky top-0 z-50 w-full border-b border-border bg-background/80 backdrop-blur-lg px-6 lg:px-8 h-16 flex items-center justify-between gap-4">
+      <div className="flex items-center gap-8">
         <Logo />
-        <nav className="hidden md:flex items-center gap-0.5">
+        <nav className="hidden md:flex items-center gap-1">
           {navItems.map((item) => (
             <button
               key={item.name}
               className={cn(
-                "flex items-center gap-2 px-3 py-1.5 rounded-md text-sm font-medium transition-colors cursor-pointer border-none bg-transparent relative",
+                "flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-colors cursor-pointer border-none bg-transparent relative",
                 item.active
                   ? "text-primary"
                   : "text-muted-foreground hover:text-foreground"
@@ -39,14 +39,14 @@ export function Navbar() {
               <item.icon className="h-4 w-4" />
               <span>{item.name}</span>
               {item.active && (
-                <span className="absolute bottom-[-8px] left-1/2 -translate-x-1/2 w-6 h-0.5 bg-primary rounded-full" />
+                <span className="absolute bottom-[-6px] left-1/2 -translate-x-1/2 w-6 h-0.5 bg-primary rounded-full" />
               )}
             </button>
           ))}
         </nav>
       </div>
 
-      <div className="flex items-center gap-2">
+      <div className="flex items-center gap-3">
         {mounted && (
           <Button
             variant="ghost"

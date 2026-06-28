@@ -179,11 +179,11 @@ function HomeContent() {
   );
 
   return (
-    <div className="flex flex-col gap-4 lg:flex-row lg:items-start justify-center mx-auto w-full max-w-7xl px-4 py-4 lg:px-6 lg:py-6">
+    <div className="flex flex-col gap-6 lg:flex-row lg:items-start justify-center mx-auto w-full max-w-7xl px-6 py-6 lg:px-8 lg:py-8">
       {/* Left Column — Progress */}
       <aside className="w-full lg:w-[340px] xl:w-[360px] shrink-0">
-        <div className="rounded-xl bg-muted/50 dark:bg-[#262626] p-4 lg:p-5 space-y-3">
-          <div className="border-l-2 border-primary pl-3">
+        <div className="rounded-xl bg-muted/50 dark:bg-[#262626] p-6 space-y-4">
+          <div className="border-l-2 border-primary pl-4">
             <h2 className="text-lg font-bold tracking-tight">Must Do DSA</h2>
             <p className="text-sm text-muted-foreground">
               626 hand-picked LeetCode problems
@@ -194,9 +194,9 @@ function HomeContent() {
       </aside>
 
       {/* Right Column — Toolbar + Table */}
-      <div className="flex-1 min-w-0 space-y-3">
+      <div className="flex-1 min-w-0 space-y-4">
         {/* Toolbar */}
-        <div className="flex flex-wrap items-center gap-2">
+        <div className="flex flex-wrap items-center gap-3">
           {/* Search */}
           <div className="relative flex-1 min-w-[200px] max-w-xs">
             <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground pointer-events-none" />
@@ -205,7 +205,7 @@ function HomeContent() {
               placeholder="Search problems..."
               value={q}
               onChange={(e) => setParam("q", e.target.value)}
-              className="h-9 w-full rounded-lg border border-border bg-background pl-8 pr-8 text-sm outline-none focus-visible:border-primary focus-visible:ring-1 focus-visible:ring-primary transition-colors placeholder:text-muted-foreground/60"
+              className="h-10 w-full rounded-xl border border-border bg-background pl-9 pr-9 text-sm outline-none focus-visible:border-primary focus-visible:ring-1 focus-visible:ring-primary transition-colors placeholder:text-muted-foreground/60"
             />
             {q && (
               <button
@@ -222,7 +222,7 @@ function HomeContent() {
             value={difficulty}
             onValueChange={(v) => setParam("difficulty", v === "all" ? "" : v)}
           >
-            <SelectTrigger className="w-[120px] h-9 cursor-pointer">
+            <SelectTrigger className="w-[130px] h-10 cursor-pointer">
               <SelectValue placeholder="Difficulty" />
             </SelectTrigger>
             <SelectContent>
@@ -240,7 +240,7 @@ function HomeContent() {
             value={pattern}
             onValueChange={(v) => setParam("pattern", v === "all" ? "" : v)}
           >
-            <SelectTrigger className="w-[140px] h-9 cursor-pointer">
+            <SelectTrigger className="w-[150px] h-10 cursor-pointer">
               <SelectValue placeholder="Patterns" />
             </SelectTrigger>
             <SelectContent>
@@ -254,7 +254,7 @@ function HomeContent() {
           </Select>
 
           {/* Sort controls */}
-          <div className="flex items-center gap-1 bg-muted/50 rounded-lg p-0.5">
+          <div className="flex items-center gap-1 bg-muted/50 rounded-xl p-1">
             {([["id", "ID"], ["difficulty", "Diff"], ["frequency", "Freq"]] as const).map(([key, label]) => (
               <button
                 key={key}
@@ -266,7 +266,7 @@ function HomeContent() {
                   }
                 }}
                 className={cn(
-                  "flex items-center gap-1 px-2.5 py-1.5 rounded-md text-xs font-medium transition-colors cursor-pointer border-none bg-transparent",
+                  "flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium transition-colors cursor-pointer border-none bg-transparent",
                   sort === key
                     ? "bg-background text-foreground shadow-sm"
                     : "text-muted-foreground hover:text-foreground"
@@ -296,14 +296,14 @@ function HomeContent() {
         </div>
 
         {/* Desktop Table */}
-        <div className="hidden md:block rounded-xl border border-border overflow-hidden bg-card shadow-sm">
+        <div className="hidden md:block rounded-2xl border border-border overflow-hidden bg-card shadow-sm">
           <Table>
             <TableHeader>
               <TableRow className="bg-muted/30">
                 <TableHead className="w-10 text-center">#</TableHead>
                 <TableHead>Title</TableHead>
                 <TableHead className="w-24">Difficulty</TableHead>
-                <TableHead className="w-16 text-right hidden sm:table-cell">Freq</TableHead>
+                <TableHead className="w-20 text-right hidden sm:table-cell">Freq</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -351,7 +351,7 @@ function HomeContent() {
 
         {/* Pagination */}
         {totalPages > 1 && (
-          <div className="flex items-center justify-center gap-2 py-2">
+          <div className="flex items-center justify-center gap-3 py-4">
             <Button
               variant="outline"
               size="sm"
@@ -391,15 +391,15 @@ function ProblemRow({
 }) {
   return (
     <TableRow className={cn(solved && "opacity-60")}>
-      <TableCell className="text-center">
+      <TableCell className="text-center py-3">
         <Checkbox
           checked={solved}
           onCheckedChange={onToggle}
           className="cursor-pointer"
         />
       </TableCell>
-      <TableCell>
-        <div className="flex items-center gap-2">
+      <TableCell className="py-3">
+        <div className="flex items-center gap-2.5">
           <span className="text-xs text-muted-foreground tabular-nums">
             {problem.id}.
           </span>
@@ -411,9 +411,9 @@ function ProblemRow({
           >
             {problem.name}
           </Link>
-          <ExternalLink className="h-3 w-3 text-muted-foreground/50 shrink-0" />
+          <ExternalLink className="h-3 w-3 text-muted-foreground/40 shrink-0" />
         </div>
-        <div className="flex flex-wrap gap-1 mt-1">
+        <div className="flex flex-wrap gap-1.5 mt-1.5">
           {problem.patterns.slice(0, 2).map((pat) => (
             <Badge
               key={pat}
@@ -433,11 +433,11 @@ function ProblemRow({
           )}
         </div>
       </TableCell>
-      <TableCell>
+      <TableCell className="py-3">
         <DifficultyBadge difficulty={problem.difficulty} />
       </TableCell>
-      <TableCell className="text-right hidden sm:table-cell">
-        <span className="text-xs font-medium tabular-nums text-muted-foreground">
+      <TableCell className="text-right hidden sm:table-cell py-3">
+        <span className="text-xs font-semibold tabular-nums text-muted-foreground">
           {problem.frequency != null ? `${problem.frequency}%` : "—"}
         </span>
       </TableCell>

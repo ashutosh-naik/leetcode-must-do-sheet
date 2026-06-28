@@ -64,8 +64,8 @@ function DifficultyCard({ difficulty, solved, total }: { difficulty: keyof typeo
   const pct = total > 0 ? Math.round((solved / total) * 100) : 0;
 
   return (
-    <div className={cn("flex items-center gap-3 rounded-xl p-3", cfg.bg)}>
-      <div className={cn("size-10 rounded-full flex items-center justify-center shrink-0", cfg.bg)}>
+    <div className={cn("flex items-center gap-3 rounded-xl p-4", cfg.bg)}>
+      <div className={cn("size-11 rounded-full flex items-center justify-center shrink-0", cfg.bg)}>
         <CheckCircle className={cn("h-5 w-5", cfg.text)} />
       </div>
       <div className="flex-1 min-w-0">
@@ -111,9 +111,9 @@ export function ProgressPanel() {
           Progress
         </CardTitle>
       </CardHeader>
-      <CardContent className="flex flex-col items-center gap-5 pt-2">
+      <CardContent className="flex flex-col items-center gap-6 pt-2">
         <CircularGauge value={totalSolved} total={total} />
-        <div className="w-full space-y-2">
+        <div className="w-full space-y-3">
           <DifficultyCard difficulty="Easy" solved={byDifficulty.Easy.solved} total={byDifficulty.Easy.total} />
           <DifficultyCard difficulty="Medium" solved={byDifficulty.Medium.solved} total={byDifficulty.Medium.total} />
           <DifficultyCard difficulty="Hard" solved={byDifficulty.Hard.solved} total={byDifficulty.Hard.total} />

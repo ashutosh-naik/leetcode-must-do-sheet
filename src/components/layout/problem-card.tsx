@@ -19,8 +19,8 @@ export function ProblemCard({ problem, solved, onToggle }: ProblemCardProps) {
       "overflow-hidden transition-all duration-200 hover:border-primary/30",
       solved ? "bg-muted/30 border-muted-foreground/10" : "bg-card"
     )}>
-      <CardContent className="p-4 flex items-center justify-between gap-4">
-        <div className="flex items-center gap-3">
+      <CardContent className="p-5 flex items-center justify-between gap-4">
+        <div className="flex items-center gap-4">
           <Checkbox
             id={`problem-card-check-${problem.id}`}
             checked={solved}
