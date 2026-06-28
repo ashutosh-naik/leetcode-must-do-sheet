@@ -230,8 +230,9 @@ function HomeContent() {
               Learning Order by DSA Pattern
             </h2>
             <p className="text-sm text-muted-foreground">
-              Arranged by pattern learning sequence · Easy → Medium → Hard
-              within each pattern · Higher frequency first
+              Pattern Order · Easy → Hard
+              <br />
+              High Frequency First
             </p>
           </div>
           <ProgressPanel />

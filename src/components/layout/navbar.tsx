@@ -1,5 +1,6 @@
 "use client";
 
+import React from "react";
 import { useTheme } from "next-themes";
 import {
   Sun,
@@ -23,7 +24,8 @@ const navItems = [
 
 export function Navbar() {
   const { resolvedTheme, setTheme } = useTheme();
-  const mounted = true;
+  const [mounted, setMounted] = React.useState(false);
+  React.useEffect(() => { setMounted(true); }, []);
 
   return (
     <header className="sticky top-0 z-50 w-full border-b border-border bg-background/80 backdrop-blur-lg px-6 lg:px-8 h-16 flex items-center justify-between gap-4">
