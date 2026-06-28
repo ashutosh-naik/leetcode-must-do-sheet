@@ -4,43 +4,33 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
 import { ExternalLink } from "lucide-react";
-import { Problem } from "@/constants/problems";
-import { PROBLEM_META } from "@/constants/problem-meta";
-import { useProblemStore } from "@/store/problem-store";
+import type { Problem } from "@/constants/problems";
 import { cn } from "@/lib/utils";
 
 interface ProblemCardProps {
   problem: Problem;
+  solved: boolean;
+  onToggle: () => void;
 }
 
-export function ProblemCard({ problem }: ProblemCardProps) {
-  const { solvedProblemIds, toggleProblemSolved } = useProblemStore();
-  const isSolved = solvedProblemIds.includes(problem.id);
-  const meta = PROBLEM_META[problem.id];
-
-  const difficultyColors = {
-    Easy: "bg-easy/10 text-easy border-easy/20",
-    Medium: "bg-medium/10 text-medium border-medium/20",
-    Hard: "bg-hard/10 text-hard border-hard/20",
-  };
-
+export function ProblemCard({ problem, solved, onToggle }: ProblemCardProps) {
   return (
     <Card className={cn(
       "overflow-hidden transition-all duration-200 hover:border-primary/30",
-      isSolved ? "bg-muted/30 border-muted-foreground/10" : "bg-card"
+      solved ? "bg-muted/30 border-muted-foreground/10" : "bg-card"
     )}>
       <CardContent className="p-4 flex items-center justify-between gap-4">
         <div className="flex items-center gap-3">
           <Checkbox
             id={`problem-card-check-${problem.id}`}
-            checked={isSolved}
-            onCheckedChange={() => toggleProblemSolved(problem.id)}
+            checked={solved}
+            onCheckedChange={onToggle}
             className="h-5 w-5 data-[state=checked]:bg-primary data-[state=checked]:border-primary cursor-pointer"
           />
           <div className="space-y-1">
             <div className="flex items-center gap-2 flex-wrap">
               <span className="text-sm font-semibold text-muted-foreground">
-                #{problem.id}
+                {problem.id}
               </span>
               <a
                 href={problem.link}
@@ -48,7 +38,7 @@ export function ProblemCard({ problem }: ProblemCardProps) {
                 rel="noopener noreferrer"
                 className={cn(
                   "text-sm font-semibold hover:text-primary transition-colors inline-flex items-center gap-1",
-                  isSolved ? "text-muted-foreground line-through" : "text-foreground"
+                  solved ? "text-muted-foreground line-through" : "text-foreground"
                 )}
               >
                 {problem.name}
@@ -56,17 +46,15 @@ export function ProblemCard({ problem }: ProblemCardProps) {
               </a>
             </div>
             <div className="flex items-center gap-1.5 flex-wrap">
-              <Badge variant="outline" className={cn("text-[10px] px-2 py-0.5", difficultyColors[problem.difficulty])}>
-                {problem.difficulty}
-              </Badge>
+              <DifficultyBadge difficulty={problem.difficulty} />
               {problem.patterns.map((pattern) => (
                 <Badge key={pattern} variant="secondary" className="text-[10px] px-2 py-0.5 bg-muted text-muted-foreground font-normal">
                   {pattern}
                 </Badge>
               ))}
-              {meta && (
+              {problem.frequency != null && (
                 <span className="text-[10px] font-mono text-muted-foreground/60 ml-1">
-                  {meta.f} · {meta.c}
+                  {problem.frequency}% · {problem.companies ?? "—"}
                 </span>
               )}
             </div>
@@ -76,4 +64,19 @@ export function ProblemCard({ problem }: ProblemCardProps) {
     </Card>
   );
 }
+
+function DifficultyBadge({ difficulty }: { difficulty: string }) {
+  const config: Record<string, { bg: string; text: string; label: string }> = {
+    Easy: { bg: "bg-green-500/10 dark:bg-green-500/15", text: "text-green-600 dark:text-green-400", label: "Easy" },
+    Medium: { bg: "bg-amber-500/10 dark:bg-amber-500/15", text: "text-amber-600 dark:text-amber-400", label: "Medium" },
+    Hard: { bg: "bg-red-500/10 dark:bg-red-500/15", text: "text-red-600 dark:text-red-400", label: "Hard" },
+  };
+  const c = config[difficulty] ?? config.Easy;
+  return (
+    <span className={cn("inline-flex items-center px-2 py-0.5 rounded-md text-xs font-semibold", c.bg, c.text)}>
+      {c.label}
+    </span>
+  );
+}
+
 export default ProblemCard;

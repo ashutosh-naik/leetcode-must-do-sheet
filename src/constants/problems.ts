@@ -636,3 +636,10 @@ export const DUMMY_PROBLEMS: Problem[] = [
   { id: 2583, name: "Kth Largest Sum in a Binary Tree", link: "https://leetcode.com/problems/kth-largest-sum-in-a-binary-tree/", difficulty: "Medium", patterns: ["Tree BFS", "Heap / Priority Queue"] },
   { id: 2707, name: "Extra Characters in a String", link: "https://leetcode.com/problems/extra-characters-in-a-string/", difficulty: "Medium", patterns: ["Dynamic Programming"] },
 ];
+
+import { PROBLEM_META } from "./problem-meta";
+
+export const PROBLEMS: Problem[] = DUMMY_PROBLEMS.map((p) => {
+  const meta = PROBLEM_META[p.id];
+  return { ...p, ...(meta ? { frequency: meta.f, companies: meta.c } : {}) };
+});

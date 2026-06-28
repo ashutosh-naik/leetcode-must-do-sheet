@@ -22,45 +22,48 @@ export function Navbar() {
   }, []);
 
   return (
-    <header className="sticky top-0 z-50 w-full border-b border-border bg-background/95 backdrop-blur-sm px-4 lg:px-6 h-16 flex items-center justify-between gap-4">
+    <header className="sticky top-0 z-50 w-full border-b border-border bg-background/80 backdrop-blur-lg px-4 lg:px-6 h-14 flex items-center justify-between gap-4">
       <div className="flex items-center gap-6">
         <Logo />
-        <nav className="hidden md:flex items-center gap-1">
+        <nav className="hidden md:flex items-center gap-0.5">
           {navItems.map((item) => (
             <button
               key={item.name}
               className={cn(
-                "flex items-center gap-2 px-3 py-1.5 rounded-md text-sm font-medium transition-colors cursor-pointer border-none bg-transparent",
+                "flex items-center gap-2 px-3 py-1.5 rounded-md text-sm font-medium transition-colors cursor-pointer border-none bg-transparent relative",
                 item.active
-                  ? "bg-primary/10 text-primary font-semibold"
-                  : "text-muted-foreground hover:bg-muted hover:text-foreground"
+                  ? "text-primary"
+                  : "text-muted-foreground hover:text-foreground"
               )}
             >
               <item.icon className="h-4 w-4" />
               <span>{item.name}</span>
+              {item.active && (
+                <span className="absolute bottom-[-8px] left-1/2 -translate-x-1/2 w-6 h-0.5 bg-primary rounded-full" />
+              )}
             </button>
           ))}
         </nav>
       </div>
 
-      <div className="flex items-center gap-3">
+      <div className="flex items-center gap-2">
         {mounted && (
           <Button
             variant="ghost"
             size="icon"
             onClick={() => setTheme(resolvedTheme === "dark" ? "light" : "dark")}
-            className="hover:bg-accent focus-visible:ring-0 cursor-pointer"
+            className="hover:bg-accent focus-visible:ring-0 cursor-pointer size-8"
           >
             {resolvedTheme === "dark" ? (
-              <Sun className="h-5 w-5 text-primary" />
+              <Sun className="h-4 w-4 text-primary" />
             ) : (
-              <Moon className="h-5 w-5 text-foreground" />
+              <Moon className="h-4 w-4 text-foreground" />
             )}
           </Button>
         )}
 
-        <Button className="gap-2 bg-primary hover:bg-brand-hover text-white font-medium shadow-sm transition-colors cursor-pointer border-none">
-          <LogIn className="h-4 w-4" />
+        <Button size="sm" className="gap-1.5 bg-primary hover:bg-brand-hover text-white font-medium shadow-sm transition-colors cursor-pointer border-none">
+          <LogIn className="h-3.5 w-3.5" />
           <span>Sign In</span>
         </Button>
       </div>
