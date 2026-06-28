@@ -272,7 +272,7 @@ function HomeContent() {
               placeholder="Search problems..."
               value={q}
               onChange={(e) => setParam("q", e.target.value)}
-              className="h-9 sm:h-10 w-full rounded-xl border border-border bg-background pl-9 pr-9 text-sm outline-none focus-visible:border-primary focus-visible:ring-1 focus-visible:ring-primary transition-colors placeholder:text-muted-foreground/60"
+              className="h-9 sm:h-10 w-full rounded-2xl border border-border bg-background pl-9 pr-9 text-sm outline-none focus-visible:border-primary focus-visible:ring-1 focus-visible:ring-primary transition-colors placeholder:text-muted-foreground/60"
             />
             {q && (
               <button
@@ -289,7 +289,9 @@ function HomeContent() {
             {/* Difficulty filter */}
             <Select
               value={difficulty}
-              onValueChange={(v) => setParam("difficulty", v === "all" ? "" : v)}
+              onValueChange={(v) =>
+                setParam("difficulty", v === "all" ? "" : v)
+              }
             >
               <SelectTrigger className="h-9 sm:h-10 w-[120px] sm:w-[130px] cursor-pointer">
                 <SelectValue placeholder="Difficulty" />
@@ -375,7 +377,10 @@ function HomeContent() {
             {/* Result count */}
             <span className="text-xs text-muted-foreground whitespace-nowrap ml-auto sm:ml-2 tabular-nums">
               {list.length}
-              <span className="hidden sm:inline"> problem{list.length !== 1 ? "s" : ""}</span>
+              <span className="hidden sm:inline">
+                {" "}
+                problem{list.length !== 1 ? "s" : ""}
+              </span>
             </span>
           </div>
         </div>
