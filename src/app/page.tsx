@@ -1,6 +1,6 @@
 "use client";
 
-import { Suspense, useCallback, useMemo } from "react";
+import { Suspense, useCallback, useMemo, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import {
@@ -11,6 +11,9 @@ import {
   Shuffle,
   ArrowUp,
   ArrowDown,
+  BarChart3,
+  ChevronDown,
+  ChevronUp,
 } from "lucide-react";
 import { PROBLEMS } from "@/constants/problems";
 import { ProgressPanel } from "@/components/dashboard/progress-panel";
@@ -149,6 +152,7 @@ function HomeContent() {
     () => new Set(solvedProblemIds),
     [solvedProblemIds],
   );
+  const [showProgress, setShowProgress] = useState(false);
 
   const setParam = useCallback(
     (key: string, value: string) => {
@@ -158,9 +162,7 @@ function HomeContent() {
       } else {
         params.delete(key);
       }
-      // Reset to page 1 when filters change
       params.delete("page");
-      // Reset sort dir when sort key changes
       if (key === "sort") {
         params.delete("dir");
       }
@@ -177,17 +179,13 @@ function HomeContent() {
   }, [router]);
 
   const pickOne = useCallback(() => {
-    // deterministic "pick one" using today's date as seed
     const today = new Date();
     const seed =
       today.getFullYear() * 10000 +
       (today.getMonth() + 1) * 100 +
       today.getDate();
-
-    // optional: filter unsolved only
     const unsolved = PROBLEMS.filter((p) => !solvedSet.has(p.id));
     const pool = unsolved.length > 0 ? unsolved : PROBLEMS;
-
     const idx = seed % pool.length;
     const picked = pool[idx];
     if (picked) {
@@ -221,15 +219,38 @@ function HomeContent() {
     );
 
   return (
-    <div className="flex flex-col gap-6 lg:flex-row lg:items-start justify-center mx-auto w-full max-w-7xl px-6 py-6 lg:px-8 lg:py-8">
+    <div className="flex flex-col gap-4 sm:gap-6 lg:flex-row lg:items-start justify-center mx-auto w-full max-w-7xl px-3 sm:px-6 lg:px-8 py-4 sm:py-6 lg:py-8">
       {/* Left Column — Progress */}
       <aside className="w-full lg:w-[340px] xl:w-[360px] shrink-0">
-        <div className="rounded-xl bg-muted/50 dark:bg-[#202020] p-6 space-y-4">
+        {/* Mobile toggle */}
+        <button
+          onClick={() => setShowProgress(!showProgress)}
+          className="flex lg:hidden items-center gap-2 w-full rounded-xl bg-muted/50 dark:bg-[#202020] px-4 py-3 text-sm font-medium text-muted-foreground hover:text-foreground transition-colors cursor-pointer border-none"
+        >
+          <BarChart3 className="h-4 w-4 text-primary" />
+          <span>Progress</span>
+          <span className="ml-auto text-xs text-muted-foreground/60">
+            {solvedSet.size}/{PROBLEMS.length} solved
+          </span>
+          {showProgress ? (
+            <ChevronUp className="h-4 w-4" />
+          ) : (
+            <ChevronDown className="h-4 w-4" />
+          )}
+        </button>
+
+        <div
+          className={cn(
+            "rounded-xl bg-muted/50 dark:bg-[#202020] p-4 sm:p-6 space-y-4",
+            "lg:block",
+            showProgress ? "block mt-3" : "hidden",
+          )}
+        >
           <div className="border-l-2 border-primary pl-4">
-            <h2 className="text-lg font-bold tracking-tight">
+            <h2 className="text-base sm:text-lg font-bold tracking-tight">
               Learning Order by DSA Pattern
             </h2>
-            <p className="text-sm text-muted-foreground">
+            <p className="text-xs sm:text-sm text-muted-foreground">
               Pattern Order · Easy → Hard
               <br />
               High Frequency First
@@ -240,18 +261,18 @@ function HomeContent() {
       </aside>
 
       {/* Right Column — Toolbar + Table */}
-      <div className="flex-1 min-w-0 space-y-4">
+      <div className="flex-1 min-w-0 space-y-3 sm:space-y-4">
         {/* Toolbar */}
-        <div className="flex flex-wrap items-center gap-3">
-          {/* Search */}
-          <div className="relative flex-1 min-w-[200px] max-w-xs">
+        <div className="flex flex-wrap items-center gap-2 sm:gap-3">
+          {/* Search — full width on mobile */}
+          <div className="relative w-full sm:flex-1 sm:min-w-[200px] sm:max-w-xs">
             <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground pointer-events-none" />
             <input
               type="text"
               placeholder="Search problems..."
               value={q}
               onChange={(e) => setParam("q", e.target.value)}
-              className="h-10 w-full rounded-xl border border-border bg-background pl-9 pr-9 text-sm outline-none focus-visible:border-primary focus-visible:ring-1 focus-visible:ring-primary transition-colors placeholder:text-muted-foreground/60"
+              className="h-9 sm:h-10 w-full rounded-xl border border-border bg-background pl-9 pr-9 text-sm outline-none focus-visible:border-primary focus-visible:ring-1 focus-visible:ring-primary transition-colors placeholder:text-muted-foreground/60"
             />
             {q && (
               <button
@@ -263,97 +284,104 @@ function HomeContent() {
             )}
           </div>
 
-          {/* Difficulty filter */}
-          <Select
-            value={difficulty}
-            onValueChange={(v) => setParam("difficulty", v === "all" ? "" : v)}
-          >
-            <SelectTrigger className="w-[130px] h-10 cursor-pointer">
-              <SelectValue placeholder="Difficulty" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">All</SelectItem>
-              {DIFFICULTIES.map((d) => (
-                <SelectItem key={d} value={d}>
-                  {d}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
+          {/* Filters row — scrollable on mobile */}
+          <div className="flex items-center gap-2 overflow-x-auto w-full sm:w-auto pb-1 sm:pb-0">
+            {/* Difficulty filter */}
+            <Select
+              value={difficulty}
+              onValueChange={(v) => setParam("difficulty", v === "all" ? "" : v)}
+            >
+              <SelectTrigger className="h-9 sm:h-10 w-[120px] sm:w-[130px] cursor-pointer">
+                <SelectValue placeholder="Difficulty" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">All</SelectItem>
+                {DIFFICULTIES.map((d) => (
+                  <SelectItem key={d} value={d}>
+                    {d}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
 
-          {/* Pattern filter */}
-          <Select
-            value={pattern}
-            onValueChange={(v) => setParam("pattern", v === "all" ? "" : v)}
-          >
-            <SelectTrigger className="w-[150px] h-10 cursor-pointer">
-              <SelectValue placeholder="Patterns" />
-            </SelectTrigger>
-            <SelectContent className="max-h-[300px]">
-              <SelectItem value="all">All</SelectItem>
-              {uniquePatterns.map((p) => (
-                <SelectItem key={p} value={p}>
-                  {p}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
+            {/* Pattern filter */}
+            <Select
+              value={pattern}
+              onValueChange={(v) => setParam("pattern", v === "all" ? "" : v)}
+            >
+              <SelectTrigger className="h-9 sm:h-10 w-[140px] sm:w-[150px] cursor-pointer">
+                <SelectValue placeholder="Patterns" />
+              </SelectTrigger>
+              <SelectContent className="max-h-[300px]">
+                <SelectItem value="all">All</SelectItem>
+                {uniquePatterns.map((p) => (
+                  <SelectItem key={p} value={p}>
+                    {p}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
 
-          {/* Sort controls */}
-          <div className="flex items-center gap-1 bg-muted/50 rounded-xl p-1">
-            {(
-              [
-                ["default", "Default"],
-                ["id", "ID"],
-                ["difficulty", "Diff"],
-                ["frequency", "Freq"],
-              ] as const
-            ).map(([key, label]) => (
-              <button
-                key={key}
-                onClick={() => {
-                  if (sort === key) {
-                    toggleSortDir();
-                  } else {
-                    setParam("sort", key);
-                  }
-                }}
-                className={cn(
-                  "flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium transition-colors cursor-pointer border-none bg-transparent",
-                  sort === key
-                    ? "bg-background text-foreground shadow-sm"
-                    : "text-muted-foreground hover:text-foreground",
-                )}
-              >
-                {label}
-                {sort === key ? (
-                  sortIcon
-                ) : (
-                  <ArrowUpDown className="h-3 w-3 opacity-50" />
-                )}
-              </button>
-            ))}
+            {/* Pick One — hide label on mobile */}
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={pickOne}
+              className="h-9 sm:h-10 gap-1.5 cursor-pointer shrink-0"
+            >
+              <Shuffle className="h-3.5 w-3.5" />
+              <span className="hidden sm:inline">Pick One</span>
+            </Button>
           </div>
 
-          {/* Pick One */}
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={pickOne}
-            className="gap-1.5 cursor-pointer"
-          >
-            <Shuffle className="h-3.5 w-3.5" />
-            Pick One
-          </Button>
+          {/* Sort + count row */}
+          <div className="flex items-center gap-2 w-full sm:w-auto">
+            {/* Sort controls */}
+            <div className="flex items-center gap-1 bg-muted/50 rounded-xl p-1 overflow-x-auto">
+              {(
+                [
+                  ["default", "Default"],
+                  ["id", "ID"],
+                  ["difficulty", "Diff"],
+                  ["frequency", "Freq"],
+                ] as const
+              ).map(([key, label]) => (
+                <button
+                  key={key}
+                  onClick={() => {
+                    if (sort === key) {
+                      toggleSortDir();
+                    } else {
+                      setParam("sort", key);
+                    }
+                  }}
+                  className={cn(
+                    "flex items-center gap-1 sm:gap-1.5 px-2 sm:px-3 py-1.5 rounded-lg text-[11px] sm:text-xs font-medium transition-colors cursor-pointer border-none bg-transparent whitespace-nowrap",
+                    sort === key
+                      ? "bg-background text-foreground shadow-sm"
+                      : "text-muted-foreground hover:text-foreground",
+                  )}
+                >
+                  {label}
+                  {sort === key ? (
+                    sortIcon
+                  ) : (
+                    <ArrowUpDown className="h-3 w-3 opacity-50" />
+                  )}
+                </button>
+              ))}
+            </div>
 
-          {/* Result count */}
-          <span className="text-xs text-muted-foreground whitespace-nowrap ml-auto">
-            {list.length} problem{list.length !== 1 ? "s" : ""}
-          </span>
+            {/* Result count */}
+            <span className="text-xs text-muted-foreground whitespace-nowrap ml-auto sm:ml-2 tabular-nums">
+              {list.length}
+              <span className="hidden sm:inline"> problem{list.length !== 1 ? "s" : ""}</span>
+            </span>
+          </div>
         </div>
 
         {/* Desktop Table */}
-        <div className="hidden md:block rounded-2xl border border-border overflow-hidden bg-card shadow-sm">
+        <div className="hidden md:block rounded-2xl border border-border overflow-x-auto bg-card shadow-sm">
           <Table>
             <TableHeader>
               <TableRow className="bg-muted/30">

@@ -10,14 +10,13 @@ import { Trophy, CheckCircle, RotateCcw } from "lucide-react";
 
 function CircularGauge({ value, total }: { value: number; total: number }) {
   const pct = total > 0 ? Math.round((value / total) * 100) : 0;
-  // circumference for r=68 = 2*pi*68 ≈ 427.257
-  const r = 68;
+  const r = 60;
   const circ = 2 * Math.PI * r;
   const dashOffset = circ - (pct / 100) * circ;
 
   return (
-    <div className="relative flex items-center justify-center size-[160px] shrink-0">
-      <svg className="size-[150px] -rotate-90" viewBox="0 0 150 150">
+    <div className="relative flex items-center justify-center size-[130px] sm:size-[160px] shrink-0">
+      <svg className="size-[120px] sm:size-[150px] -rotate-90" viewBox="0 0 150 150">
         <circle
           cx="75"
           cy="75"
@@ -41,7 +40,7 @@ function CircularGauge({ value, total }: { value: number; total: number }) {
         />
       </svg>
       <div className="absolute inset-0 flex flex-col items-center justify-center">
-        <span className="text-3xl font-bold tracking-tight text-foreground">
+        <span className="text-2xl sm:text-3xl font-bold tracking-tight text-foreground">
           {value}
         </span>
         <span className="text-xs font-medium text-muted-foreground">

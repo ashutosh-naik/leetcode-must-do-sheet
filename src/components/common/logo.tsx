@@ -30,16 +30,16 @@ export function Logo() {
         alt="LeetCode Icon"
         width={28}
         height={28}
-        className="object-contain"
+        className="object-contain size-6 sm:size-7"
         priority
       />
-      {/* Text Logo Image */}
+      {/* Text Logo Image — hidden on very small screens */}
       <Image
         src={textSrc}
         alt="LeetCode Logo Text"
         width={100}
         height={20}
-        className="object-contain h-[18px] w-auto"
+        className="object-contain h-[16px] sm:h-[18px] w-auto hidden sm:block"
         priority
       />
     </Link>
