@@ -190,9 +190,9 @@ function HomeContent() {
       <aside className="w-full lg:w-[340px] xl:w-[360px] shrink-0">
         <div className="rounded-xl bg-muted/50 dark:bg-[#202020] p-6 space-y-4">
           <div className="border-l-2 border-primary pl-4">
-            <h2 className="text-lg font-bold tracking-tight">Must Do DSA</h2>
+            <h2 className="text-lg font-bold tracking-tight">Learning Order by DSA Pattern</h2>
             <p className="text-sm text-muted-foreground">
-              626 hand-picked LeetCode problems
+              Arranged by pattern learning sequence · Easy → Medium → Hard within each pattern · Higher frequency first
             </p>
           </div>
           <ProgressPanel />
