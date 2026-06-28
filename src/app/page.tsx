@@ -25,7 +25,8 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { ArrowDown, ArrowUp, ArrowUpDown, ExternalLink, Search, Shuffle, RotateCcw } from "lucide-react";
+import { ProgressPanel } from "@/components/dashboard/progress-panel";
+import { ArrowDown, ArrowUp, ArrowUpDown, ExternalLink, Search, Shuffle } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 type SortKey = "id" | "difficulty" | "frequency" | "companies";
@@ -140,24 +141,6 @@ function Home() {
     return sortDir === "asc" ? <ArrowUp className="h-3 w-3" /> : <ArrowDown className="h-3 w-3" />;
   };
 
-  const { isHydrated } = useProblemStore();
-
-  const totalEasy = useMemo(() => DUMMY_PROBLEMS.filter((p) => p.difficulty === "Easy").length, []);
-  const totalMedium = useMemo(() => DUMMY_PROBLEMS.filter((p) => p.difficulty === "Medium").length, []);
-  const totalHard = useMemo(() => DUMMY_PROBLEMS.filter((p) => p.difficulty === "Hard").length, []);
-  const totalAll = DUMMY_PROBLEMS.length;
-
-  const solvedEasy = isHydrated
-    ? DUMMY_PROBLEMS.filter((p) => p.difficulty === "Easy" && solvedProblemIds.includes(p.id)).length
-    : 0;
-  const solvedMedium = isHydrated
-    ? DUMMY_PROBLEMS.filter((p) => p.difficulty === "Medium" && solvedProblemIds.includes(p.id)).length
-    : 0;
-  const solvedHard = isHydrated
-    ? DUMMY_PROBLEMS.filter((p) => p.difficulty === "Hard" && solvedProblemIds.includes(p.id)).length
-    : 0;
-  const solvedAll = solvedEasy + solvedMedium + solvedHard;
-
   const difficultyColors = {
     Easy: "text-easy hover:text-easy",
     Medium: "text-medium hover:text-medium",
@@ -166,44 +149,28 @@ function Home() {
 
   return (
     <AppLayout>
-      <div className="space-y-6 max-w-7xl mx-auto">
-        {/* Top Header */}
-        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-          <div>
-            <h1 className="text-2xl font-bold tracking-tight md:text-3xl text-foreground">
-              LeetCode Must-Do Progress Tracker
-            </h1>
-            <p className="text-muted-foreground text-sm mt-1">
-              Track, organize, and practice the essential LeetCode coding interview patterns.
-            </p>
+      <div className="mx-auto px-3 lg:px-5 py-4">
+        {/* Progress + Problem List */}
+        <div className="flex flex-col lg:flex-row gap-4 items-stretch">
+          {/* Left: Header + Progress */}
+          <div className="w-full lg:min-w-[400px] lg:w-[400px] shrink-0">
+            <div className="rounded-xl bg-muted/50 dark:bg-[#262626] p-4 pb-12 space-y-4">
+              <div className="border-l-2 border-primary pl-3">
+                <h1 className="text-base font-bold tracking-tight text-foreground">
+                  LeetCode Must-Do Progress Tracker
+                </h1>
+                <p className="text-muted-foreground text-xs mt-0.5">
+                  Track, organize, and practice the essential LeetCode coding interview patterns.
+                </p>
+              </div>
+              <ProgressPanel />
+            </div>
           </div>
-        </div>
 
-        {/* Stats Bar */}
-        <div className="flex flex-wrap items-center gap-3 bg-card p-3 rounded-xl border border-border">
-          <div className="flex items-center gap-2 text-sm">
-            <span className="font-bold text-foreground">{solvedAll}</span>
-            <span className="text-muted-foreground">/</span>
-            <span className="text-muted-foreground font-medium">{totalAll}</span>
-            <span className="text-muted-foreground ml-1">solved</span>
-          </div>
-          <div className="w-px h-5 bg-border" />
-          <div className="flex items-center gap-3 text-xs">
-            <span className="text-easy font-semibold">{solvedEasy}<span className="text-muted-foreground font-normal">/{totalEasy}</span></span>
-            <span className="text-medium font-semibold">{solvedMedium}<span className="text-muted-foreground font-normal">/{totalMedium}</span></span>
-            <span className="text-hard font-semibold">{solvedHard}<span className="text-muted-foreground font-normal">/{totalHard}</span></span>
-          </div>
-          <div className="w-px h-5 bg-border" />
-          <div className="w-full md:w-36 bg-muted rounded-full h-2 overflow-hidden">
-            <div
-              className="h-full bg-primary rounded-full transition-all duration-500"
-              style={{ width: `${totalAll > 0 ? (solvedAll / totalAll) * 100 : 0}%` }}
-            />
-          </div>
-        </div>
-
-        {/* Unified Toolbar */}
-        <div className="flex flex-wrap items-center gap-3 bg-card p-3 rounded-xl border border-border">
+          {/* Right: Problem Area */}
+          <div className="flex-1 min-w-0 space-y-3">
+            {/* Unified Toolbar */}
+            <div className="flex flex-wrap items-center gap-2 bg-card p-3 rounded-xl border border-border">
           {/* Search */}
           <div className="relative flex-1 min-w-[180px]">
             <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
@@ -222,7 +189,7 @@ function Home() {
               <SelectValue placeholder="Difficulty" />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="All">All Difficulties</SelectItem>
+              <SelectItem value="All">Difficulty</SelectItem>
               <SelectItem value="Easy">Easy</SelectItem>
               <SelectItem value="Medium">Medium</SelectItem>
               <SelectItem value="Hard">Hard</SelectItem>
@@ -235,7 +202,7 @@ function Home() {
               <SelectValue placeholder="Pattern" />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="All">All Patterns</SelectItem>
+              <SelectItem value="All">Patterns</SelectItem>
               {uniquePatterns.map((pattern) => (
                 <SelectItem key={pattern} value={pattern}>
                   {pattern}
@@ -405,6 +372,8 @@ function Home() {
             </div>
           </>
         )}
+          </div>{/* end problem area */}
+        </div>{/* end progress + problem list flex */}
       </div>
     </AppLayout>
   );
