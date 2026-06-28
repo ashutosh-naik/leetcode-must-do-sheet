@@ -39,15 +39,21 @@ function useFilteredProblems() {
   const sort = (searchParams.get("sort") ?? "id") as "id" | "difficulty" | "frequency";
   const dir = (searchParams.get("dir") ?? "asc") as "asc" | "desc";
 
+  const PATTERN_ORDER = [
+    "Arrays & Hashing", "Two Pointers", "Sliding Window", "Prefix Sum",
+    "Stack", "Binary Search", "Linked List", "Queue", "Tree DFS", "Tree BFS",
+    "BST", "Heap / Priority Queue", "Graph DFS", "Graph BFS",
+    "Union Find (DSU)", "Topological Sort", "Backtracking", "Greedy",
+    "Dynamic Programming", "Bit Manipulation",
+  ];
+
   const uniquePatterns = useMemo(() => {
-    const set = new Set<string>();
-    PROBLEMS.forEach((p) => {
-      p.patterns.forEach((pat) => {
-        const t = pat.trim();
-        if (t) set.add(t);
-      });
-    });
-    return Array.from(set).sort();
+    const existing = new Set<string>();
+    PROBLEMS.forEach((p) => p.patterns.forEach((pat) => {
+      const t = pat.trim();
+      if (t) existing.add(t);
+    }));
+    return PATTERN_ORDER.filter((p) => existing.has(p));
   }, []);
 
   const filtered = useMemo(() => {
@@ -182,7 +188,7 @@ function HomeContent() {
     <div className="flex flex-col gap-6 lg:flex-row lg:items-start justify-center mx-auto w-full max-w-7xl px-6 py-6 lg:px-8 lg:py-8">
       {/* Left Column — Progress */}
       <aside className="w-full lg:w-[340px] xl:w-[360px] shrink-0">
-        <div className="rounded-xl bg-muted/50 dark:bg-[#262626] p-6 space-y-4">
+        <div className="rounded-xl bg-muted/50 dark:bg-[#202020] p-6 space-y-4">
           <div className="border-l-2 border-primary pl-4">
             <h2 className="text-lg font-bold tracking-tight">Must Do DSA</h2>
             <p className="text-sm text-muted-foreground">
@@ -407,11 +413,11 @@ function ProblemRow({
             href={problem.link}
             target="_blank"
             rel="noopener noreferrer"
-            className="text-sm font-medium hover:text-primary transition-colors"
+            className="text-sm font-medium hover:text-primary transition-colors inline-flex items-center gap-1"
           >
             {problem.name}
+            <ExternalLink className="h-3 w-3 text-muted-foreground/40 shrink-0" />
           </Link>
-          <ExternalLink className="h-3 w-3 text-muted-foreground/40 shrink-0" />
         </div>
         <div className="flex flex-wrap gap-1.5 mt-1.5">
           {problem.patterns.slice(0, 2).map((pat) => (
