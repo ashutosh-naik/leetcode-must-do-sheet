@@ -3,24 +3,21 @@
 import Image from "next/image";
 import Link from "next/link";
 import { useTheme } from "next-themes";
-import { useEffect, useState } from "react";
 
 export function Logo() {
   const { resolvedTheme } = useTheme();
-  const [mounted, setMounted] = useState(false);
-
-  useEffect(() => {
-    setMounted(true);
-  }, []);
+  const mounted = true;
 
   // Fallback paths during SSR to prevent visual flash
-  const iconSrc = mounted && resolvedTheme === "light"
-    ? "/leetcode-black.png"
-    : "/leetcode-gold.png";
+  const iconSrc =
+    mounted && resolvedTheme === "light"
+      ? "/leetcode-black.png"
+      : "/leetcode-gold.png";
 
-  const textSrc = mounted && resolvedTheme === "light"
-    ? "/leetcode-text-black-fixed.svg"
-    : "/leetcode-text-white-fixed.svg";
+  const textSrc =
+    mounted && resolvedTheme === "light"
+      ? "/leetcode-text-black-fixed.svg"
+      : "/leetcode-text-white-fixed.svg";
 
   return (
     <Link

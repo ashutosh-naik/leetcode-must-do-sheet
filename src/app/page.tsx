@@ -3,7 +3,15 @@
 import { Suspense, useCallback, useMemo } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
-import { ExternalLink, ArrowUpDown, Search, X, Shuffle, ArrowUp, ArrowDown } from "lucide-react";
+import {
+  ExternalLink,
+  ArrowUpDown,
+  Search,
+  X,
+  Shuffle,
+  ArrowUp,
+  ArrowDown,
+} from "lucide-react";
 import { PROBLEMS } from "@/constants/problems";
 import { ProgressPanel } from "@/components/dashboard/progress-panel";
 import { ProblemCard } from "@/components/layout/problem-card";
@@ -31,28 +39,46 @@ import type { Problem } from "@/constants/problems";
 
 const DIFFICULTIES = ["Easy", "Medium", "Hard"] as const;
 
+const PATTERN_ORDER = [
+  "Arrays & Hashing",
+  "Two Pointers",
+  "Sliding Window",
+  "Prefix Sum",
+  "Stack",
+  "Binary Search",
+  "Linked List",
+  "Queue",
+  "Tree DFS",
+  "Tree BFS",
+  "BST",
+  "Heap / Priority Queue",
+  "Graph DFS",
+  "Graph BFS",
+  "Union Find (DSU)",
+  "Topological Sort",
+  "Backtracking",
+  "Greedy",
+  "Dynamic Programming",
+  "Bit Manipulation",
+];
+
 function useFilteredProblems() {
   const searchParams = useSearchParams();
   const q = searchParams.get("q") ?? "";
   const difficulty = searchParams.get("difficulty") ?? "";
   const pattern = searchParams.get("pattern") ?? "";
-  const sort = (searchParams.get("sort") ?? "id") as "id" | "difficulty" | "frequency";
+  const sort = (searchParams.get("sort") ?? "default") as
+    "default" | "id" | "difficulty" | "frequency";
   const dir = (searchParams.get("dir") ?? "asc") as "asc" | "desc";
-
-  const PATTERN_ORDER = [
-    "Arrays & Hashing", "Two Pointers", "Sliding Window", "Prefix Sum",
-    "Stack", "Binary Search", "Linked List", "Queue", "Tree DFS", "Tree BFS",
-    "BST", "Heap / Priority Queue", "Graph DFS", "Graph BFS",
-    "Union Find (DSU)", "Topological Sort", "Backtracking", "Greedy",
-    "Dynamic Programming", "Bit Manipulation",
-  ];
 
   const uniquePatterns = useMemo(() => {
     const existing = new Set<string>();
-    PROBLEMS.forEach((p) => p.patterns.forEach((pat) => {
-      const t = pat.trim();
-      if (t) existing.add(t);
-    }));
+    PROBLEMS.forEach((p) =>
+      p.patterns.forEach((pat) => {
+        const t = pat.trim();
+        if (t) existing.add(t);
+      }),
+    );
     return PATTERN_ORDER.filter((p) => existing.has(p));
   }, []);
 
@@ -65,7 +91,7 @@ function useFilteredProblems() {
         (p) =>
           p.id.toString().includes(lq) ||
           p.name.toLowerCase().includes(lq) ||
-          p.patterns.some((pat) => pat.toLowerCase().includes(lq))
+          p.patterns.some((pat) => pat.toLowerCase().includes(lq)),
       );
     }
     if (difficulty) {
@@ -73,26 +99,30 @@ function useFilteredProblems() {
     }
     if (pattern) {
       list = list.filter((p) =>
-        p.patterns.some((pat) => pat.trim().toLowerCase() === pattern.toLowerCase())
+        p.patterns.some(
+          (pat) => pat.trim().toLowerCase() === pattern.toLowerCase(),
+        ),
       );
     }
 
-    list.sort((a, b) => {
-      const mul = dir === "asc" ? 1 : -1;
-      switch (sort) {
-        case "difficulty": {
-          const dm: Record<string, number> = { Easy: 0, Medium: 1, Hard: 2 };
-          return mul * ((dm[a.difficulty] ?? 99) - (dm[b.difficulty] ?? 99));
+    if (sort !== "default") {
+      list.sort((a, b) => {
+        const mul = dir === "asc" ? 1 : -1;
+        switch (sort) {
+          case "difficulty": {
+            const dm: Record<string, number> = { Easy: 0, Medium: 1, Hard: 2 };
+            return mul * ((dm[a.difficulty] ?? 99) - (dm[b.difficulty] ?? 99));
+          }
+          case "frequency": {
+            const fa = parseFloat(a.frequency ?? "0");
+            const fb = parseFloat(b.frequency ?? "0");
+            return mul * (fa - fb);
+          }
+          default:
+            return mul * (a.id - b.id);
         }
-        case "frequency": {
-          const fa = parseFloat(a.frequency ?? "0");
-          const fb = parseFloat(b.frequency ?? "0");
-          return mul * (fa - fb);
-        }
-        default:
-          return mul * (a.id - b.id);
-      }
-    });
+      });
+    }
 
     return { list, uniquePatterns };
   }, [q, difficulty, pattern, sort, dir, uniquePatterns]);
@@ -115,7 +145,10 @@ function HomeContent() {
     useFilteredProblems();
   const solvedProblemIds = useProblemStore((s) => s.solvedProblemIds);
   const toggleSolved = useProblemStore((s) => s.toggleProblemSolved);
-  const solvedSet = useMemo(() => new Set(solvedProblemIds), [solvedProblemIds]);
+  const solvedSet = useMemo(
+    () => new Set(solvedProblemIds),
+    [solvedProblemIds],
+  );
 
   const setParam = useCallback(
     (key: string, value: string) => {
@@ -133,7 +166,7 @@ function HomeContent() {
       }
       router.replace(`?${params.toString()}`, { scroll: false });
     },
-    [router]
+    [router],
   );
 
   const toggleSortDir = useCallback(() => {
@@ -147,7 +180,9 @@ function HomeContent() {
     // deterministic "pick one" using today's date as seed
     const today = new Date();
     const seed =
-      today.getFullYear() * 10000 + (today.getMonth() + 1) * 100 + today.getDate();
+      today.getFullYear() * 10000 +
+      (today.getMonth() + 1) * 100 +
+      today.getDate();
 
     // optional: filter unsolved only
     const unsolved = PROBLEMS.filter((p) => !solvedSet.has(p.id));
@@ -172,17 +207,18 @@ function HomeContent() {
       }
       router.replace(`?${params.toString()}`, { scroll: false });
     },
-    [router]
+    [router],
   );
 
   const totalPages = Math.ceil(list.length / PAGE_SIZE);
   const paged = list.slice(page * PAGE_SIZE, (page + 1) * PAGE_SIZE);
 
-  const sortIcon = dir === "asc" ? (
-    <ArrowUp className="h-3 w-3" />
-  ) : (
-    <ArrowDown className="h-3 w-3" />
-  );
+  const sortIcon =
+    dir === "asc" ? (
+      <ArrowUp className="h-3 w-3" />
+    ) : (
+      <ArrowDown className="h-3 w-3" />
+    );
 
   return (
     <div className="flex flex-col gap-6 lg:flex-row lg:items-start justify-center mx-auto w-full max-w-7xl px-6 py-6 lg:px-8 lg:py-8">
@@ -190,9 +226,12 @@ function HomeContent() {
       <aside className="w-full lg:w-[340px] xl:w-[360px] shrink-0">
         <div className="rounded-xl bg-muted/50 dark:bg-[#202020] p-6 space-y-4">
           <div className="border-l-2 border-primary pl-4">
-            <h2 className="text-lg font-bold tracking-tight">Learning Order by DSA Pattern</h2>
+            <h2 className="text-lg font-bold tracking-tight">
+              Learning Order by DSA Pattern
+            </h2>
             <p className="text-sm text-muted-foreground">
-              Arranged by pattern learning sequence · Easy → Medium → Hard within each pattern · Higher frequency first
+              Arranged by pattern learning sequence · Easy → Medium → Hard
+              within each pattern · Higher frequency first
             </p>
           </div>
           <ProgressPanel />
@@ -249,7 +288,7 @@ function HomeContent() {
             <SelectTrigger className="w-[150px] h-10 cursor-pointer">
               <SelectValue placeholder="Patterns" />
             </SelectTrigger>
-            <SelectContent>
+            <SelectContent className="max-h-[300px]">
               <SelectItem value="all">All</SelectItem>
               {uniquePatterns.map((p) => (
                 <SelectItem key={p} value={p}>
@@ -261,7 +300,14 @@ function HomeContent() {
 
           {/* Sort controls */}
           <div className="flex items-center gap-1 bg-muted/50 rounded-xl p-1">
-            {([["id", "ID"], ["difficulty", "Diff"], ["frequency", "Freq"]] as const).map(([key, label]) => (
+            {(
+              [
+                ["default", "Default"],
+                ["id", "ID"],
+                ["difficulty", "Diff"],
+                ["frequency", "Freq"],
+              ] as const
+            ).map(([key, label]) => (
               <button
                 key={key}
                 onClick={() => {
@@ -275,11 +321,15 @@ function HomeContent() {
                   "flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium transition-colors cursor-pointer border-none bg-transparent",
                   sort === key
                     ? "bg-background text-foreground shadow-sm"
-                    : "text-muted-foreground hover:text-foreground"
+                    : "text-muted-foreground hover:text-foreground",
                 )}
               >
                 {label}
-                {sort === key ? sortIcon : <ArrowUpDown className="h-3 w-3 opacity-50" />}
+                {sort === key ? (
+                  sortIcon
+                ) : (
+                  <ArrowUpDown className="h-3 w-3 opacity-50" />
+                )}
               </button>
             ))}
           </div>
@@ -309,13 +359,18 @@ function HomeContent() {
                 <TableHead className="w-10 text-center">#</TableHead>
                 <TableHead>Title</TableHead>
                 <TableHead className="w-24">Difficulty</TableHead>
-                <TableHead className="w-20 text-right hidden sm:table-cell">Freq</TableHead>
+                <TableHead className="w-20 text-right hidden sm:table-cell">
+                  Freq
+                </TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
               {paged.length === 0 ? (
                 <TableRow>
-                  <TableCell colSpan={4} className="text-center py-12 text-muted-foreground">
+                  <TableCell
+                    colSpan={4}
+                    className="text-center py-12 text-muted-foreground"
+                  >
                     <div className="flex flex-col items-center gap-2">
                       <Search className="h-6 w-6 opacity-40" />
                       <span>No problems match your filters</span>
@@ -444,7 +499,7 @@ function ProblemRow({
       </TableCell>
       <TableCell className="text-right hidden sm:table-cell py-3">
         <span className="text-xs font-semibold tabular-nums text-muted-foreground">
-          {problem.frequency != null ? `${problem.frequency}%` : "—"}
+          {problem.frequency ?? "—"}
         </span>
       </TableCell>
     </TableRow>
@@ -453,13 +508,31 @@ function ProblemRow({
 
 function DifficultyBadge({ difficulty }: { difficulty: string }) {
   const config: Record<string, { bg: string; text: string; label: string }> = {
-    Easy: { bg: "bg-green-500/10 dark:bg-green-500/15", text: "text-green-600 dark:text-green-400", label: "Easy" },
-    Medium: { bg: "bg-amber-500/10 dark:bg-amber-500/15", text: "text-amber-600 dark:text-amber-400", label: "Medium" },
-    Hard: { bg: "bg-red-500/10 dark:bg-red-500/15", text: "text-red-600 dark:text-red-400", label: "Hard" },
+    Easy: {
+      bg: "bg-green-500/10 dark:bg-green-500/15",
+      text: "text-green-600 dark:text-green-400",
+      label: "Easy",
+    },
+    Medium: {
+      bg: "bg-amber-500/10 dark:bg-amber-500/15",
+      text: "text-amber-600 dark:text-amber-400",
+      label: "Medium",
+    },
+    Hard: {
+      bg: "bg-red-500/10 dark:bg-red-500/15",
+      text: "text-red-600 dark:text-red-400",
+      label: "Hard",
+    },
   };
   const c = config[difficulty] ?? config.Easy;
   return (
-    <span className={cn("inline-flex items-center px-2 py-0.5 rounded-md text-xs font-semibold", c.bg, c.text)}>
+    <span
+      className={cn(
+        "inline-flex items-center px-2 py-0.5 rounded-md text-xs font-semibold",
+        c.bg,
+        c.text,
+      )}
+    >
       {c.label}
     </span>
   );

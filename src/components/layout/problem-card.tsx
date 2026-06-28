@@ -52,9 +52,9 @@ export function ProblemCard({ problem, solved, onToggle }: ProblemCardProps) {
                   {pattern}
                 </Badge>
               ))}
-              {problem.frequency != null && (
+              {problem.frequency && (
                 <span className="text-[10px] font-mono text-muted-foreground/60 ml-1">
-                  {problem.frequency}% · {problem.companies ?? "—"}
+                  {problem.frequency}
                 </span>
               )}
             </div>
