@@ -6,6 +6,7 @@ import {
   Sun,
   Moon,
   LogIn,
+  UserPlus,
   ListChecks,
   LayoutDashboard,
   Flame,
@@ -28,7 +29,9 @@ export function Navbar() {
   const { resolvedTheme, setTheme } = useTheme();
   const [mounted, setMounted] = React.useState(false);
   const [mobileOpen, setMobileOpen] = React.useState(false);
-  React.useEffect(() => { setMounted(true); }, []);
+  React.useEffect(() => {
+    setMounted(true);
+  }, []);
 
   return (
     <header className="sticky top-0 z-50 w-full border-b border-border bg-background/80 backdrop-blur-lg px-4 sm:px-6 lg:px-8 h-14 sm:h-16 flex items-center justify-between gap-2 sm:gap-4">
@@ -74,11 +77,20 @@ export function Navbar() {
         )}
 
         <Button
+          variant="outline"
           size="sm"
-          className="hidden sm:inline-flex gap-1.5 bg-primary hover:bg-brand-hover text-white font-medium shadow-sm transition-colors cursor-pointer border-none"
+          className="hidden sm:inline-flex gap-1.5 font-medium shadow-sm transition-colors cursor-pointer border-none"
         >
           <LogIn className="h-3.5 w-3.5" />
           <span>Sign In</span>
+        </Button>
+
+        <Button
+          size="sm"
+          className="hidden sm:inline-flex gap-1.5 bg-primary hover:bg-brand-hover text-white font-medium shadow-sm transition-colors cursor-pointer border-none"
+        >
+          <UserPlus className="h-3.5 w-3.5" />
+          <span>Register</span>
         </Button>
 
         <Button
@@ -88,7 +100,11 @@ export function Navbar() {
           className="md:hidden size-8 cursor-pointer"
           aria-label="Toggle menu"
         >
-          {mobileOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
+          {mobileOpen ? (
+            <X className="h-5 w-5" />
+          ) : (
+            <Menu className="h-5 w-5" />
+          )}
         </Button>
       </div>
 
@@ -120,11 +136,13 @@ export function Navbar() {
                 </button>
               ))}
               <hr className="my-2 border-border" />
-              <button
-                className="flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium text-muted-foreground hover:text-foreground hover:bg-muted/50 transition-colors cursor-pointer border-none bg-transparent w-full text-left sm:hidden"
-              >
+              <button className="flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium text-muted-foreground hover:text-foreground hover:bg-muted/50 transition-colors cursor-pointer border-none bg-transparent w-full text-left sm:hidden">
                 <LogIn className="h-4 w-4 shrink-0" />
                 <span>Sign In</span>
+              </button>
+              <button className="flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium text-muted-foreground hover:text-foreground hover:bg-muted/50 transition-colors cursor-pointer border-none bg-transparent w-full text-left sm:hidden">
+                <UserPlus className="h-4 w-4 shrink-0" />
+                <span>Register</span>
               </button>
             </nav>
           </div>
