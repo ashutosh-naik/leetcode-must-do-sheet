@@ -29,6 +29,7 @@ import { ProblemCard } from "@/components/layout/problem-card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
+import { Input } from "@/components/ui/input";
 import {
   Select,
   SelectContent,
@@ -44,15 +45,22 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import {
+  TableSkeletonDesktop,
+  TableSkeletonMobile,
+  ProgressSkeleton,
+} from "@/components/common/table-skeleton";
 import { useProblemStore } from "@/store/problem-store";
 import { cn } from "@/lib/utils";
 import { useAuth } from "@/providers/auth-provider";
 import { useDebounce } from "@/hooks/use-debounce";
 import { DifficultyBadge } from "@/components/common/difficulty-badge";
+import { useToast } from "@/components/ui/toast";
 import { logger } from "@/lib/logger";
 import {
   upsertProblemProgress,
   syncSolvedProblems,
+  extractSlug,
 } from "@/lib/services/problem-progress";
 import type { Problem } from "@/constants/problems";
 
@@ -165,7 +173,7 @@ function ProblemsetContent() {
   const solvedProblemIds = useProblemStore((s) => s.solvedProblemIds);
   const toggleProblemSolved = useProblemStore((s) => s.toggleProblemSolved);
   const setSolvedProblemIds = useProblemStore((s) => s.setSolvedProblemIds);
-  const { user } = useAuth();
+  const { user, loading: authLoading } = useAuth();
   const synced = useRef(false);
   const prevUserId = useRef<string | undefined>(undefined);
   const solvedSet = useMemo(
@@ -175,6 +183,7 @@ function ProblemsetContent() {
   const [searchInput, setSearchInput] = useState(q);
   const debouncedSearch = useDebounce(searchInput, 300);
   const [showProgress, setShowProgress] = useState(false);
+  const { toast } = useToast();
 
   useEffect(() => {
     const currentUserId = user?.id;
@@ -207,27 +216,32 @@ function ProblemsetContent() {
   const toggleSolved = useCallback(
     async (id: number) => {
       if (!user) return;
-      const store = useProblemStore.getState();
-      const wasSolved = store.solvedProblemIds.includes(id);
-      const newSolved = wasSolved
-        ? store.solvedProblemIds.filter((pId) => pId !== id)
-        : [...store.solvedProblemIds, id];
-      toggleProblemSolved(id);
-      const problem = PROBLEMS.find((p) => p.id === id);
-      if (problem) {
-        const isSolved = newSolved.includes(id);
-        const slug = problem.link.replace(/\/$/, "").split("/").pop() ?? String(id);
-        try {
+      if (pendingToggle.current.has(id)) return;
+      pendingToggle.current.add(id);
+      try {
+        const store = useProblemStore.getState();
+        const wasSolved = store.solvedProblemIds.includes(id);
+        const newSolved = wasSolved
+          ? store.solvedProblemIds.filter((pId) => pId !== id)
+          : [...store.solvedProblemIds, id];
+        toggleProblemSolved(id);
+        const problem = PROBLEMS.find((p) => p.id === id);
+        if (problem) {
+          const isSolved = newSolved.includes(id);
+          const slug = extractSlug(problem.link);
           await upsertProblemProgress(user.id, slug, isSolved);
-        } catch (err) {
-          toggleProblemSolved(id);
-          const e = err as { message?: string; code?: string; details?: string; hint?: string };
-          logger.error("Error updating problem progress:", JSON.stringify(err));
-          logger.error({ message: e?.message, code: e?.code, details: e?.details, hint: e?.hint });
         }
+      } catch (err) {
+        toggleProblemSolved(id);
+        toast("Failed to sync progress", "error");
+        const e = err as { message?: string; code?: string; details?: string; hint?: string };
+        logger.error("Error updating problem progress:", JSON.stringify(err));
+        logger.error({ message: e?.message, code: e?.code, details: e?.details, hint: e?.hint });
+      } finally {
+        pendingToggle.current.delete(id);
       }
     },
-    [user, toggleProblemSolved],
+    [user, toggleProblemSolved, toast],
   );
 
   const setParam = useCallback(
@@ -274,6 +288,7 @@ function ProblemsetContent() {
   }, [solvedSet]);
 
   const PAGE_SIZE = 50;
+  const pendingToggle = useRef(new Set<number>());
   const page = parseInt(searchParams.get("page") ?? "1", 10) - 1;
   const setPage = useCallback(
     (nextPage: number) => {
@@ -336,7 +351,7 @@ function ProblemsetContent() {
               High Frequency First
             </p>
           </div>
-          <ProgressPanel />
+          {authLoading ? <ProgressSkeleton /> : <ProgressPanel />}
         </div>
       </aside>
 
@@ -347,12 +362,12 @@ function ProblemsetContent() {
           {/* Search — full width on mobile */}
           <div className="relative w-full sm:flex-1 sm:min-w-[200px] sm:max-w-xs">
             <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground pointer-events-none" />
-            <input
+            <Input
               type="text"
               placeholder="Search problems..."
               value={searchInput}
               onChange={(e) => setSearchInput(e.target.value)}
-              className="h-9 sm:h-10 w-full rounded-2xl border border-border bg-background pl-9 pr-9 text-sm outline-none focus-visible:border-primary focus-visible:ring-1 focus-visible:ring-primary transition-colors placeholder:text-muted-foreground/60"
+              className="h-9 sm:h-10 rounded-2xl border-border bg-background pl-9 pr-9 focus-visible:border-primary focus-visible:ring-primary placeholder:text-muted-foreground/60"
             />
             {searchInput && (
               <button
@@ -469,6 +484,9 @@ function ProblemsetContent() {
         </div>
 
         {/* Desktop Table */}
+        {authLoading ? (
+          <TableSkeletonDesktop />
+        ) : (
         <div className="hidden md:block rounded-2xl border border-border overflow-x-auto bg-card shadow-sm">
           <Table>
             <TableHeader className="sticky top-0 z-10">
@@ -507,8 +525,11 @@ function ProblemsetContent() {
             </TableBody>
           </Table>
         </div>
-
+        )}
         {/* Mobile Cards */}
+        {authLoading ? (
+          <TableSkeletonMobile />
+        ) : (
         <div className="md:hidden space-y-2">
           {paged.length === 0 ? (
             <div className="flex flex-col items-center gap-2 py-12 text-muted-foreground">
@@ -526,6 +547,7 @@ function ProblemsetContent() {
             ))
           )}
         </div>
+        )}
 
         {/* Pagination */}
         {totalPages > 1 && (

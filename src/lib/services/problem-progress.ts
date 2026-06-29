@@ -2,7 +2,7 @@ import { supabase } from "@/lib/supabase";
 import { PROBLEMS } from "@/constants/problems";
 import { logger } from "@/lib/logger";
 
-function extractSlug(link: string): string {
+export function extractSlug(link: string): string {
   const parts = link.replace(/\/$/, "").split("/");
   return parts[parts.length - 1] ?? "";
 }
@@ -118,4 +118,16 @@ export async function syncSolvedProblems(
   }
 
   return allIds;
+}
+
+export async function deleteAllProblemProgress(userId: string) {
+  const { error } = await supabase
+    .from("problem_progress")
+    .delete()
+    .eq("user_id", userId);
+
+  if (error && error.code !== "PGRST116") {
+    logSupabaseError("deleteAllProblemProgress", error);
+    throw error;
+  }
 }

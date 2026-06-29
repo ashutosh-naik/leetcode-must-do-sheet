@@ -20,17 +20,10 @@ export default function ProfilePage() {
           </div>
         </div>
         <hr className="border-border" />
-        <div className="space-y-3">
-          <div className="flex items-center gap-3 text-sm">
-            <Mail className="h-4 w-4 text-muted-foreground" />
-            <span className="text-muted-foreground">Email:</span>
-            <span>{user?.email}</span>
-          </div>
-          <div className="flex items-center gap-3 text-sm">
-            <User className="h-4 w-4 text-muted-foreground" />
-            <span className="text-muted-foreground">User ID:</span>
-            <span className="font-mono text-xs">{user?.id}</span>
-          </div>
+        <div className="flex items-center gap-3 text-sm">
+          <Mail className="h-4 w-4 text-muted-foreground" />
+          <span className="text-muted-foreground">Email:</span>
+          <span>{user?.email}</span>
         </div>
       </div>
     </div>

@@ -1,6 +1,7 @@
 "use client";
 
 import { Settings, AlertTriangle } from "lucide-react";
+import { Button } from "@/components/ui/button";
 import { useProblemStore } from "@/store/problem-store";
 
 export default function SettingsPage() {
@@ -21,12 +22,14 @@ export default function SettingsPage() {
         <p className="text-sm text-muted-foreground">
           Reset all your progress. This action cannot be undone.
         </p>
-        <button
+        <Button
+          variant="destructive"
           onClick={() => setShowResetConfirm(true)}
-          className="cursor-pointer rounded-lg bg-red-500 px-4 py-2 text-sm font-semibold text-white hover:bg-red-600 transition-colors border-none flex items-center gap-2"
+          className="cursor-pointer"
         >
+          <AlertTriangle className="h-4 w-4" />
           Reset Progress
-        </button>
+        </Button>
       </div>
     </div>
   );

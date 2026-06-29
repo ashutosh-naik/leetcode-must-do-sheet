@@ -31,4 +31,16 @@ Build passes with 0 errors (TypeScript, ESLint, `next build`). Core functionalit
 
 ## Database
 
-`problem_progress` uses `(user_id, problem_slug)` as a composite unique key. `profiles` stores user display name and email, auto-created on first auth event. RLS policies needed for production hardening.
+### Tables
+
+- **`problem_progress`** — Composite key `(user_id, problem_slug)`. Columns: `user_id` (UUID FK to auth.users), `problem_slug` (text), `status` (text, "Solved"), `last_solved_at` (timestamp). Stores which problems each user has solved.
+- **`profiles`** — Primary key `id` (UUID FK to auth.users). Columns: `name` (text), `email` (text). Auto-created on first auth event.
+
+### Row-Level Security
+
+RLS must be enabled on both tables with the following policies (apply via Supabase Dashboard > SQL Editor or see `src/lib/supabase/rls-policies.sql`):
+
+- **profiles**: Users can SELECT, INSERT, and UPDATE only their own row (`auth.uid() = id`).
+- **problem_progress**: Users can SELECT, INSERT, UPDATE, and DELETE only their own rows (`auth.uid() = user_id`).
+
+Without these policies, authenticated users can read/write any row, which is a security risk.

@@ -1,13 +1,20 @@
 import { type NextRequest, NextResponse } from "next/server";
 import { createServerClient } from "@supabase/ssr";
 
+const VALID_OTP_TYPES = ["email", "signup", "recovery", "invite"] as const;
+type OtpType = (typeof VALID_OTP_TYPES)[number];
+
+function isValidOtpType(value: string): value is OtpType {
+  return VALID_OTP_TYPES.includes(value as OtpType);
+}
+
 export async function GET(request: NextRequest) {
   const { searchParams, origin } = new URL(request.url);
   const token_hash = searchParams.get("token_hash");
-  const type = searchParams.get("type");
+  const rawType = searchParams.get("type");
   const next = searchParams.get("next") ?? "/";
 
-  if (token_hash && type) {
+  if (token_hash && rawType && isValidOtpType(rawType)) {
     const response = NextResponse.redirect(`${origin}${next}`);
 
     const supabase = createServerClient(
@@ -28,7 +35,7 @@ export async function GET(request: NextRequest) {
     );
 
     const { error } = await supabase.auth.verifyOtp({
-      type: type as "email" | "signup" | "recovery" | "invite",
+      type: rawType,
       token_hash,
     });
 

@@ -3,6 +3,7 @@
 import { useState } from "react";
 import Link from "next/link";
 import { Logo } from "@/components/common/logo";
+import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { supabase } from "@/lib/supabase";
 
@@ -80,13 +81,13 @@ export default function ForgotPasswordPage() {
                 {error && (
                   <p className="text-sm text-red-500">{error}</p>
                 )}
-                <button
+                <Button
                   type="submit"
                   disabled={loading}
-                  className="w-full h-10 rounded-xl bg-primary hover:bg-brand-hover text-white font-medium shadow-sm transition-colors cursor-pointer border-none disabled:opacity-50"
+                  className="w-full h-10 bg-primary hover:bg-brand-hover text-white font-medium shadow-sm cursor-pointer border-none"
                 >
                   {loading ? "Sending..." : "Send Reset Link"}
-                </button>
+                </Button>
               </form>
               <div className="mt-4 text-center text-sm text-muted-foreground">
                 Remember your password?{" "}
