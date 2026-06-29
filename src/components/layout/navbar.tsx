@@ -24,7 +24,7 @@ import { Button } from "@/components/ui/button";
 import { useAuth } from "@/providers/auth-provider";
 
 const navLinks = [
-  { href: "/", label: "Problem Set", icon: ListChecks },
+  { href: "/problemset", label: "Problem Set", icon: ListChecks },
   { href: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
   { href: "/streaks", label: "Streaks", icon: Flame },
   { href: "/daily-challenge", label: "Daily Challenge", icon: Trophy },
