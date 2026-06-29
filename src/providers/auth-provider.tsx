@@ -12,14 +12,7 @@ import type { User } from "@supabase/supabase-js";
 import { useRouter } from "next/navigation";
 import { supabase } from "@/lib/supabase";
 import { createProfile } from "@/lib/services/profile";
-
-// Global error handler for unhandled rejections
-if (typeof window !== "undefined") {
-  window.addEventListener("unhandledrejection", (event) => {
-    console.error("Unhandled rejection:", event.reason);
-    event.preventDefault();
-  });
-}
+import { logger } from "@/lib/logger";
 
 interface AuthContextValue {
   user: User | null;
@@ -65,7 +58,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       );
     } catch (err) {
       // profile already exists or other error — ignore
-      console.error("Profile creation error:", err);
+      logger.error("Profile creation error:", err);
     }
   }, []);
 
@@ -76,7 +69,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       setLoading(false);
       if (u) {
         ensureProfile(u).catch((err) => {
-          console.error("Error ensuring profile:", err);
+          logger.error("Error ensuring profile:", err);
         });
       }
     });
@@ -89,7 +82,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       setLoading(false);
       if (u) {
         ensureProfile(u).catch((err) => {
-          console.error("Error ensuring profile:", err);
+          logger.error("Error ensuring profile:", err);
         });
       }
     });

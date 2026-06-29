@@ -4,7 +4,6 @@ import { persist } from "zustand/middleware";
 interface ProblemState {
   solvedProblemIds: number[];
   toggleProblemSolved: (id: number) => void;
-  isProblemSolved: (id: number) => boolean;
   setSolvedProblemIds: (ids: number[]) => void;
   resetProgress: () => void;
   showResetConfirm: boolean;
@@ -13,7 +12,7 @@ interface ProblemState {
 
 export const useProblemStore = create<ProblemState>()(
   persist(
-    (set, get) => ({
+    (set) => ({
       solvedProblemIds: [],
       showResetConfirm: false,
 
@@ -25,8 +24,6 @@ export const useProblemStore = create<ProblemState>()(
             : [...state.solvedProblemIds, id];
           return { solvedProblemIds: newSolved };
         }),
-
-      isProblemSolved: (id) => get().solvedProblemIds.includes(id),
 
       setSolvedProblemIds: (ids) => set({ solvedProblemIds: ids }),
 

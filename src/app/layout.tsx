@@ -5,6 +5,7 @@ import "./globals.css";
 import { cn } from "@/lib/utils";
 import { ThemeProvider } from "@/providers/theme-provider";
 import { AppLayout } from "@/components/layout/app-layout";
+import { ErrorBoundary } from "@/components/common/error-boundary";
 
 const inter = Inter({
   subsets: ["latin"],
@@ -32,7 +33,9 @@ export default function RootLayout({
     >
       <body className="min-h-screen font-sans antialiased" suppressHydrationWarning>
         <ThemeProvider>
-          <AppLayout>{children}</AppLayout>
+          <ErrorBoundary>
+            <AppLayout>{children}</AppLayout>
+          </ErrorBoundary>
         </ThemeProvider>
       </body>
     </html>

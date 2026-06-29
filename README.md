@@ -1,36 +1,85 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# LeetCode Must-Do Sheet
+
+A curated LeetCode progress tracker with filtering, dark/light mode, solved-state persistence, URL-synced state, Supabase Auth with progress sync.
+
+## Features
+
+- **Curated Problem Set** — 634 must-do LeetCode problems with difficulty ratings, frequency scores, and DSA topic tags
+- **Progress Tracking** — Track solved problems with persistent storage (Supabase for authenticated users)
+- **Authentication** — Email/password, Google, and GitHub auth via Supabase
+- **Dark/Light Mode** — Theme toggle with system preference detection
+- **Filtering & Search** — Filter by difficulty, topic, or search by problem name with debounced input
+- **Sticky Table Header** — Always-visible column headers while scrolling through large problem sets
+- **URL-Synced State** — Filter and search state persisted in URL query parameters
+
+## Tech Stack
+
+- **Framework:** Next.js (App Router)
+- **Language:** TypeScript
+- **Styling:** Tailwind CSS v4 + shadcn/v4
+- **State Management:** Zustand + URL search params
+- **Database:** Supabase (PostgreSQL)
+- **Auth:** Supabase Auth with `@supabase/ssr`
 
 ## Getting Started
 
-First, run the development server:
-
 ```bash
+npm install
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Open [http://localhost:3000](http://localhost:3000).
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Environment Variables
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+Create `.env.local` with the following:
 
-## Learn More
+```env
+NEXT_PUBLIC_SUPABASE_URL=your_supabase_project_url
+NEXT_PUBLIC_SUPABASE_ANON_KEY=your_supabase_anon_key
+```
 
-To learn more about Next.js, take a look at the following resources:
+A template is available in `.env.example`.
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## Build
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+```bash
+npm run build
+```
 
-## Deploy on Vercel
+## Project Structure
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+```
+src/
+├── app/                    # App Router pages
+│   ├── page.tsx           # Landing page
+│   ├── problemset/        # Main problem list (moved from /)
+│   ├── login/             # Login page
+│   ├── register/          # Registration page
+│   ├── forgot-password/   # Password reset flow
+│   ├── dashboard/         # Progress dashboard
+│   ├── streaks/           # Streaks tracker (placeholder)
+│   ├── daily-challenge/   # Daily challenge (placeholder)
+│   ├── auth/              # Auth callback & password update
+│   ├── profile/           # User profile (placeholder)
+│   └── settings/          # User settings
+├── components/            # Shared components
+│   ├── common/            # Logo, DifficultyBadge, ErrorBoundary
+│   ├── layout/            # Navbar
+│   ├── problems/          # ProblemRow, ProblemTable, FilterBar
+│   ├── ui/                # shadcn UI primitives (Button, Input, etc.)
+│   └── dashboard/         # ProgressPanel
+├── constants/             # Problem data definitions
+├── hooks/                 # Custom hooks (use-debounce, etc.)
+├── lib/                   # Utility libraries (supabase client, logger)
+├── providers/             # Auth provider, Theme provider
+└── store/                 # Zustand stores (problem-store)
+```
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+## Database Schema
+
+The `problem_progress` table uses `(user_id, problem_slug)` as a composite unique key. Columns: `user_id`, `problem_slug`, `solved` (boolean), `created_at`, `updated_at`.
+
+## Deployment
+
+Deployed on Vercel. Set `NEXT_PUBLIC_SUPABASE_URL` and `NEXT_PUBLIC_SUPABASE_ANON_KEY` in Vercel environment variables. Configure OAuth redirect URLs in Supabase Dashboard under Authentication > URL Configuration.

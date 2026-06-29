@@ -7,6 +7,7 @@ import {
   useMemo,
   useRef,
   useState,
+  memo,
 } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
@@ -46,6 +47,9 @@ import {
 import { useProblemStore } from "@/store/problem-store";
 import { cn } from "@/lib/utils";
 import { useAuth } from "@/providers/auth-provider";
+import { useDebounce } from "@/hooks/use-debounce";
+import { DifficultyBadge } from "@/components/common/difficulty-badge";
+import { logger } from "@/lib/logger";
 import {
   upsertProblemProgress,
   syncSolvedProblems,
@@ -168,6 +172,8 @@ function ProblemsetContent() {
     () => (user ? new Set(solvedProblemIds) : new Set()),
     [solvedProblemIds, user],
   );
+  const [searchInput, setSearchInput] = useState(q);
+  const debouncedSearch = useDebounce(searchInput, 300);
   const [showProgress, setShowProgress] = useState(false);
 
   useEffect(() => {
@@ -192,8 +198,8 @@ function ProblemsetContent() {
           setSolvedProblemIds(merged);
         })
         .catch((err) => {
-          console.error("Error syncing problems:", JSON.stringify(err));
-          console.error(err);
+          logger.error("Error syncing problems:", JSON.stringify(err));
+          logger.error(err);
         });
     }
   }, [user, setSolvedProblemIds]);
@@ -216,8 +222,8 @@ function ProblemsetContent() {
         } catch (err) {
           toggleProblemSolved(id);
           const e = err as { message?: string; code?: string; details?: string; hint?: string };
-          console.error("Error updating problem progress:", JSON.stringify(err));
-          console.error({ message: e?.message, code: e?.code, details: e?.details, hint: e?.hint });
+          logger.error("Error updating problem progress:", JSON.stringify(err));
+          logger.error({ message: e?.message, code: e?.code, details: e?.details, hint: e?.hint });
         }
       }
     },
@@ -240,6 +246,10 @@ function ProblemsetContent() {
     },
     [router],
   );
+
+  useEffect(() => {
+    setParam("q", debouncedSearch);
+  }, [debouncedSearch]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const toggleSortDir = useCallback(() => {
     const params = new URLSearchParams(window.location.search);
@@ -340,13 +350,16 @@ function ProblemsetContent() {
             <input
               type="text"
               placeholder="Search problems..."
-              value={q}
-              onChange={(e) => setParam("q", e.target.value)}
+              value={searchInput}
+              onChange={(e) => setSearchInput(e.target.value)}
               className="h-9 sm:h-10 w-full rounded-2xl border border-border bg-background pl-9 pr-9 text-sm outline-none focus-visible:border-primary focus-visible:ring-1 focus-visible:ring-primary transition-colors placeholder:text-muted-foreground/60"
             />
-            {q && (
+            {searchInput && (
               <button
-                onClick={() => setParam("q", "")}
+                onClick={() => {
+                  setSearchInput("");
+                  setParam("q", "");
+                }}
                 className="absolute right-2 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors cursor-pointer bg-transparent border-none p-0"
               >
                 <X className="h-4 w-4" />
@@ -545,7 +558,7 @@ function ProblemsetContent() {
   );
 }
 
-function ProblemRow({
+const ProblemRow = memo(function ProblemRow({
   problem,
   solved,
   onToggle,
@@ -608,36 +621,6 @@ function ProblemRow({
       </TableCell>
     </TableRow>
   );
-}
+});
 
-function DifficultyBadge({ difficulty }: { difficulty: string }) {
-  const config: Record<string, { bg: string; text: string; label: string }> = {
-    Easy: {
-      bg: "bg-green-500/10 dark:bg-green-500/15",
-      text: "text-green-600 dark:text-green-400",
-      label: "Easy",
-    },
-    Medium: {
-      bg: "bg-amber-500/10 dark:bg-amber-500/15",
-      text: "text-amber-600 dark:text-amber-400",
-      label: "Medium",
-    },
-    Hard: {
-      bg: "bg-red-500/10 dark:bg-red-500/15",
-      text: "text-red-600 dark:text-red-400",
-      label: "Hard",
-    },
-  };
-  const c = config[difficulty] ?? config.Easy;
-  return (
-    <span
-      className={cn(
-        "inline-flex items-center px-2 py-0.5 rounded-md text-xs font-semibold",
-        c.bg,
-        c.text,
-      )}
-    >
-      {c.label}
-    </span>
-  );
-}
+

@@ -8,11 +8,14 @@ import {
   Filter,
   HeartHandshake,
 } from "lucide-react";
+import { PROBLEMS } from "@/constants/problems";
+
+const PROBLEM_COUNT = PROBLEMS.length;
 
 const features = [
   {
     icon: ListChecks,
-    title: "626 Curated Problems",
+    title: `${PROBLEM_COUNT} Curated Problems`,
     description:
       "Hand-picked must-do LeetCode problems covering all essential DSA patterns — Arrays, DP, Graphs, Trees, and more.",
   },
@@ -49,7 +52,7 @@ const features = [
 ];
 
 const stats = [
-  { label: "Problems", value: "626" },
+  { label: "Problems", value: String(PROBLEM_COUNT) },
   { label: "Patterns", value: "20" },
   { label: "Difficulty Levels", value: "3" },
   { label: "Companies Referenced", value: "200+" },
@@ -163,7 +166,7 @@ export default function Home() {
                 step: "01",
                 title: "Browse the Problem Set",
                 description:
-                  "Explore 626 curated problems organized by DSA patterns. Filter by difficulty, search by name, or sort by frequency.",
+                  `Explore ${PROBLEM_COUNT} curated problems organized by DSA patterns. Filter by difficulty, search by name, or sort by frequency.`,
               },
               {
                 step: "02",

@@ -1,6 +1,5 @@
 "use client";
 
-import { useState } from "react";
 import { useProblemStore } from "@/store/problem-store";
 import { PROBLEMS } from "@/constants/problems";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
@@ -120,8 +119,7 @@ function DifficultyCard({
 export function ProgressPanel() {
   const solvedProblemIds = useProblemStore((s) => s.solvedProblemIds);
   const solvedSet = new Set(solvedProblemIds);
-  const resetProgress = useProblemStore((s) => s.resetProgress);
-  const [showResetConfirm, setShowResetConfirm] = useState(false);
+  const setShowResetConfirm = useProblemStore((s) => s.setShowResetConfirm);
 
   const total = PROBLEMS.length;
   const totalSolved = solvedSet.size;
@@ -139,11 +137,6 @@ export function ProgressPanel() {
       Hard: { total: 0, solved: 0 },
     } as Record<string, { total: number; solved: number }>,
   );
-
-  const handleReset = () => {
-    resetProgress();
-    setShowResetConfirm(false);
-  };
 
   return (
     <Card className="border-border/50 shadow-sm">
@@ -183,29 +176,6 @@ export function ProgressPanel() {
           />
         </div>
       </CardContent>
-
-      {showResetConfirm && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-md">
-          <div className="bg-background rounded-lg shadow-lg p-6 w-full max-w-sm mx-4">
-            <h3 className="text-lg font-semibold mb-2">Reset progress</h3>
-            <p className="text-sm text-muted-foreground mb-6">
-              Resetting progress will move all questions back to incomplete.
-              This action cannot be undone.
-            </p>
-            <div className="flex justify-end gap-3">
-              <Button
-                variant="outline"
-                onClick={() => setShowResetConfirm(false)}
-              >
-                Cancel
-              </Button>
-              <Button variant="destructive" onClick={handleReset}>
-                Reset
-              </Button>
-            </div>
-          </div>
-        </div>
-      )}
     </Card>
   );
 }

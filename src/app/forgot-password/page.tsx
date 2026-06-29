@@ -3,6 +3,7 @@
 import { useState } from "react";
 import Link from "next/link";
 import { Logo } from "@/components/common/logo";
+import { Input } from "@/components/ui/input";
 import { supabase } from "@/lib/supabase";
 
 export default function ForgotPasswordPage() {
@@ -68,12 +69,12 @@ export default function ForgotPasswordPage() {
                   <label className="mb-1.5 block text-sm font-medium text-foreground">
                     Email
                   </label>
-                  <input
+                  <Input
                     type="email"
                     placeholder="Enter your email"
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
-                    className="h-10 w-full rounded-xl border border-border bg-background px-3 text-sm outline-none focus-visible:border-primary focus-visible:ring-1 focus-visible:ring-primary transition-colors placeholder:text-muted-foreground/60"
+                    className="h-10 rounded-xl border-border bg-background focus-visible:border-primary focus-visible:ring-primary placeholder:text-muted-foreground/60"
                   />
                 </div>
                 {error && (

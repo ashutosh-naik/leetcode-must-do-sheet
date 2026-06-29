@@ -5,6 +5,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { Logo } from "@/components/common/logo";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import { useAuth } from "@/providers/auth-provider";
 
 export default function LoginPage() {
@@ -74,12 +75,12 @@ export default function LoginPage() {
               <label className="mb-1.5 block text-sm font-medium text-foreground">
                 Username or Email
               </label>
-              <input
+              <Input
                 type="text"
                 placeholder="Enter username or email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                className="h-10 w-full rounded-xl border border-border bg-background px-3 text-sm outline-none focus-visible:border-primary focus-visible:ring-1 focus-visible:ring-primary transition-colors placeholder:text-muted-foreground/60"
+                className="h-10 rounded-xl border-border bg-background focus-visible:border-primary focus-visible:ring-primary placeholder:text-muted-foreground/60"
               />
             </div>
 
@@ -87,12 +88,12 @@ export default function LoginPage() {
               <label className="mb-1.5 block text-sm font-medium text-foreground">
                 Password
               </label>
-              <input
+              <Input
                 type="password"
                 placeholder="Enter password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                className="h-10 w-full rounded-xl border border-border bg-background px-3 text-sm outline-none focus-visible:border-primary focus-visible:ring-1 focus-visible:ring-primary transition-colors placeholder:text-muted-foreground/60"
+                className="h-10 rounded-xl border-border bg-background focus-visible:border-primary focus-visible:ring-primary placeholder:text-muted-foreground/60"
               />
             </div>
 

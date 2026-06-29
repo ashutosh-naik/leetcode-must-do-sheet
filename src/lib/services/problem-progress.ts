@@ -1,5 +1,6 @@
 import { supabase } from "@/lib/supabase";
 import { PROBLEMS } from "@/constants/problems";
+import { logger } from "@/lib/logger";
 
 function extractSlug(link: string): string {
   const parts = link.replace(/\/$/, "").split("/");
@@ -22,13 +23,8 @@ function logSupabaseError(label: string, error: unknown) {
     details?: string;
     hint?: string;
   };
-  console.error(`[${label}]`, JSON.stringify(error));
-  console.error({
-    message: e?.message,
-    code: e?.code,
-    details: e?.details,
-    hint: e?.hint,
-  });
+  logger.error(`[${label}]`, JSON.stringify(error));
+  logger.error({ message: e?.message, code: e?.code, details: e?.details, hint: e?.hint });
 }
 
 export async function upsertProblemProgress(

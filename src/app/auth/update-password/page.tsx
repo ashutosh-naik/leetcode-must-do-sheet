@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import { Input } from "@/components/ui/input";
 import { supabase } from "@/lib/supabase";
 
 export default function UpdatePasswordPage() {
@@ -64,24 +65,24 @@ export default function UpdatePasswordPage() {
                 <label className="mb-1.5 block text-sm font-medium text-foreground">
                   New Password
                 </label>
-                <input
+                <Input
                   type="password"
                   placeholder="Enter new password"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
-                  className="h-10 w-full rounded-xl border border-border bg-background px-3 text-sm outline-none focus-visible:border-primary focus-visible:ring-1 focus-visible:ring-primary transition-colors placeholder:text-muted-foreground/60"
+                  className="h-10 rounded-xl border-border bg-background focus-visible:border-primary focus-visible:ring-primary placeholder:text-muted-foreground/60"
                 />
               </div>
               <div>
                 <label className="mb-1.5 block text-sm font-medium text-foreground">
                   Confirm New Password
                 </label>
-                <input
+                <Input
                   type="password"
                   placeholder="Confirm new password"
                   value={confirmPassword}
                   onChange={(e) => setConfirmPassword(e.target.value)}
-                  className="h-10 w-full rounded-xl border border-border bg-background px-3 text-sm outline-none focus-visible:border-primary focus-visible:ring-1 focus-visible:ring-primary transition-colors placeholder:text-muted-foreground/60"
+                  className="h-10 rounded-xl border-border bg-background focus-visible:border-primary focus-visible:ring-primary placeholder:text-muted-foreground/60"
                 />
               </div>
               {error && (

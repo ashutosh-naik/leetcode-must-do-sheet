@@ -6,6 +6,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { Logo } from "@/components/common/logo";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import { useAuth } from "@/providers/auth-provider";
 
 export default function RegisterPage() {
@@ -96,12 +97,12 @@ export default function RegisterPage() {
               <label className="mb-1.5 block text-sm font-medium text-foreground">
                 Username
               </label>
-              <input
+              <Input
                 type="text"
                 placeholder="Enter username"
                 value={username}
                 onChange={(e) => setUsername(e.target.value)}
-                className="h-10 w-full rounded-xl border border-border bg-background px-3 text-sm outline-none focus-visible:border-primary focus-visible:ring-1 focus-visible:ring-primary transition-colors placeholder:text-muted-foreground/60"
+                className="h-10 rounded-xl border-border bg-background focus-visible:border-primary focus-visible:ring-primary placeholder:text-muted-foreground/60"
               />
             </div>
 
@@ -109,12 +110,12 @@ export default function RegisterPage() {
               <label className="mb-1.5 block text-sm font-medium text-foreground">
                 Email
               </label>
-              <input
+              <Input
                 type="email"
                 placeholder="Enter email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                className="h-10 w-full rounded-xl border border-border bg-background px-3 text-sm outline-none focus-visible:border-primary focus-visible:ring-1 focus-visible:ring-primary transition-colors placeholder:text-muted-foreground/60"
+                className="h-10 rounded-xl border-border bg-background focus-visible:border-primary focus-visible:ring-primary placeholder:text-muted-foreground/60"
               />
             </div>
 
@@ -122,12 +123,12 @@ export default function RegisterPage() {
               <label className="mb-1.5 block text-sm font-medium text-foreground">
                 Password
               </label>
-              <input
+              <Input
                 type="password"
                 placeholder="Enter password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                className="h-10 w-full rounded-xl border border-border bg-background px-3 text-sm outline-none focus-visible:border-primary focus-visible:ring-1 focus-visible:ring-primary transition-colors placeholder:text-muted-foreground/60"
+                className="h-10 rounded-xl border-border bg-background focus-visible:border-primary focus-visible:ring-primary placeholder:text-muted-foreground/60"
               />
             </div>
 
@@ -135,12 +136,12 @@ export default function RegisterPage() {
               <label className="mb-1.5 block text-sm font-medium text-foreground">
                 Confirm Password
               </label>
-              <input
+              <Input
                 type="password"
                 placeholder="Confirm password"
                 value={confirmPassword}
                 onChange={(e) => setConfirmPassword(e.target.value)}
-                className="h-10 w-full rounded-xl border border-border bg-background px-3 text-sm outline-none focus-visible:border-primary focus-visible:ring-1 focus-visible:ring-primary transition-colors placeholder:text-muted-foreground/60"
+                className="h-10 rounded-xl border-border bg-background focus-visible:border-primary focus-visible:ring-primary placeholder:text-muted-foreground/60"
               />
             </div>
 
