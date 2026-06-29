@@ -24,7 +24,7 @@ export default function LoginPage() {
       return;
     }
 
-    const { data, error } = await supabase.auth.signInWithPassword({
+    const { error } = await supabase.auth.signInWithPassword({
       email,
       password,
     });
@@ -43,7 +43,7 @@ export default function LoginPage() {
     const { error } = await supabase.auth.signInWithOAuth({
       provider: "google",
       options: {
-        redirectTo: `${window.location.origin}/`,
+        redirectTo: `${window.location.origin}/auth/callback?next=/`,
       },
     });
 
@@ -56,7 +56,7 @@ export default function LoginPage() {
     const { error } = await supabase.auth.signInWithOAuth({
       provider: "github",
       options: {
-        redirectTo: `${window.location.origin}/`,
+        redirectTo: `${window.location.origin}/auth/callback?next=/`,
       },
     });
 
@@ -68,19 +68,16 @@ export default function LoginPage() {
   return (
     <main className="flex min-h-screen items-center justify-center bg-background px-4 py-8">
       <div className="w-full max-w-md space-y-6">
-        {/* Logo */}
         <div className="flex justify-center">
           <Logo />
         </div>
 
-        {/* Form Card */}
         <div className="rounded-2xl border border-border bg-card p-6 sm:p-8 shadow-sm">
           <h1 className="mb-2 text-center text-xl font-bold tracking-tight">
             Sign In
           </h1>
 
           <form onSubmit={handleSubmit} className="space-y-4">
-            {/* Username or Email */}
             <div>
               <label className="mb-1.5 block text-sm font-medium text-foreground">
                 Username or Email
@@ -94,7 +91,6 @@ export default function LoginPage() {
               />
             </div>
 
-            {/* Password */}
             <div>
               <label className="mb-1.5 block text-sm font-medium text-foreground">
                 Password
@@ -108,7 +104,6 @@ export default function LoginPage() {
               />
             </div>
 
-            {/* Sign In Button */}
             <Button
               type="submit"
               disabled={loading}
@@ -118,7 +113,6 @@ export default function LoginPage() {
             </Button>
           </form>
 
-          {/* Forgot Password & Sign Up Links */}
           <div className="mt-4 flex items-center justify-between text-sm">
             <Link
               href="/forgot-password"
@@ -135,7 +129,6 @@ export default function LoginPage() {
           </div>
         </div>
 
-        {/* OAuth Divider */}
         <div className="relative">
           <div className="absolute inset-0 flex items-center">
             <span className="w-full border-t border-border" />
@@ -147,7 +140,6 @@ export default function LoginPage() {
           </div>
         </div>
 
-        {/* OAuth Buttons */}
         <div className="flex gap-3">
           <Button
             type="button"

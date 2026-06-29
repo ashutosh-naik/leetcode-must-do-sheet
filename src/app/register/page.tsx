@@ -32,13 +32,14 @@ export default function RegisterPage() {
       return;
     }
 
-    const { data, error } = await supabase.auth.signUp({
+    const { error } = await supabase.auth.signUp({
       email,
       password,
       options: {
         data: {
           username,
         },
+        emailRedirectTo: `${window.location.origin}/auth/callback?next=/`,
       },
     });
 
@@ -49,7 +50,9 @@ export default function RegisterPage() {
       return;
     }
 
-    alert("Account created successfully!");
+    alert(
+      "Account created! Check your email for a confirmation link.",
+    );
     router.push("/login");
   }
 
@@ -57,7 +60,7 @@ export default function RegisterPage() {
     const { error } = await supabase.auth.signInWithOAuth({
       provider: "google",
       options: {
-        redirectTo: `${window.location.origin}/login`,
+        redirectTo: `${window.location.origin}/auth/callback?next=/`,
       },
     });
 
@@ -70,7 +73,7 @@ export default function RegisterPage() {
     const { error } = await supabase.auth.signInWithOAuth({
       provider: "github",
       options: {
-        redirectTo: `${window.location.origin}/login`,
+        redirectTo: `${window.location.origin}/auth/callback?next=/`,
       },
     });
 
@@ -82,19 +85,16 @@ export default function RegisterPage() {
   return (
     <main className="flex min-h-screen items-center justify-center bg-background px-4 py-8">
       <div className="w-full max-w-md space-y-6">
-        {/* Logo */}
         <div className="flex justify-center">
           <Logo />
         </div>
 
-        {/* Form Card */}
         <div className="rounded-2xl border border-border bg-card p-6 sm:p-8 shadow-sm">
           <h1 className="mb-2 text-center text-xl font-bold tracking-tight">
             Create Account
           </h1>
 
           <form onSubmit={handleSubmit} className="space-y-4">
-            {/* Username */}
             <div>
               <label className="mb-1.5 block text-sm font-medium text-foreground">
                 Username
@@ -108,7 +108,6 @@ export default function RegisterPage() {
               />
             </div>
 
-            {/* Email */}
             <div>
               <label className="mb-1.5 block text-sm font-medium text-foreground">
                 Email
@@ -122,7 +121,6 @@ export default function RegisterPage() {
               />
             </div>
 
-            {/* Password */}
             <div>
               <label className="mb-1.5 block text-sm font-medium text-foreground">
                 Password
@@ -136,7 +134,6 @@ export default function RegisterPage() {
               />
             </div>
 
-            {/* Confirm Password */}
             <div>
               <label className="mb-1.5 block text-sm font-medium text-foreground">
                 Confirm Password
@@ -150,7 +147,6 @@ export default function RegisterPage() {
               />
             </div>
 
-            {/* Register Button */}
             <Button
               type="submit"
               disabled={loading}
@@ -160,7 +156,6 @@ export default function RegisterPage() {
             </Button>
           </form>
 
-          {/* Sign In Link */}
           <p className="mt-4 text-center text-sm text-muted-foreground">
             Already have an account?{" "}
             <Link
@@ -172,7 +167,6 @@ export default function RegisterPage() {
           </p>
         </div>
 
-        {/* OAuth Divider */}
         <div className="relative">
           <div className="absolute inset-0 flex items-center">
             <span className="w-full border-t border-border" />
@@ -184,7 +178,6 @@ export default function RegisterPage() {
           </div>
         </div>
 
-        {/* OAuth Buttons */}
         <div className="flex gap-3">
           <Button
             type="button"

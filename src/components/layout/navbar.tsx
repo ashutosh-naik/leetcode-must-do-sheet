@@ -8,6 +8,8 @@ import {
   Moon,
   LogIn,
   UserPlus,
+  LogOut,
+  User,
   ListChecks,
   LayoutDashboard,
   Flame,
@@ -18,6 +20,8 @@ import {
 import { Logo } from "@/components/common/logo";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
+import { useAuth } from "@/providers/auth-provider";
+import { signOut } from "@/lib/auth";
 
 const navItems = [
   { name: "Problem Set", icon: ListChecks, active: true },
@@ -28,11 +32,16 @@ const navItems = [
 
 export function Navbar() {
   const { resolvedTheme, setTheme } = useTheme();
+  const { user, loading } = useAuth();
   const [mounted, setMounted] = React.useState(false);
   const [mobileOpen, setMobileOpen] = React.useState(false);
   React.useEffect(() => {
     setMounted(true);
   }, []);
+
+  async function handleSignOut() {
+    await signOut();
+  }
 
   return (
     <header className="sticky top-0 z-50 w-full border-b border-border bg-background/80 backdrop-blur-lg px-4 sm:px-6 lg:px-8 h-14 sm:h-16 flex items-center justify-between gap-2 sm:gap-4">
@@ -77,26 +86,48 @@ export function Navbar() {
           </Button>
         )}
 
-        <Link href="/login">
-          <Button
-            variant="outline"
-            size="sm"
-            className="hidden sm:inline-flex gap-1.5 font-medium shadow-sm transition-colors cursor-pointer border-none"
-          >
-            <LogIn className="h-3.5 w-3.5" />
-            <span>Sign In</span>
-          </Button>
-        </Link>
-
-        <Link href="/register">
-          <Button
-            size="sm"
-            className="hidden sm:inline-flex gap-1.5 bg-primary hover:bg-brand-hover text-white font-medium shadow-sm transition-colors cursor-pointer border-none"
-          >
-            <UserPlus className="h-3.5 w-3.5" />
-            <span>Register</span>
-          </Button>
-        </Link>
+        {!loading &&
+          (user ? (
+            <>
+              <div className="hidden sm:flex items-center gap-2 px-3 py-1.5 rounded-lg bg-muted/50 text-sm text-muted-foreground">
+                <User className="h-3.5 w-3.5" />
+                <span className="max-w-[120px] truncate">
+                  {user.user_metadata?.username || user.email}
+                </span>
+              </div>
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={handleSignOut}
+                className="gap-1.5 text-muted-foreground hover:text-foreground cursor-pointer border-none"
+              >
+                <LogOut className="h-3.5 w-3.5" />
+                <span className="hidden sm:inline">Sign Out</span>
+              </Button>
+            </>
+          ) : (
+            <>
+              <Link href="/login">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="hidden sm:inline-flex gap-1.5 font-medium shadow-sm transition-colors cursor-pointer border-none"
+                >
+                  <LogIn className="h-3.5 w-3.5" />
+                  <span>Sign In</span>
+                </Button>
+              </Link>
+              <Link href="/register">
+                <Button
+                  size="sm"
+                  className="hidden sm:inline-flex gap-1.5 bg-primary hover:bg-brand-hover text-white font-medium shadow-sm transition-colors cursor-pointer border-none"
+                >
+                  <UserPlus className="h-3.5 w-3.5" />
+                  <span>Register</span>
+                </Button>
+              </Link>
+            </>
+          ))}
 
         <Button
           variant="ghost"
@@ -141,14 +172,45 @@ export function Navbar() {
                 </button>
               ))}
               <hr className="my-2 border-border" />
-              <button className="flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium text-muted-foreground hover:text-foreground hover:bg-muted/50 transition-colors cursor-pointer border-none bg-transparent w-full text-left sm:hidden">
-                <LogIn className="h-4 w-4 shrink-0" />
-                <span>Sign In</span>
-              </button>
-              <button className="flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium text-muted-foreground hover:text-foreground hover:bg-muted/50 transition-colors cursor-pointer border-none bg-transparent w-full text-left sm:hidden">
-                <UserPlus className="h-4 w-4 shrink-0" />
-                <span>Register</span>
-              </button>
+              {user ? (
+                <>
+                  <div className="flex items-center gap-3 px-4 py-3 rounded-xl text-sm text-muted-foreground">
+                    <User className="h-4 w-4 shrink-0" />
+                    <span className="truncate">
+                      {user.user_metadata?.username || user.email}
+                    </span>
+                  </div>
+                  <button
+                    onClick={() => {
+                      setMobileOpen(false);
+                      handleSignOut();
+                    }}
+                    className="flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium text-muted-foreground hover:text-foreground hover:bg-muted/50 transition-colors cursor-pointer border-none bg-transparent w-full text-left"
+                  >
+                    <LogOut className="h-4 w-4 shrink-0" />
+                    <span>Sign Out</span>
+                  </button>
+                </>
+              ) : (
+                <>
+                  <Link
+                    href="/login"
+                    onClick={() => setMobileOpen(false)}
+                    className="flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium text-muted-foreground hover:text-foreground hover:bg-muted/50 transition-colors cursor-pointer border-none bg-transparent w-full text-left"
+                  >
+                    <LogIn className="h-4 w-4 shrink-0" />
+                    <span>Sign In</span>
+                  </Link>
+                  <Link
+                    href="/register"
+                    onClick={() => setMobileOpen(false)}
+                    className="flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium text-primary hover:text-primary/80 transition-colors cursor-pointer border-none bg-transparent w-full text-left"
+                  >
+                    <UserPlus className="h-4 w-4 shrink-0" />
+                    <span>Register</span>
+                  </Link>
+                </>
+              )}
             </nav>
           </div>
         </>
