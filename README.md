@@ -1,85 +1,34 @@
 # LeetCode Must-Do Sheet
 
-A curated LeetCode progress tracker with filtering, dark/light mode, solved-state persistence, URL-synced state, Supabase Auth with progress sync.
+A curated LeetCode progress tracker that helps you systematically master DSA patterns for coding interviews. Instead of bouncing between hundreds of random problems, you get a structured learning path organized by pattern — from Arrays & Hashing to Dynamic Programming — with built-in progress tracking, cloud sync, and smart filtering.
 
-## Features
+## The Problem It Solves
 
-- **Curated Problem Set** — 634 must-do LeetCode problems with difficulty ratings, frequency scores, and DSA topic tags
-- **Progress Tracking** — Track solved problems with persistent storage (Supabase for authenticated users)
-- **Authentication** — Email/password, Google, and GitHub auth via Supabase
-- **Dark/Light Mode** — Theme toggle with system preference detection
-- **Filtering & Search** — Filter by difficulty, topic, or search by problem name with debounced input
-- **Sticky Table Header** — Always-visible column headers while scrolling through large problem sets
-- **URL-Synced State** — Filter and search state persisted in URL query parameters
+LeetCode has thousands of problems but no clear roadmap. The "Must-Do Sheet" identifies the **645 most frequently asked problems** across 20 DSA patterns, ranked by frequency and ordered for progressive learning. You work through each pattern from easy to hard, checking off problems as you go.
+
+## Key Features
+
+- **Pattern-Based Curriculum** — 20 DSA patterns ordered as a learning path (Arrays → Two Pointers → Sliding Window → DP → Bit Manipulation). Each problem tagged with its pattern so you know what concept it's testing.
+- **Progress Dashboard** — SVG circular gauge and per-difficulty progress bars (Easy/Medium/Hard) showing exactly where you stand. Solved counts persist across sessions via Zustand and sync to Supabase when authenticated.
+- **Cross-Device Sync** — Sign in with Google, GitHub, or email to sync your solved state to the cloud. Your progress follows you between devices.
+- **Smart Filtering** — Filter by difficulty, DSA pattern, or problem name (debounced search). Sort by ID, difficulty, or frequency. All filter state is stored in URL params so links are shareable.
+- **Daily Pick One** — A deterministic daily pick from your unsolved problems. Seed is date-based, so everyone gets the same problem on the same day.
+- **Dark & Light Mode** — System-aware theme toggle with hydration-safe persistence.
+- **Guest Mode** — Browse and see the full problem set without signing up. Toggle is a no-op for guests (Option 2 — no localStorage progress for unauthenticated users).
 
 ## Tech Stack
 
-- **Framework:** Next.js (App Router)
-- **Language:** TypeScript
-- **Styling:** Tailwind CSS v4 + shadcn/v4
-- **State Management:** Zustand + URL search params
-- **Database:** Supabase (PostgreSQL)
-- **Auth:** Supabase Auth with `@supabase/ssr`
+- **Frontend:** Next.js 16 (App Router), React 19, TypeScript (strict)
+- **Styling:** Tailwind CSS v4, shadcn/v4 UI primitives
+- **State:** Zustand (local persistence), URL search params (filter/sort/pagination)
+- **Auth:** Supabase Auth with `@supabase/ssr` (cookie-based SSR sessions)
+- **Database:** Supabase PostgreSQL (problem_progress + profiles)
+- **Deployment:** Vercel
 
-## Getting Started
+## Project Status
 
-```bash
-npm install
-npm run dev
-```
+Build passes with 0 errors (TypeScript, ESLint, `next build`). Core functionality complete. Streaks and Daily Challenge pages are placeholders awaiting implementation. Live at `https://leetcode-must-do-sheet.vercel.app`.
 
-Open [http://localhost:3000](http://localhost:3000).
+## Database
 
-## Environment Variables
-
-Create `.env.local` with the following:
-
-```env
-NEXT_PUBLIC_SUPABASE_URL=your_supabase_project_url
-NEXT_PUBLIC_SUPABASE_ANON_KEY=your_supabase_anon_key
-```
-
-A template is available in `.env.example`.
-
-## Build
-
-```bash
-npm run build
-```
-
-## Project Structure
-
-```
-src/
-├── app/                    # App Router pages
-│   ├── page.tsx           # Landing page
-│   ├── problemset/        # Main problem list (moved from /)
-│   ├── login/             # Login page
-│   ├── register/          # Registration page
-│   ├── forgot-password/   # Password reset flow
-│   ├── dashboard/         # Progress dashboard
-│   ├── streaks/           # Streaks tracker (placeholder)
-│   ├── daily-challenge/   # Daily challenge (placeholder)
-│   ├── auth/              # Auth callback & password update
-│   ├── profile/           # User profile (placeholder)
-│   └── settings/          # User settings
-├── components/            # Shared components
-│   ├── common/            # Logo, DifficultyBadge, ErrorBoundary
-│   ├── layout/            # Navbar
-│   ├── problems/          # ProblemRow, ProblemTable, FilterBar
-│   ├── ui/                # shadcn UI primitives (Button, Input, etc.)
-│   └── dashboard/         # ProgressPanel
-├── constants/             # Problem data definitions
-├── hooks/                 # Custom hooks (use-debounce, etc.)
-├── lib/                   # Utility libraries (supabase client, logger)
-├── providers/             # Auth provider, Theme provider
-└── store/                 # Zustand stores (problem-store)
-```
-
-## Database Schema
-
-The `problem_progress` table uses `(user_id, problem_slug)` as a composite unique key. Columns: `user_id`, `problem_slug`, `solved` (boolean), `created_at`, `updated_at`.
-
-## Deployment
-
-Deployed on Vercel. Set `NEXT_PUBLIC_SUPABASE_URL` and `NEXT_PUBLIC_SUPABASE_ANON_KEY` in Vercel environment variables. Configure OAuth redirect URLs in Supabase Dashboard under Authentication > URL Configuration.
+`problem_progress` uses `(user_id, problem_slug)` as a composite unique key. `profiles` stores user display name and email, auto-created on first auth event. RLS policies needed for production hardening.
