@@ -10,10 +10,6 @@ import {
   UserPlus,
   LogOut,
   User,
-  ListChecks,
-  LayoutDashboard,
-  Flame,
-  Trophy,
   Menu,
   X,
 } from "lucide-react";
@@ -22,13 +18,6 @@ import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { useAuth } from "@/providers/auth-provider";
 import { signOut } from "@/lib/auth";
-
-const navItems = [
-  { name: "Problem Set", icon: ListChecks, active: true },
-  { name: "Dashboard", icon: LayoutDashboard },
-  { name: "Streaks", icon: Flame },
-  { name: "Daily Challenge", icon: Trophy },
-];
 
 export function Navbar() {
   const { resolvedTheme, setTheme } = useTheme();
@@ -47,25 +36,6 @@ export function Navbar() {
     <header className="sticky top-0 z-50 w-full border-b border-border bg-background/80 backdrop-blur-lg px-4 sm:px-6 lg:px-8 h-14 sm:h-16 flex items-center justify-between gap-2 sm:gap-4">
       <div className="flex items-center gap-2 sm:gap-8">
         <Logo />
-        <nav className="hidden md:flex items-center gap-1">
-          {navItems.map((item) => (
-            <button
-              key={item.name}
-              className={cn(
-                "flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-colors cursor-pointer border-none bg-transparent relative",
-                item.active
-                  ? "text-primary"
-                  : "text-muted-foreground hover:text-foreground",
-              )}
-            >
-              <item.icon className="h-4 w-4" />
-              <span>{item.name}</span>
-              {item.active && (
-                <span className="absolute bottom-[-6px] left-1/2 -translate-x-1/2 w-6 h-0.5 bg-primary rounded-full" />
-              )}
-            </button>
-          ))}
-        </nav>
       </div>
 
       <div className="flex items-center gap-1 sm:gap-3">
@@ -153,24 +123,6 @@ export function Navbar() {
           />
           <div className="absolute top-14 sm:top-16 left-0 right-0 z-50 bg-background border-b border-border shadow-lg md:hidden animate-in fade-in slide-in-from-top-2 duration-200">
             <nav className="flex flex-col p-3 gap-1">
-              {navItems.map((item) => (
-                <button
-                  key={item.name}
-                  onClick={() => setMobileOpen(false)}
-                  className={cn(
-                    "flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium transition-colors cursor-pointer border-none bg-transparent w-full text-left",
-                    item.active
-                      ? "text-primary bg-primary/5"
-                      : "text-muted-foreground hover:text-foreground hover:bg-muted/50",
-                  )}
-                >
-                  <item.icon className="h-4 w-4 shrink-0" />
-                  <span>{item.name}</span>
-                  {item.active && (
-                    <span className="ml-auto w-1.5 h-1.5 rounded-full bg-primary" />
-                  )}
-                </button>
-              ))}
               <hr className="my-2 border-border" />
               {user ? (
                 <>
