@@ -2,6 +2,7 @@
 
 import React from "react";
 import { useTheme } from "next-themes";
+import Link from "next/link";
 import {
   Sun,
   Moon,
@@ -76,22 +77,26 @@ export function Navbar() {
           </Button>
         )}
 
-        <Button
-          variant="outline"
-          size="sm"
-          className="hidden sm:inline-flex gap-1.5 font-medium shadow-sm transition-colors cursor-pointer border-none"
-        >
-          <LogIn className="h-3.5 w-3.5" />
-          <span>Sign In</span>
-        </Button>
+        <Link href="/login">
+          <Button
+            variant="outline"
+            size="sm"
+            className="hidden sm:inline-flex gap-1.5 font-medium shadow-sm transition-colors cursor-pointer border-none"
+          >
+            <LogIn className="h-3.5 w-3.5" />
+            <span>Sign In</span>
+          </Button>
+        </Link>
 
-        <Button
-          size="sm"
-          className="hidden sm:inline-flex gap-1.5 bg-primary hover:bg-brand-hover text-white font-medium shadow-sm transition-colors cursor-pointer border-none"
-        >
-          <UserPlus className="h-3.5 w-3.5" />
-          <span>Register</span>
-        </Button>
+        <Link href="/register">
+          <Button
+            size="sm"
+            className="hidden sm:inline-flex gap-1.5 bg-primary hover:bg-brand-hover text-white font-medium shadow-sm transition-colors cursor-pointer border-none"
+          >
+            <UserPlus className="h-3.5 w-3.5" />
+            <span>Register</span>
+          </Button>
+        </Link>
 
         <Button
           variant="ghost"

@@ -194,12 +194,12 @@ function HomeContent() {
   }, [solvedSet]);
 
   const PAGE_SIZE = 50;
-  const page = parseInt(searchParams.get("page") ?? "0", 10);
+  const page = parseInt(searchParams.get("page") ?? "1", 10) - 1;
   const setPage = useCallback(
     (nextPage: number) => {
       const params = new URLSearchParams(window.location.search);
-      if (nextPage > 0) {
-        params.set("page", String(nextPage));
+      if (nextPage >= 0) {
+        params.set("page", String(nextPage + 1));
       } else {
         params.delete("page");
       }

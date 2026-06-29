@@ -1,12 +1,14 @@
 "use client";
 
+import { useState, useEffect } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { useTheme } from "next-themes";
 
 export function Logo() {
   const { resolvedTheme } = useTheme();
-  const mounted = true;
+  const [mounted, setMounted] = useState(false);
+  useEffect(() => { setMounted(true); }, []);
 
   // Fallback paths during SSR to prevent visual flash
   const iconSrc =
