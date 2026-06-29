@@ -1,6 +1,13 @@
 "use client";
 
-import { Suspense, useCallback, useMemo, useState } from "react";
+import {
+  Suspense,
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import {
@@ -38,6 +45,11 @@ import {
 } from "@/components/ui/table";
 import { useProblemStore } from "@/store/problem-store";
 import { cn } from "@/lib/utils";
+import { useAuth } from "@/providers/auth-provider";
+import {
+  upsertProblemProgress,
+  syncSolvedProblems,
+} from "@/lib/services/problem-progress";
 import type { Problem } from "@/constants/problems";
 
 const DIFFICULTIES = ["Easy", "Medium", "Hard"] as const;
@@ -147,12 +159,70 @@ function HomeContent() {
   const { list, uniquePatterns, q, difficulty, pattern, sort, dir } =
     useFilteredProblems();
   const solvedProblemIds = useProblemStore((s) => s.solvedProblemIds);
-  const toggleSolved = useProblemStore((s) => s.toggleProblemSolved);
+  const toggleProblemSolved = useProblemStore((s) => s.toggleProblemSolved);
+  const setSolvedProblemIds = useProblemStore((s) => s.setSolvedProblemIds);
+  const { user } = useAuth();
+  const synced = useRef(false);
+  const prevUserId = useRef<string | undefined>(undefined);
   const solvedSet = useMemo(
-    () => new Set(solvedProblemIds),
-    [solvedProblemIds],
+    () => (user ? new Set(solvedProblemIds) : new Set()),
+    [solvedProblemIds, user],
   );
   const [showProgress, setShowProgress] = useState(false);
+
+  useEffect(() => {
+    const currentUserId = user?.id;
+    const previousUserId = prevUserId.current;
+    prevUserId.current = currentUserId;
+
+    if (!user) {
+      synced.current = false;
+      return;
+    }
+
+    if (currentUserId !== previousUserId) {
+      setSolvedProblemIds([]);
+      synced.current = false;
+    }
+
+    if (!synced.current) {
+      synced.current = true;
+      syncSolvedProblems(user.id, useProblemStore.getState().solvedProblemIds)
+        .then((merged) => {
+          setSolvedProblemIds(merged);
+        })
+        .catch((err) => {
+          console.error("Error syncing problems:", JSON.stringify(err));
+          console.error(err);
+        });
+    }
+  }, [user, setSolvedProblemIds]);
+
+  const toggleSolved = useCallback(
+    async (id: number) => {
+      if (!user) return;
+      const store = useProblemStore.getState();
+      const wasSolved = store.solvedProblemIds.includes(id);
+      const newSolved = wasSolved
+        ? store.solvedProblemIds.filter((pId) => pId !== id)
+        : [...store.solvedProblemIds, id];
+      toggleProblemSolved(id);
+      const problem = PROBLEMS.find((p) => p.id === id);
+      if (problem) {
+        const isSolved = newSolved.includes(id);
+        const slug = problem.link.replace(/\/$/, "").split("/").pop() ?? String(id);
+        try {
+          await upsertProblemProgress(user.id, slug, isSolved);
+        } catch (err) {
+          toggleProblemSolved(id);
+          const e = err as { message?: string; code?: string; details?: string; hint?: string };
+          console.error("Error updating problem progress:", JSON.stringify(err));
+          console.error({ message: e?.message, code: e?.code, details: e?.details, hint: e?.hint });
+        }
+      }
+    },
+    [user, toggleProblemSolved],
+  );
 
   const setParam = useCallback(
     (key: string, value: string) => {
@@ -388,7 +458,7 @@ function HomeContent() {
         {/* Desktop Table */}
         <div className="hidden md:block rounded-2xl border border-border overflow-x-auto bg-card shadow-sm">
           <Table>
-            <TableHeader>
+            <TableHeader className="sticky top-0 z-10">
               <TableRow className="bg-muted/30">
                 <TableHead className="w-10 text-center">#</TableHead>
                 <TableHead>Title</TableHead>

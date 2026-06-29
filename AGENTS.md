@@ -5,41 +5,38 @@ This version has breaking changes — APIs, conventions, and file structure may 
 <!-- END:nextjs-agent-rules -->
 
 ## Goal
-- Build a polished LeetCode Must-Do progress tracker with filtering, dark/light mode, solved-state persistence, and URL-synced state.
+- Build a polished LeetCode Must-Do progress tracker with filtering, dark/light mode, solved-state persistence, URL-synced state, Supabase Auth with progress sync, and deployment readiness.
 
 ## Constraints & Preferences
-- Next.js 16, React 19, Tailwind v4, shadcn/ui (Radix), Zustand, next-themes
-- 626 curated LeetCode problems (IDs 1–2707 with gaps) — each has id, name, link, difficulty, patterns, frequency (%), companies count
-- Desktop table + mobile card layouts; side-by-side layout: progress panel (left) + toolbar/table (right)
-- URL-based state for search, difficulty, pattern, sort key/direction; Zustand persist only for solved IDs
-- Daily deterministic "Pick One" from full 626 list using date seed
-- Background `#262626` (dark) / `bg-muted/50` (light) behind progress panel
+- Do not change design, fonts, colors, or existing UI styling.
+- Use Supabase Auth (not next-auth) with `@supabase/ssr` for SSR cookie-based sessions.
+- Keep the same form fields and layout on login/register pages.
+- Guests always see 0 solved problems (Option 2 — no localStorage for guests).
+- Use `problem_slug` as the unique identifier in Supabase (no `problem_id` column).
 
 ## Progress
 ### Done
-- Reviewed full project: architecture, UI, state, code quality (score 7.5/10)
-- Added 626 problems in `src/constants/problems.ts` with updated `Problem` interface
-- Created `src/constants/problem-meta.ts` — compact `Record<number, { f: string; c: number }>`
-- Derived `uniquePatterns` dynamically from data
-- Merged metadata into problem objects via `.map((p) => ({ ...p, ...PROBLEM_META[p.id] }))`
-- Added frequency & companies columns to table; moved ExternalLink inline next to problem name
-- Replaced old filter UI with unified toolbar: search, difficulty filter, pattern filter, sort buttons (ID/Diff/Freq/Comp), Pick One button
-- Switched filter/sort state from Zustand to URL search params (`?q=`, `?difficulty=`, `?pattern=`, `?sort=`, `?dir=`, `?page=`)
-- Removed sidebar; moved navbar into full top bar with nav links (Problem Set, Dashboard, Streaks, Daily Challenge)
-- Moved ProgressPanel to main page in left column; title/description above it
-- Added `bg-[#262626]/bg-muted/50` card wrapping left column
-- Unified progress panel styling: larger gauge (150px SVG, 160px container), bigger fonts, streak & target stats, difficulty cards with progress bars
-- Added search clear button, sticky table header, refined sort button active states, empty state polish
-- Removed `#` prefix from mobile card ID for consistency
-- Renamed "All Difficulties" → "Difficulty", "All Patterns" → "Patterns"
-- Reduced overall padding/margins for tighter professional layout; added `border-l-2 border-primary` accent on title
-- Navbar polish: h-14 height, backdrop-blur, nav icons, active indicator dot, theme toggle icon button
-- Table polish: striped header, compact rows, difficulty badges with semantic colors
-- Pagination in URL params (resets on filter change automatically)
-- Fixed store API usage (`solvedProblemIds` array → derived Set for O(1) lookup)
-- Wrapped `useSearchParams` in `<Suspense>` boundary for Next.js build compatibility
-- TypeScript compiles cleanly (`tsc --noEmit` — no errors)
-- Production build succeeds (`npm run build` — no errors or warnings)
+- Supabase auth with Google, GitHub, email/password — all working.
+- Three Supabase clients (browser, server, middleware) using `@supabase/ssr`.
+- Auth provider with `useAuth()` hook exposing `user`, `loading`, `login()`, `register()`, `googleLogin()`, `githubLogin()`, `logout()`.
+- Auto-creates `profiles` row on first auth event.
+- Problem-progress sync: `upsertProblemProgress()`, `getSolvedProblemSlugs()`, `syncSolvedProblems()` — all use `problem_slug` only.
+- Guest mode: `solvedSet` returns empty when `user` is null; toggle is a no-op for guests.
+- Cross-user sync fix: `prevUserId` ref clears store on user change, then fetches remote data as source of truth.
+- Sticky table header (`sticky top-0 z-10` on `<TableHeader>`).
+- Toggle revert on Supabase error (calls `toggleProblemSolved` again to undo optimistic update).
+- Navbar links: Problem Set, Dashboard, Streaks, Daily Challenge with active-state indicators (desktop + mobile).
+- Placeholder pages created: `/dashboard`, `/profile`, `/settings`, `/streaks`, `/daily-challenge`.
+- Unused Zustand fields removed from `problem-store.ts` (kept only what's actually consumed).
+- Stale `sidebar.tsx` deleted; empty barrel files (`theme-store.ts`, `user-store.ts`, `use-auth.ts`) deleted; `src/lib/auth.ts` deleted.
+- `alert()` calls replaced with inline error state in forgot-password and update-password pages.
+- Open redirect fixed in `/auth/callback` — validates `next` param with `isSafePath()`.
+- Sign-out inconsistency fixed — navbar now uses `logout()` from `useAuth()`.
+- Hydration-safe theme toggle & logo using `useSyncExternalStore` (React 19-compatible, no lint warnings).
+- Unused npm deps removed (23 packages); `shadcn` moved to devDependencies.
+- Removed `@import "shadcn/tailwind.css"` from `globals.css` — shadcn v4 CLI doesn't ship this file; CSS variables are defined locally.
+- ESLint config ignores `scripts/` directory (CommonJS require errors in `.cjs` file).
+- Build passes with 0 errors (TypeScript, lint, and `next build`).
 
 ### In Progress
 - (none)
@@ -48,37 +45,32 @@ This version has breaking changes — APIs, conventions, and file structure may 
 - (none)
 
 ## Key Decisions
-- Frequency & companies stored in separate `problem-meta.ts` (compact `Record`) rather than inlining into every problem entry — avoids rewriting the massive `problems.ts` file
-- URL search params for all filter/sort state (Zustand only for solved IDs) — enables shareable URLs, cleaner state management
-- Side-by-side layout (desktop): progress panel left (340–360px), toolbar + table right — efficient space use
-- Background `bg-muted/50` (light) / `dark:bg-[#262626]` (dark) behind left column for visual separation
-- Page encoded in URL too — resets to 0 when filters change (no stale pagination)
+- Use `useSyncExternalStore` (React 19 pattern) instead of `useEffect` + `setState` for SSR hydration guards — avoids lint warnings and hydration mismatches.
+- Guest progress is never uploaded on login — store is cleared before remote fetch.
+- Problem progress table uses `(user_id, problem_slug)` composite unique key, no `problem_id` column.
+- All protected routes (`/dashboard`, `/profile`, `/settings`, `/streaks`, `/daily-challenge`) have placeholder pages to prevent 404 redirect loops.
+- `shadcn` v4 doesn't ship `tailwind.css` — all CSS variables defined in `globals.css`; no package CSS import needed.
+
+## Next Steps
+1. Deploy to Vercel — set `NEXT_PUBLIC_SUPABASE_URL` and `NEXT_PUBLIC_SUPABASE_ANON_KEY` in Vercel Dashboard.
 
 ## Critical Context
-- Pre-existing lint warnings in `logo.tsx:13` and `navbar.tsx:21` (`setMounted(true)` inside `useEffect` — React 19 strict mode) are pre-existing and unrelated
-- Zustand store still retains unused fields (`searchQuery`, `selectedDifficulty`, `selectedPattern`, `setSearchQuery`, `setSelectedDifficulty`, `setSelectedPattern`, `resetFilters`) — harmless
-- ProgressPanel has its own reset confirm modal; AppLayout also has a global one — redundant but both work independently
-- `src/constants/problems.ts` exports `DUMMY_PROBLEMS` (raw, no meta) and `PROBLEMS` (merged with meta via `.map`)
+- `.env.local` has Supabase credentials (ignored by git via `.gitignore`).
+- Build passes with 0 errors on clean install; dev server starts without CSS errors.
+- `next.config.ts` has `images.remotePatterns` for `lh3.googleusercontent.com` and `avatars.githubusercontent.com`.
+- `shadcn` is a devDependency (CLI only, not needed at runtime).
 
 ## Relevant Files
-- `src/app/page.tsx`: main page with URL-synced filters, toolbar, table, left column with progress
-- `src/components/layout/navbar.tsx`: top nav bar with nav links + theme toggle + sign in
-- `src/components/layout/app-layout.tsx`: layout wrapper (no sidebar)
-- `src/components/layout/problem-card.tsx`: mobile card view
-- `src/components/dashboard/progress-panel.tsx`: circular SVG gauge + difficulty breakdown
-- `src/components/common/logo.tsx`: LeetCode logo with theme-aware images
-- `src/constants/problems.ts`: 626 problem entries + merged PROBLEMS export
-- `src/constants/problem-meta.ts`: compact frequency & companies lookup
-- `src/store/problem-store.ts`: Zustand persist with hydration flag (solved IDs only)
+- `src/app/globals.css`: Tailwind v4 + tw-animate-css imports, custom CSS variables, `@theme inline` with shadcn tokens.
+- `src/app/page.tsx`: Main problem list with filters, sticky table header, guest-mode guards, Supabase sync.
+- `src/components/layout/navbar.tsx`: Nav links, theme toggle, avatar, sign-out using `useAuth().logout`.
+- `src/lib/services/problem-progress.ts`: All functions use `problem_slug` only, no `problem_id`.
+- `middleware.ts`: Protects `/dashboard`, `/profile`, `/settings`.
+- `src/app/auth/callback/route.ts`: Open redirect fixed with `isSafePath()` validation.
+- `src/store/problem-store.ts`: Zustand persist with hydration flag (solved IDs only, no unused fields).
 
 ## Commands
 - `npm run dev` — development server
 - `npm run build` — production build (must pass before committing)
 - `npm run lint` — ESLint (pre-existing warnings only)
 - `npx tsc --noEmit` — TypeScript check
-
-<!-- BEGIN:nextjs-agent-rules -->
-# This is NOT the Next.js you know
-
-This version has breaking changes — APIs, conventions, and file structure may all differ from your training data. Read the relevant guide in `node_modules/next/dist/docs/` before writing any code. Heed deprecation notices.
-<!-- END:nextjs-agent-rules -->

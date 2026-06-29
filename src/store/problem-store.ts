@@ -3,18 +3,10 @@ import { persist } from "zustand/middleware";
 
 interface ProblemState {
   solvedProblemIds: number[];
-  searchQuery: string;
-  selectedDifficulty: string;
-  selectedPattern: string;
-  isHydrated: boolean;
   toggleProblemSolved: (id: number) => void;
   isProblemSolved: (id: number) => boolean;
-  setSearchQuery: (query: string) => void;
-  setSelectedDifficulty: (difficulty: string) => void;
-  setSelectedPattern: (pattern: string) => void;
-  setHydrated: (hydrated: boolean) => void;
+  setSolvedProblemIds: (ids: number[]) => void;
   resetProgress: () => void;
-  resetFilters: () => void;
   showResetConfirm: boolean;
   setShowResetConfirm: (show: boolean) => void;
 }
@@ -23,10 +15,7 @@ export const useProblemStore = create<ProblemState>()(
   persist(
     (set, get) => ({
       solvedProblemIds: [],
-      searchQuery: "",
-      selectedDifficulty: "All",
-      selectedPattern: "All",
-      isHydrated: false,
+      showResetConfirm: false,
 
       toggleProblemSolved: (id) =>
         set((state) => {
@@ -39,25 +28,15 @@ export const useProblemStore = create<ProblemState>()(
 
       isProblemSolved: (id) => get().solvedProblemIds.includes(id),
 
-      setSearchQuery: (query) => set({ searchQuery: query }),
-      setSelectedDifficulty: (difficulty) => set({ selectedDifficulty: difficulty }),
-      setSelectedPattern: (pattern) => set({ selectedPattern: pattern }),
-      setHydrated: (hydrated) => set({ isHydrated: hydrated }),
+      setSolvedProblemIds: (ids) => set({ solvedProblemIds: ids }),
 
       resetProgress: () => set({ solvedProblemIds: [] }),
-      resetFilters: () => set({ searchQuery: "", selectedDifficulty: "All", selectedPattern: "All" }),
-      showResetConfirm: false,
+
       setShowResetConfirm: (show) => set({ showResetConfirm: show }),
     }),
     {
       name: "leetcode-tracker-problems",
-      // Only persist the completed problem IDs, not search/filters/hydration status
       partialize: (state) => ({ solvedProblemIds: state.solvedProblemIds }),
-      onRehydrateStorage: () => (state) => {
-        if (state) {
-          state.setHydrated(true);
-        }
-      },
-    }
-  )
+    },
+  ),
 );

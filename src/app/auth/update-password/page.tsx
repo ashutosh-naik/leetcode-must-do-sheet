@@ -9,34 +9,37 @@ export default function UpdatePasswordPage() {
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
+  const [success, setSuccess] = useState(false);
 
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
+    setError("");
     setLoading(true);
 
     if (!password || !confirmPassword) {
-      alert("Please fill all fields");
+      setError("Please fill all fields");
       setLoading(false);
       return;
     }
 
     if (password !== confirmPassword) {
-      alert("Passwords do not match");
+      setError("Passwords do not match");
       setLoading(false);
       return;
     }
 
-    const { error } = await supabase.auth.updateUser({ password });
+    const { error: err } = await supabase.auth.updateUser({ password });
 
     setLoading(false);
 
-    if (error) {
-      alert(error.message);
+    if (err) {
+      setError(err.message);
       return;
     }
 
-    alert("Password updated successfully!");
-    router.push("/");
+    setSuccess(true);
+    setTimeout(() => router.push("/"), 1500);
   }
 
   return (
@@ -46,39 +49,53 @@ export default function UpdatePasswordPage() {
           <h1 className="mb-2 text-center text-xl font-bold tracking-tight">
             Update Password
           </h1>
-          <form onSubmit={handleSubmit} className="space-y-4">
-            <div>
-              <label className="mb-1.5 block text-sm font-medium text-foreground">
-                New Password
-              </label>
-              <input
-                type="password"
-                placeholder="Enter new password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                className="h-10 w-full rounded-xl border border-border bg-background px-3 text-sm outline-none focus-visible:border-primary focus-visible:ring-1 focus-visible:ring-primary transition-colors placeholder:text-muted-foreground/60"
-              />
+          {success ? (
+            <div className="text-center space-y-4">
+              <p className="text-sm text-green-500 font-medium">
+                Password updated successfully!
+              </p>
+              <p className="text-sm text-muted-foreground">
+                Redirecting to home...
+              </p>
             </div>
-            <div>
-              <label className="mb-1.5 block text-sm font-medium text-foreground">
-                Confirm New Password
-              </label>
-              <input
-                type="password"
-                placeholder="Confirm new password"
-                value={confirmPassword}
-                onChange={(e) => setConfirmPassword(e.target.value)}
-                className="h-10 w-full rounded-xl border border-border bg-background px-3 text-sm outline-none focus-visible:border-primary focus-visible:ring-1 focus-visible:ring-primary transition-colors placeholder:text-muted-foreground/60"
-              />
-            </div>
-            <button
-              type="submit"
-              disabled={loading}
-              className="w-full h-10 rounded-xl bg-primary hover:bg-brand-hover text-white font-medium shadow-sm transition-colors cursor-pointer border-none disabled:opacity-50"
-            >
-              {loading ? "Updating..." : "Update Password"}
-            </button>
-          </form>
+          ) : (
+            <form onSubmit={handleSubmit} className="space-y-4">
+              <div>
+                <label className="mb-1.5 block text-sm font-medium text-foreground">
+                  New Password
+                </label>
+                <input
+                  type="password"
+                  placeholder="Enter new password"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  className="h-10 w-full rounded-xl border border-border bg-background px-3 text-sm outline-none focus-visible:border-primary focus-visible:ring-1 focus-visible:ring-primary transition-colors placeholder:text-muted-foreground/60"
+                />
+              </div>
+              <div>
+                <label className="mb-1.5 block text-sm font-medium text-foreground">
+                  Confirm New Password
+                </label>
+                <input
+                  type="password"
+                  placeholder="Confirm new password"
+                  value={confirmPassword}
+                  onChange={(e) => setConfirmPassword(e.target.value)}
+                  className="h-10 w-full rounded-xl border border-border bg-background px-3 text-sm outline-none focus-visible:border-primary focus-visible:ring-1 focus-visible:ring-primary transition-colors placeholder:text-muted-foreground/60"
+                />
+              </div>
+              {error && (
+                <p className="text-sm text-red-500">{error}</p>
+              )}
+              <button
+                type="submit"
+                disabled={loading}
+                className="w-full h-10 rounded-xl bg-primary hover:bg-brand-hover text-white font-medium shadow-sm transition-colors cursor-pointer border-none disabled:opacity-50"
+              >
+                {loading ? "Updating..." : "Update Password"}
+              </button>
+            </form>
+          )}
         </div>
       </div>
     </main>

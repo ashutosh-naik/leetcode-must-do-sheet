@@ -1,8 +1,10 @@
 "use client";
 
-import React from "react";
+import React, { useSyncExternalStore } from "react";
 import { useTheme } from "next-themes";
 import Link from "next/link";
+import Image from "next/image";
+import { usePathname } from "next/navigation";
 import {
   Sun,
   Moon,
@@ -12,30 +14,70 @@ import {
   User,
   Menu,
   X,
+  ListChecks,
+  LayoutDashboard,
+  Flame,
+  Trophy,
 } from "lucide-react";
 import { Logo } from "@/components/common/logo";
 import { Button } from "@/components/ui/button";
-import { cn } from "@/lib/utils";
 import { useAuth } from "@/providers/auth-provider";
-import { signOut } from "@/lib/auth";
+
+const navLinks = [
+  { href: "/", label: "Problem Set", icon: ListChecks },
+  { href: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
+  { href: "/streaks", label: "Streaks", icon: Flame },
+  { href: "/daily-challenge", label: "Daily Challenge", icon: Trophy },
+];
 
 export function Navbar() {
+  const pathname = usePathname();
   const { resolvedTheme, setTheme } = useTheme();
-  const { user, loading } = useAuth();
-  const [mounted, setMounted] = React.useState(false);
+  const { user, loading, logout } = useAuth();
   const [mobileOpen, setMobileOpen] = React.useState(false);
-  React.useEffect(() => {
-    setMounted(true);
-  }, []);
+  const mounted = useSyncExternalStore(
+    () => () => {},
+    () => true,
+    () => false,
+  );
 
   async function handleSignOut() {
-    await signOut();
+    await logout();
   }
+
+  const avatarUrl = user?.user_metadata?.avatar_url;
+  const displayName =
+    user?.user_metadata?.name ??
+    user?.user_metadata?.username ??
+    user?.email?.split("@")[0] ??
+    "User";
 
   return (
     <header className="sticky top-0 z-50 w-full border-b border-border bg-background/80 backdrop-blur-lg px-4 sm:px-6 lg:px-8 h-14 sm:h-16 flex items-center justify-between gap-2 sm:gap-4">
       <div className="flex items-center gap-2 sm:gap-8">
         <Logo />
+        <nav className="hidden md:flex items-center gap-1">
+          {navLinks.map((link) => {
+            const isActive = pathname === link.href;
+            return (
+              <Link
+                key={link.href}
+                href={link.href}
+                className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm font-medium transition-colors ${
+                  isActive
+                    ? "text-primary bg-primary/10"
+                    : "text-muted-foreground hover:text-foreground hover:bg-muted/50"
+                }`}
+              >
+                <link.icon className="h-4 w-4" />
+                <span>{link.label}</span>
+                {isActive && (
+                  <span className="size-1.5 rounded-full bg-primary" />
+                )}
+              </Link>
+            );
+          })}
+        </nav>
       </div>
 
       <div className="flex items-center gap-1 sm:gap-3">
@@ -60,10 +102,18 @@ export function Navbar() {
           (user ? (
             <>
               <div className="hidden sm:flex items-center gap-2 px-3 py-1.5 rounded-lg bg-muted/50 text-sm text-muted-foreground">
-                <User className="h-3.5 w-3.5" />
-                <span className="max-w-[120px] truncate">
-                  {user.user_metadata?.username || user.email}
-                </span>
+                {avatarUrl ? (
+                  <Image
+                    src={avatarUrl}
+                    alt=""
+                    width={20}
+                    height={20}
+                    className="size-5 rounded-full object-cover"
+                  />
+                ) : (
+                  <User className="h-3.5 w-3.5" />
+                )}
+                <span className="max-w-[120px] truncate">{displayName}</span>
               </div>
               <Button
                 variant="ghost"
@@ -123,14 +173,40 @@ export function Navbar() {
           />
           <div className="absolute top-14 sm:top-16 left-0 right-0 z-50 bg-background border-b border-border shadow-lg md:hidden animate-in fade-in slide-in-from-top-2 duration-200">
             <nav className="flex flex-col p-3 gap-1">
+              {navLinks.map((link) => {
+                const isActive = pathname === link.href;
+                return (
+                  <Link
+                    key={link.href}
+                    href={link.href}
+                    onClick={() => setMobileOpen(false)}
+                    className={`flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium transition-colors ${
+                      isActive
+                        ? "text-primary bg-primary/10"
+                        : "text-muted-foreground hover:text-foreground hover:bg-muted/50"
+                    }`}
+                  >
+                    <link.icon className="h-4 w-4 shrink-0" />
+                    <span>{link.label}</span>
+                  </Link>
+                );
+              })}
               <hr className="my-2 border-border" />
               {user ? (
                 <>
                   <div className="flex items-center gap-3 px-4 py-3 rounded-xl text-sm text-muted-foreground">
-                    <User className="h-4 w-4 shrink-0" />
-                    <span className="truncate">
-                      {user.user_metadata?.username || user.email}
-                    </span>
+                    {avatarUrl ? (
+                      <Image
+                        src={avatarUrl}
+                        alt=""
+                        width={20}
+                        height={20}
+                        className="size-5 rounded-full object-cover shrink-0"
+                      />
+                    ) : (
+                      <User className="h-4 w-4 shrink-0" />
+                    )}
+                    <span className="truncate">{displayName}</span>
                   </div>
                   <button
                     onClick={() => {

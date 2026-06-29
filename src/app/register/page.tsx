@@ -6,81 +6,66 @@ import Link from "next/link";
 import Image from "next/image";
 import { Logo } from "@/components/common/logo";
 import { Button } from "@/components/ui/button";
-import { supabase } from "@/lib/supabase";
+import { useAuth } from "@/providers/auth-provider";
 
 export default function RegisterPage() {
   const router = useRouter();
+  const { register, googleLogin, githubLogin } = useAuth();
   const [username, setUsername] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
+  const [success, setSuccess] = useState("");
 
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
     setLoading(true);
+    setError("");
+    setSuccess("");
 
     if (!username || !email || !password || !confirmPassword) {
-      alert("Please fill all fields");
+      setError("Please fill all fields");
       setLoading(false);
       return;
     }
 
     if (password !== confirmPassword) {
-      alert("Passwords do not match");
+      setError("Passwords do not match");
       setLoading(false);
       return;
     }
 
-    const { error } = await supabase.auth.signUp({
-      email,
-      password,
-      options: {
-        data: {
-          username,
-        },
-        emailRedirectTo: `${window.location.origin}/auth/callback?next=/`,
-      },
-    });
-
+    const err = await register(email, password, username);
     setLoading(false);
 
-    if (error) {
-      alert(error.message);
+    if (err) {
+      setError(err);
       return;
     }
 
-    alert(
-      "Account created! Check your email for a confirmation link.",
-    );
-    router.push("/login");
+    setSuccess("Account created! Check your email for a confirmation link.");
+    setTimeout(() => {
+      router.push("/login");
+    }, 2000);
   }
 
-  async function signInWithGoogle() {
-    const { error } = await supabase.auth.signInWithOAuth({
-      provider: "google",
-      options: {
-        redirectTo: `${window.location.origin}/auth/callback?next=/`,
-      },
-    });
-
-    if (error) {
-      alert(error.message);
+  const handleGoogleLogin = async () => {
+    try {
+      await googleLogin();
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "An error occurred");
     }
-  }
+  };
 
-  async function signInWithGitHub() {
-    const { error } = await supabase.auth.signInWithOAuth({
-      provider: "github",
-      options: {
-        redirectTo: `${window.location.origin}/auth/callback?next=/`,
-      },
-    });
-
-    if (error) {
-      alert(error.message);
+  const handleGitHubLogin = async () => {
+    try {
+      await githubLogin();
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "An error occurred");
     }
-  }
+  };
 
   return (
     <main className="flex min-h-screen items-center justify-center bg-background px-4 py-8">
@@ -93,6 +78,18 @@ export default function RegisterPage() {
           <h1 className="mb-2 text-center text-xl font-bold tracking-tight">
             Create Account
           </h1>
+
+          {error && (
+            <div className="mb-4 p-3 rounded-lg bg-destructive/10 text-destructive text-sm">
+              {error}
+            </div>
+          )}
+
+          {success && (
+            <div className="mb-4 p-3 rounded-lg bg-green-500/10 text-green-600 dark:text-green-400 text-sm">
+              {success}
+            </div>
+          )}
 
           <form onSubmit={handleSubmit} className="space-y-4">
             <div>
@@ -182,7 +179,7 @@ export default function RegisterPage() {
           <Button
             type="button"
             variant="outline"
-            onClick={signInWithGoogle}
+            onClick={handleGoogleLogin}
             className="flex-1 gap-2 font-medium cursor-pointer"
           >
             <Image src="/google.svg" alt="Google" width={20} height={20} />
@@ -191,7 +188,7 @@ export default function RegisterPage() {
           <Button
             type="button"
             variant="outline"
-            onClick={signInWithGitHub}
+            onClick={handleGitHubLogin}
             className="flex-1 gap-2 font-medium cursor-pointer"
           >
             <Image src="/github.svg" alt="GitHub" width={20} height={20} />

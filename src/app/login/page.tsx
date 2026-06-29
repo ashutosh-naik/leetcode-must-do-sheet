@@ -1,69 +1,55 @@
 "use client";
 
 import { useState } from "react";
-import { useRouter } from "next/navigation";
 import Link from "next/link";
 import Image from "next/image";
 import { Logo } from "@/components/common/logo";
 import { Button } from "@/components/ui/button";
-import { supabase } from "@/lib/supabase";
+import { useAuth } from "@/providers/auth-provider";
 
 export default function LoginPage() {
-  const router = useRouter();
+  const { login, googleLogin, githubLogin } = useAuth();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
 
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
     setLoading(true);
+    setError("");
 
     if (!email || !password) {
-      alert("Please fill all fields");
+      setError("Please fill all fields");
       setLoading(false);
       return;
     }
 
-    const { error } = await supabase.auth.signInWithPassword({
-      email,
-      password,
-    });
-
-    setLoading(false);
-
-    if (error) {
-      alert(error.message);
-      return;
-    }
-
-    router.push("/");
-  }
-
-  async function signInWithGoogle() {
-    const { error } = await supabase.auth.signInWithOAuth({
-      provider: "google",
-      options: {
-        redirectTo: `${window.location.origin}/auth/callback?next=/`,
-      },
-    });
-
-    if (error) {
-      alert(error.message);
+    try {
+      const err = await login(email, password);
+      setLoading(false);
+      if (err) setError(err);
+    } catch (err) {
+      setLoading(false);
+      setError(err instanceof Error ? err.message : "An error occurred");
     }
   }
 
-  async function signInWithGitHub() {
-    const { error } = await supabase.auth.signInWithOAuth({
-      provider: "github",
-      options: {
-        redirectTo: `${window.location.origin}/auth/callback?next=/`,
-      },
-    });
-
-    if (error) {
-      alert(error.message);
+  const handleGoogleLogin = async () => {
+    try {
+      await googleLogin();
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "An error occurred");
     }
-  }
+  };
+
+  const handleGitHubLogin = async () => {
+    try {
+      await githubLogin();
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "An error occurred");
+    }
+  };
 
   return (
     <main className="flex min-h-screen items-center justify-center bg-background px-4 py-8">
@@ -76,6 +62,12 @@ export default function LoginPage() {
           <h1 className="mb-2 text-center text-xl font-bold tracking-tight">
             Sign In
           </h1>
+
+          {error && (
+            <div className="mb-4 p-3 rounded-lg bg-destructive/10 text-destructive text-sm">
+              {error}
+            </div>
+          )}
 
           <form onSubmit={handleSubmit} className="space-y-4">
             <div>
@@ -144,7 +136,7 @@ export default function LoginPage() {
           <Button
             type="button"
             variant="outline"
-            onClick={signInWithGoogle}
+            onClick={handleGoogleLogin}
             className="flex-1 gap-2 font-medium cursor-pointer"
           >
             <Image src="/google.svg" alt="Google" width={20} height={20} />
@@ -153,7 +145,7 @@ export default function LoginPage() {
           <Button
             type="button"
             variant="outline"
-            onClick={signInWithGitHub}
+            onClick={handleGitHubLogin}
             className="flex-1 gap-2 font-medium cursor-pointer"
           >
             <Image src="/github.svg" alt="GitHub" width={20} height={20} />
