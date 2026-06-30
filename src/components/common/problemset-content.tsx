@@ -131,9 +131,6 @@ function useFilteredProblems(defaultFilter = "") {
         ),
       );
     }
-    if (filter === "solved") {
-      list = [];
-    }
 
     if (sort !== "default") {
       list.sort((a, b) => {
