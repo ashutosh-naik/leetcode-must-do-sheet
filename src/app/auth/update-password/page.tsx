@@ -2,8 +2,10 @@
 
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
+import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { Logo } from "@/components/common/logo";
 import { supabase } from "@/lib/supabase";
 
 export default function UpdatePasswordPage() {
@@ -52,6 +54,11 @@ export default function UpdatePasswordPage() {
   return (
     <main className="flex min-h-screen items-center justify-center bg-background px-4 py-8">
       <div className="w-full max-w-md space-y-6">
+        <div className="flex justify-center">
+          <Link href="/">
+            <Logo />
+          </Link>
+        </div>
         <div className="rounded-2xl border border-border bg-card p-6 sm:p-8 shadow-sm">
           <h1 className="mb-2 text-center text-xl font-bold tracking-tight">
             Update Password

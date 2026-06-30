@@ -171,7 +171,7 @@ function useFilteredProblems(defaultFilter = "") {
     }
 
     return { list, uniquePatterns };
-  }, [q, difficulty, pattern, filter, sort, dir, uniquePatterns]);
+  }, [q, difficulty, pattern, sort, dir, uniquePatterns]);
 
   return { ...filtered, q, difficulty, pattern, filter, sort, dir, difficultyCounts, patternCounts };
 }
@@ -338,7 +338,7 @@ export function ProblemsetContent({ defaultFilter = "" }: { defaultFilter?: stri
   return (
     <div className="flex flex-col gap-4 sm:gap-6 lg:flex-row lg:items-start justify-center mx-auto w-full max-w-7xl px-3 sm:px-6 lg:px-8 py-4 sm:py-6 lg:py-8">
       {/* Left Column — Progress */}
-      <aside className="w-full lg:w-[340px] xl:w-[360px] shrink-0">
+      <aside className="w-full lg:w-[300px] xl:w-[340px] 2xl:w-[360px] shrink-0">
         {/* Mobile toggle */}
         <button
           onClick={() => setShowProgress(!showProgress)}
@@ -413,7 +413,7 @@ export function ProblemsetContent({ defaultFilter = "" }: { defaultFilter?: stri
                 setParam("difficulty", v === "all" ? "" : v)
               }
             >
-              <SelectTrigger className="h-9 sm:h-10 w-[120px] sm:w-[130px] cursor-pointer">
+              <SelectTrigger className="h-9 sm:h-10 w-auto min-w-[100px] sm:min-w-[130px] cursor-pointer">
                 <SelectValue placeholder="Difficulty" />
               </SelectTrigger>
               <SelectContent>
@@ -434,7 +434,7 @@ export function ProblemsetContent({ defaultFilter = "" }: { defaultFilter?: stri
               value={pattern}
               onValueChange={(v) => setParam("pattern", v === "all" ? "" : v)}
             >
-              <SelectTrigger className="h-9 sm:h-10 w-[140px] sm:w-[150px] cursor-pointer">
+              <SelectTrigger className="h-9 sm:h-10 w-auto min-w-[110px] sm:min-w-[150px] cursor-pointer">
                 <SelectValue placeholder="Patterns" />
               </SelectTrigger>
               <SelectContent className="max-h-[300px]">
@@ -591,27 +591,27 @@ export function ProblemsetContent({ defaultFilter = "" }: { defaultFilter?: stri
 
         {/* Pagination */}
         {totalPages > 1 && (
-          <div className="flex items-center justify-center gap-3 py-4">
+          <div className="flex items-center justify-center gap-2 sm:gap-3 py-4">
             <Button
               variant="outline"
               size="sm"
               disabled={page === 0}
               onClick={() => setPage(Math.max(0, page - 1))}
-              className="cursor-pointer"
+              className="cursor-pointer text-xs sm:text-sm px-2 sm:px-4"
             >
-              Previous
+              ← Prev
             </Button>
-            <span className="text-xs text-muted-foreground tabular-nums">
-              Page {page + 1} of {totalPages}
+            <span className="text-[10px] sm:text-xs text-muted-foreground tabular-nums whitespace-nowrap">
+              {page + 1} / {totalPages}
             </span>
             <Button
               variant="outline"
               size="sm"
               disabled={page >= totalPages - 1}
               onClick={() => setPage(Math.min(totalPages - 1, page + 1))}
-              className="cursor-pointer"
+              className="cursor-pointer text-xs sm:text-sm px-2 sm:px-4"
             >
-              Next
+              Next →
             </Button>
           </div>
         )}

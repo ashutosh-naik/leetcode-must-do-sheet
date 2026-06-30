@@ -236,15 +236,6 @@ export default function Home() {
         </div>
       </section>
 
-      {/* Footer */}
-      <footer className="border-t border-border bg-muted/20">
-        <div className="mx-auto max-w-6xl px-4 sm:px-6 lg:px-8 py-8 flex flex-col sm:flex-row items-center justify-between gap-4 text-sm text-muted-foreground">
-          <p>&copy; {new Date().getFullYear()} LeetCode Must-Do Tracker</p>
-          <p>
-            Built with Next.js &middot; Supabase &middot; Tailwind CSS
-          </p>
-        </div>
-      </footer>
     </>
   );
 }

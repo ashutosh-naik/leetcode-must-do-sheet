@@ -149,7 +149,7 @@ export function ProgressPanel() {
           <Button
             variant="ghost"
             size="icon"
-            className="h-8 w-8 text-muted-foreground hover:text-foreground"
+            className="h-9 w-9 sm:h-8 sm:w-8 text-muted-foreground hover:text-foreground"
             onClick={() => setShowResetConfirm(true)}
           >
             <RotateCcw className="h-4 w-4" />

@@ -54,7 +54,7 @@ export const ProblemCard = memo(function ProblemCard({
                 target="_blank"
                 rel="noopener noreferrer"
                 className={cn(
-                  "text-xs sm:text-sm font-semibold hover:text-primary transition-colors inline-flex items-center gap-1 truncate max-w-[180px] md:max-w-[260px] lg:max-w-none",
+                  "text-xs sm:text-sm font-semibold hover:text-primary transition-colors inline-flex items-center gap-1 truncate max-w-[55vw] sm:max-w-[260px] lg:max-w-none",
                   solved ? "text-muted-foreground line-through" : "text-foreground"
                 )}
               >

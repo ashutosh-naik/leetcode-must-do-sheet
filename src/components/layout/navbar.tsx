@@ -137,7 +137,7 @@ export function Navbar() {
                 ) : (
                   <User className="h-3.5 w-3.5" />
                 )}
-                <span className="max-w-[120px] truncate">{displayName}</span>
+                <span className="max-w-[100px] sm:max-w-[160px] truncate">{displayName}</span>
               </div>
               <Button
                 variant="ghost"
@@ -195,7 +195,7 @@ export function Navbar() {
             className="fixed inset-0 top-14 sm:top-16 z-40 bg-black/20 backdrop-blur-sm md:hidden"
             onClick={() => setMobileOpen(false)}
           />
-          <div className="absolute top-14 sm:top-16 left-0 right-0 z-50 bg-background border-b border-border shadow-lg md:hidden animate-in fade-in slide-in-from-top-2 duration-200">
+          <div className="absolute top-14 sm:top-16 left-0 right-0 z-50 bg-background border-b border-border shadow-lg md:hidden animate-in fade-in slide-in-from-top-2 duration-200 max-h-[80vh] overflow-y-auto">
             <nav className="flex flex-col p-3 gap-1">
               {navLinks.map((link) => {
                 const active = isActive(link.href);
