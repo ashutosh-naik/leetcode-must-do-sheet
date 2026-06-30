@@ -64,7 +64,7 @@ export default function Home() {
       {/* Hero Section */}
       <section className="relative overflow-hidden">
         <div className="mx-auto max-w-6xl px-4 sm:px-6 lg:px-8 pt-16 sm:pt-24 lg:pt-32 pb-16 sm:pb-20 lg:pb-24">
-          <div className="text-center">
+          <div className="text-center animate-fade-in-up">
             <div className="inline-flex items-center gap-2 rounded-full border border-border bg-muted/50 px-4 py-1.5 text-sm text-muted-foreground mb-8">
               <span className="size-2 rounded-full bg-primary animate-pulse" />
               Master DSA Patterns — One Problem at a Time
@@ -84,14 +84,14 @@ export default function Home() {
             <div className="mt-8 flex flex-col sm:flex-row items-center justify-center gap-3 sm:gap-4">
               <Link
                 href="/problemset"
-                className="inline-flex items-center gap-2 rounded-xl bg-primary px-6 py-3 text-sm font-semibold text-white shadow-sm hover:bg-brand-hover transition-colors"
+                className="inline-flex items-center gap-2 rounded-xl bg-primary px-6 py-3 text-sm font-semibold text-white shadow-sm hover:bg-brand-hover hover:scale-105 transition-all active:scale-95"
               >
                 <ListChecks className="h-4 w-4" />
                 Start Solving
               </Link>
               <Link
                 href="/register"
-                className="inline-flex items-center gap-2 rounded-xl border border-border bg-background px-6 py-3 text-sm font-semibold text-foreground shadow-sm hover:bg-muted/50 transition-colors"
+                className="inline-flex items-center gap-2 rounded-xl border border-border bg-background px-6 py-3 text-sm font-semibold text-foreground shadow-sm hover:bg-muted/50 hover:scale-105 transition-all active:scale-95"
               >
                 <HeartHandshake className="h-4 w-4" />
                 Sign Up Free
@@ -105,8 +105,12 @@ export default function Home() {
       <section className="border-y border-border bg-muted/30">
         <div className="mx-auto max-w-5xl px-4 sm:px-6 lg:px-8 py-12 sm:py-16">
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-8 sm:gap-12 text-center">
-            {stats.map((stat) => (
-              <div key={stat.label}>
+            {stats.map((stat, i) => (
+              <div
+                key={stat.label}
+                className="animate-scale-in"
+                style={{ animationDelay: `${i * 100}ms`, animationFillMode: "backwards" }}
+              >
                 <div className="text-3xl sm:text-4xl font-extrabold text-primary tabular-nums">
                   {stat.value}
                 </div>
@@ -121,7 +125,7 @@ export default function Home() {
 
       {/* Features Section */}
       <section className="mx-auto max-w-6xl px-4 sm:px-6 lg:px-8 py-16 sm:py-24">
-        <div className="text-center mb-12 sm:mb-16">
+        <div className="text-center mb-12 sm:mb-16 animate-fade-in-up">
           <h2 className="text-2xl sm:text-3xl lg:text-4xl font-bold tracking-tight">
             Everything You Need to{" "}
             <span className="text-primary">Crack DSA</span>
@@ -132,12 +136,16 @@ export default function Home() {
           </p>
         </div>
         <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8">
-          {features.map((feature) => (
+          {features.map((feature, i) => (
             <div
               key={feature.title}
-              className="group rounded-2xl border border-border bg-card p-6 sm:p-8 hover:shadow-md transition-shadow"
+              className="group rounded-2xl border border-border bg-card p-6 sm:p-8 hover:shadow-lg hover:-translate-y-1 transition-all duration-300"
+              style={{
+                opacity: 0,
+                animation: `fade-in-up 0.5s ease-out ${i * 100}ms forwards`,
+              }}
             >
-              <div className="flex size-12 items-center justify-center rounded-xl bg-primary/10 text-primary mb-5 group-hover:bg-primary/15 transition-colors">
+              <div className="flex size-12 items-center justify-center rounded-xl bg-primary/10 text-primary mb-5 group-hover:bg-primary/15 group-hover:scale-110 transition-all duration-300">
                 <feature.icon className="h-6 w-6" />
               </div>
               <h3 className="text-lg font-semibold mb-2">{feature.title}</h3>
@@ -152,7 +160,7 @@ export default function Home() {
       {/* How It Works */}
       <section className="border-y border-border bg-muted/30">
         <div className="mx-auto max-w-5xl px-4 sm:px-6 lg:px-8 py-16 sm:py-24">
-          <div className="text-center mb-12 sm:mb-16">
+          <div className="text-center mb-12 sm:mb-16 animate-fade-in-up">
             <h2 className="text-2xl sm:text-3xl lg:text-4xl font-bold tracking-tight">
               How It <span className="text-primary">Works</span>
             </h2>
@@ -180,9 +188,13 @@ export default function Home() {
                 description:
                   "Use the daily Pick One feature, maintain streaks, and monitor your growth on the dashboard.",
               },
-            ].map((item) => (
-              <div key={item.step} className="text-center">
-                <div className="inline-flex items-center justify-center size-14 rounded-full bg-primary/10 text-primary text-xl font-bold mb-5">
+            ].map((item, i) => (
+              <div
+                key={item.step}
+                className="text-center animate-fade-in-up"
+                style={{ animationDelay: `${i * 150}ms`, animationFillMode: "backwards" }}
+              >
+                <div className="inline-flex items-center justify-center size-14 rounded-full bg-primary/10 text-primary text-xl font-bold mb-5 transition-transform duration-300 hover:scale-110">
                   {item.step}
                 </div>
                 <h3 className="text-lg font-semibold mb-2">{item.title}</h3>
@@ -197,28 +209,30 @@ export default function Home() {
 
       {/* CTA Section */}
       <section className="mx-auto max-w-4xl px-4 sm:px-6 lg:px-8 py-16 sm:py-24 text-center">
-        <h2 className="text-2xl sm:text-3xl lg:text-4xl font-bold tracking-tight">
-          Ready to Master LeetCode?
-        </h2>
-        <p className="mt-4 text-muted-foreground max-w-xl mx-auto">
-          Join thousands of developers using the Must-Do sheet to crack their
-          dream interviews. Start solving today.
-        </p>
-        <div className="mt-8 flex flex-col sm:flex-row items-center justify-center gap-3 sm:gap-4">
-          <Link
-            href="/problemset"
-            className="inline-flex items-center gap-2 rounded-xl bg-primary px-6 py-3 text-sm font-semibold text-white shadow-sm hover:bg-brand-hover transition-colors"
-          >
-            <ListChecks className="h-4 w-4" />
-            Browse Problems
-          </Link>
-          <Link
-            href="/login"
-            className="inline-flex items-center gap-2 rounded-xl border border-border bg-background px-6 py-3 text-sm font-semibold text-foreground shadow-sm hover:bg-muted/50 transition-colors"
-          >
-            <Search className="h-4 w-4" />
-            Sign In
-          </Link>
+        <div className="animate-fade-in-up" style={{ animationDelay: "100ms", animationFillMode: "backwards" }}>
+          <h2 className="text-2xl sm:text-3xl lg:text-4xl font-bold tracking-tight">
+            Ready to Master LeetCode?
+          </h2>
+          <p className="mt-4 text-muted-foreground max-w-xl mx-auto">
+            Join thousands of developers using the Must-Do sheet to crack their
+            dream interviews. Start solving today.
+          </p>
+          <div className="mt-8 flex flex-col sm:flex-row items-center justify-center gap-3 sm:gap-4">
+            <Link
+              href="/problemset"
+              className="inline-flex items-center gap-2 rounded-xl bg-primary px-6 py-3 text-sm font-semibold text-white shadow-sm hover:bg-brand-hover hover:scale-105 transition-all active:scale-95"
+            >
+              <ListChecks className="h-4 w-4" />
+              Browse Problems
+            </Link>
+            <Link
+              href="/login"
+              className="inline-flex items-center gap-2 rounded-xl border border-border bg-background px-6 py-3 text-sm font-semibold text-foreground shadow-sm hover:bg-muted/50 hover:scale-105 transition-all active:scale-95"
+            >
+              <Search className="h-4 w-4" />
+              Sign In
+            </Link>
+          </div>
         </div>
       </section>
 

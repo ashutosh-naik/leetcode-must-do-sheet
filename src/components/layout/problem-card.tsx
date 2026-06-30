@@ -1,5 +1,6 @@
 "use client";
 
+import { memo, useCallback } from "react";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
@@ -7,26 +8,41 @@ import { ExternalLink } from "lucide-react";
 import type { Problem } from "@/constants/problems";
 import { cn } from "@/lib/utils";
 import { DifficultyBadge } from "@/components/common/difficulty-badge";
+import { useAuth } from "@/providers/auth-provider";
 
 interface ProblemCardProps {
   problem: Problem;
   solved: boolean;
-  onToggle: () => void;
+  onToggle: (id: number) => void;
+  index?: number;
 }
 
-export function ProblemCard({ problem, solved, onToggle }: ProblemCardProps) {
+export const ProblemCard = memo(function ProblemCard({
+  problem,
+  solved,
+  onToggle,
+  index = 0,
+}: ProblemCardProps) {
+  const handleToggle = useCallback(() => onToggle(problem.id), [onToggle, problem.id]);
+  const { user } = useAuth();
   return (
-    <Card className={cn(
-      "overflow-hidden transition-all duration-200 hover:border-primary/30",
-      solved ? "bg-muted/30 border-muted-foreground/10" : "bg-card"
-    )}>
+    <Card
+      className={cn(
+        "overflow-hidden transition-all duration-200 hover:border-primary/30 hover:shadow-md hover:-translate-y-0.5",
+        solved ? "bg-muted/30 border-muted-foreground/10" : "bg-card",
+      )}
+      style={{
+        animation: `fade-in-up 0.4s ease-out ${Math.min(index * 40, 500)}ms backwards`,
+      }}
+    >
       <CardContent className="p-3 sm:p-5 flex items-center justify-between gap-2 sm:gap-4">
         <div className="flex items-center gap-2 sm:gap-4 min-w-0 flex-1">
           <Checkbox
             id={`problem-card-check-${problem.id}`}
             checked={solved}
-            onCheckedChange={onToggle}
-            className="size-4 sm:size-5 shrink-0 data-[state=checked]:bg-primary data-[state=checked]:border-primary cursor-pointer"
+            onCheckedChange={handleToggle}
+            disabled={!user}
+            className="size-4 sm:size-5 shrink-0 data-[state=checked]:bg-primary data-[state=checked]:border-primary cursor-pointer transition-all duration-200 hover:scale-110 active:scale-90"
           />
           <div className="space-y-1 min-w-0">
             <div className="flex items-center gap-1.5 sm:gap-2 flex-wrap">
@@ -38,7 +54,7 @@ export function ProblemCard({ problem, solved, onToggle }: ProblemCardProps) {
                 target="_blank"
                 rel="noopener noreferrer"
                 className={cn(
-                  "text-xs sm:text-sm font-semibold hover:text-primary transition-colors inline-flex items-center gap-1 truncate max-w-[180px] xs:max-w-[260px] sm:max-w-none",
+                  "text-xs sm:text-sm font-semibold hover:text-primary transition-colors inline-flex items-center gap-1 truncate max-w-[180px] md:max-w-[260px] lg:max-w-none",
                   solved ? "text-muted-foreground line-through" : "text-foreground"
                 )}
               >
@@ -54,7 +70,7 @@ export function ProblemCard({ problem, solved, onToggle }: ProblemCardProps) {
                 </Badge>
               ))}
               {problem.patterns.length > 2 && (
-                <span className="text-[10px] text-muted-foreground/50 font-medium">+{problem.patterns.length - 2}</span>
+                <span className="text-[10px] text-muted-foreground/50 font-medium hover:text-muted-foreground/80 transition-colors cursor-default">+{problem.patterns.length - 2}</span>
               )}
               {problem.frequency && (
                 <span className="text-[10px] font-mono text-muted-foreground/60 ml-auto sm:ml-1">
@@ -67,6 +83,6 @@ export function ProblemCard({ problem, solved, onToggle }: ProblemCardProps) {
       </CardContent>
     </Card>
   );
-}
+});
 
 export default ProblemCard;

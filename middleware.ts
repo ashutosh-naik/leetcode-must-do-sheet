@@ -7,14 +7,14 @@ export async function middleware(request: NextRequest) {
   const { response, user } = await updateSession(request);
 
   const { pathname } = request.nextUrl;
-  const isProtected = protectedPaths.some((p) =>
-    pathname.startsWith(p),
+  const isProtected = protectedPaths.some(
+    (p) => pathname === p || pathname.startsWith(`${p}/`),
   );
 
   if (isProtected && !user) {
-    const url = request.nextUrl.clone();
-    url.pathname = "/login";
-    return NextResponse.redirect(url);
+    const loginUrl = new URL("/login", request.url);
+    loginUrl.searchParams.set("next", pathname);
+    return NextResponse.redirect(loginUrl);
   }
 
   return response;

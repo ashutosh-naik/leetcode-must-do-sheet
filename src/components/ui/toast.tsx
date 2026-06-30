@@ -9,6 +9,7 @@ interface Toast {
   id: number;
   message: string;
   type: ToastType;
+  createdAt: number;
 }
 
 interface ToastContextValue {
@@ -23,6 +24,44 @@ export function useToast() {
   return useContext(ToastContext);
 }
 
+const DURATION = 3500;
+
+function ToastItem({ t, onDismiss }: { t: Toast; onDismiss: (id: number) => void }) {
+  return (
+    <div
+      className={`pointer-events-auto flex flex-col overflow-hidden rounded-xl border shadow-xl text-sm font-medium animate-in slide-in-from-right-2 duration-300 ease-out ${
+        t.type === "success"
+          ? "border-green-500/20 bg-card text-foreground dark:border-green-500/25"
+          : "border-red-500/20 bg-card text-foreground dark:border-red-500/25"
+      }`}
+    >
+      <div className="flex items-center gap-2.5 px-4 py-3">
+        {t.type === "success" ? (
+          <CheckCircle className="h-4 w-4 shrink-0 text-green-600 dark:text-green-400" />
+        ) : (
+          <AlertCircle className="h-4 w-4 shrink-0 text-red-600 dark:text-red-400" />
+        )}
+        <span className="flex-1">{t.message}</span>
+        <button
+          onClick={() => onDismiss(t.id)}
+          className="cursor-pointer border-none bg-transparent p-0 opacity-40 hover:opacity-80 transition-opacity shrink-0 text-muted-foreground hover:text-foreground"
+        >
+          <X className="h-3.5 w-3.5" />
+        </button>
+      </div>
+      <div className="h-0.5 w-full bg-muted-foreground/10">
+        <div
+          className="h-full rounded-full animate-shrink-width origin-right"
+          style={{
+            backgroundColor: t.type === "success" ? "rgb(34 197 94)" : "rgb(239 68 68)",
+            animationDuration: `${DURATION}ms`,
+          }}
+        />
+      </div>
+    </div>
+  );
+}
+
 export function ToastProvider({ children }: { children: React.ReactNode }) {
   const [toasts, setToasts] = useState<Toast[]>([]);
   const nextId = useRef(0);
@@ -34,8 +73,9 @@ export function ToastProvider({ children }: { children: React.ReactNode }) {
   const toast = useCallback(
     (message: string, type: ToastType = "success") => {
       const id = nextId.current++;
-      setToasts((prev) => [...prev, { id, message, type }]);
-      setTimeout(() => dismiss(id), 3000);
+      const createdAt = Date.now();
+      setToasts((prev) => [...prev, { id, message, type, createdAt }]);
+      setTimeout(() => dismiss(id), DURATION);
     },
     [dismiss],
   );
@@ -43,29 +83,9 @@ export function ToastProvider({ children }: { children: React.ReactNode }) {
   return (
     <ToastContext.Provider value={{ toast }}>
       {children}
-      <div className="fixed bottom-4 right-4 z-[200] flex flex-col gap-2 pointer-events-none">
+      <div className="fixed bottom-4 right-4 z-[200] flex flex-col gap-2 pointer-events-none max-w-[360px] w-full">
         {toasts.map((t) => (
-          <div
-            key={t.id}
-            className={`pointer-events-auto flex items-center gap-2.5 rounded-xl border px-4 py-3 text-sm font-medium shadow-lg animate-in slide-in-from-right-2 duration-200 ${
-              t.type === "success"
-                ? "border-green-500/30 bg-green-500/10 text-green-600 dark:text-green-400"
-                : "border-red-500/30 bg-red-500/10 text-red-600 dark:text-red-400"
-            }`}
-          >
-            {t.type === "success" ? (
-              <CheckCircle className="h-4 w-4 shrink-0" />
-            ) : (
-              <AlertCircle className="h-4 w-4 shrink-0" />
-            )}
-            <span>{t.message}</span>
-            <button
-              onClick={() => dismiss(t.id)}
-              className="ml-2 cursor-pointer border-none bg-transparent p-0 opacity-60 hover:opacity-100 transition-opacity"
-            >
-              <X className="h-3.5 w-3.5" />
-            </button>
-          </div>
+          <ToastItem key={t.id} t={t} onDismiss={dismiss} />
         ))}
       </div>
     </ToastContext.Provider>

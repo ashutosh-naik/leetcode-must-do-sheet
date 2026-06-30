@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useSyncExternalStore } from "react";
+import React, { useCallback, useSyncExternalStore } from "react";
 import { useTheme } from "next-themes";
 import Link from "next/link";
 import Image from "next/image";
@@ -18,6 +18,7 @@ import {
   LayoutDashboard,
   Flame,
   Trophy,
+  CheckCircle,
 } from "lucide-react";
 import { Logo } from "@/components/common/logo";
 import { Button } from "@/components/ui/button";
@@ -25,6 +26,7 @@ import { useAuth } from "@/providers/auth-provider";
 
 const navLinks = [
   { href: "/problemset", label: "Problem Set", icon: ListChecks },
+  { href: "/solved", label: "Solved", icon: CheckCircle },
   { href: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
   { href: "/streaks", label: "Streaks", icon: Flame },
   { href: "/daily-challenge", label: "Daily Challenge", icon: Trophy },
@@ -32,6 +34,14 @@ const navLinks = [
 
 export function Navbar() {
   const pathname = usePathname();
+  const searchString = useSyncExternalStore(
+    (cb) => {
+      window.addEventListener("popstate", cb);
+      return () => window.removeEventListener("popstate", cb);
+    },
+    () => window.location.search,
+    () => "",
+  );
   const { resolvedTheme, setTheme } = useTheme();
   const { user, loading, logout } = useAuth();
   const [mobileOpen, setMobileOpen] = React.useState(false);
@@ -40,6 +50,18 @@ export function Navbar() {
     () => true,
     () => false,
   );
+
+  const isActive = useCallback((href: string) => {
+    const [basePath, queryString] = href.split("?");
+    if (pathname !== basePath) return false;
+    if (!queryString) return true;
+    const linkParams = new URLSearchParams(queryString);
+    const currentParams = new URLSearchParams(searchString);
+    for (const [key, value] of linkParams) {
+      if (currentParams.get(key) !== value) return false;
+    }
+    return true;
+  }, [pathname, searchString]);
 
   async function handleSignOut() {
     await logout();
@@ -53,27 +75,29 @@ export function Navbar() {
     "User";
 
   return (
-    <header className="sticky top-0 z-50 w-full border-b border-border bg-background/80 backdrop-blur-lg px-4 sm:px-6 lg:px-8 h-14 sm:h-16 flex items-center justify-between gap-2 sm:gap-4">
+    <header className="sticky top-0 z-50 w-full border-b border-border bg-background/80 backdrop-blur-lg px-4 sm:px-6 lg:px-8 h-14 sm:h-16 flex items-center justify-between gap-2 sm:gap-4 animate-in fade-in duration-300">
       <div className="flex items-center gap-2 sm:gap-8">
         <Logo />
         <nav className="hidden md:flex items-center gap-1">
           {navLinks.map((link) => {
-            const isActive = pathname === link.href;
+            const active = isActive(link.href);
             return (
               <Link
                 key={link.href}
                 href={link.href}
-                className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm font-medium transition-colors ${
-                  isActive
-                    ? "text-primary bg-primary/10"
+                className={`relative flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm font-medium transition-colors ${
+                  active
+                    ? "text-primary"
                     : "text-muted-foreground hover:text-foreground hover:bg-muted/50"
                 }`}
               >
                 <link.icon className="h-4 w-4" />
                 <span>{link.label}</span>
-                {isActive && (
-                  <span className="size-1.5 rounded-full bg-primary" />
-                )}
+                <span
+                  className={`absolute bottom-0 left-2 right-2 h-0.5 rounded-full bg-primary transition-all duration-200 ${
+                    active ? "scale-x-100" : "scale-x-0"
+                  }`}
+                />
               </Link>
             );
           })}
@@ -174,14 +198,14 @@ export function Navbar() {
           <div className="absolute top-14 sm:top-16 left-0 right-0 z-50 bg-background border-b border-border shadow-lg md:hidden animate-in fade-in slide-in-from-top-2 duration-200">
             <nav className="flex flex-col p-3 gap-1">
               {navLinks.map((link) => {
-                const isActive = pathname === link.href;
+                const active = isActive(link.href);
                 return (
                   <Link
                     key={link.href}
                     href={link.href}
                     onClick={() => setMobileOpen(false)}
                     className={`flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium transition-colors ${
-                      isActive
+                      active
                         ? "text-primary bg-primary/10"
                         : "text-muted-foreground hover:text-foreground hover:bg-muted/50"
                     }`}

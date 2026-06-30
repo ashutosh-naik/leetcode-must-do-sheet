@@ -4,7 +4,8 @@ import { createServerClient } from "@supabase/ssr";
 function isSafePath(path: string): boolean {
   try {
     const url = new URL(path, "http://localhost");
-    return url.pathname === path && !path.startsWith("//");
+    const sanitized = url.pathname + url.search;
+    return !sanitized.startsWith("//") && !sanitized.startsWith("\\");
   } catch {
     return false;
   }

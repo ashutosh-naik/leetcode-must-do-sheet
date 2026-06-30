@@ -16,6 +16,10 @@ function getProblemSlug(id: number): string {
   return slugCache.get(id) ?? String(id);
 }
 
+function safeStringify(obj: unknown): string {
+  try { return JSON.stringify(obj); } catch { return String(obj); }
+}
+
 function logSupabaseError(label: string, error: unknown) {
   const e = error as {
     message?: string;
@@ -23,7 +27,7 @@ function logSupabaseError(label: string, error: unknown) {
     details?: string;
     hint?: string;
   };
-  logger.error(`[${label}]`, JSON.stringify(error));
+  logger.error(`[${label}]`, safeStringify(error));
   logger.error({ message: e?.message, code: e?.code, details: e?.details, hint: e?.hint });
 }
 

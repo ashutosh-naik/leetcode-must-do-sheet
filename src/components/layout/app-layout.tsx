@@ -38,8 +38,18 @@ function ResetHandler() {
   if (!showResetConfirm) return null;
 
   return (
-    <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/60 backdrop-blur-sm">
-      <div className="mx-4 w-full max-w-[420px] rounded-2xl border border-border/80 bg-card p-6 shadow-2xl transition-all duration-200">
+    <div
+      className="fixed inset-0 z-[100] flex items-center justify-center bg-black/60 backdrop-blur-sm animate-in fade-in duration-200"
+      onClick={handleCancelReset}
+      onKeyDown={(e) => e.key === "Escape" && handleCancelReset()}
+      role="dialog"
+      aria-modal="true"
+      aria-label="Reset progress confirmation"
+    >
+      <div
+        className="mx-4 w-full max-w-[420px] rounded-2xl border border-border/80 bg-card p-6 shadow-2xl animate-in fade-in zoom-in-95 duration-200"
+        onClick={(e) => e.stopPropagation()}
+      >
         <div className="flex items-center gap-2 mb-3">
           <AlertCircle className="h-5 w-5 text-[#EF4743] shrink-0" />
           <h2 className="text-lg font-semibold text-foreground tracking-tight">
@@ -75,7 +85,7 @@ export function AppLayout({ children }: AppLayoutProps) {
       <ToastProvider>
         <div className="flex flex-col min-h-screen bg-background text-foreground relative">
           <Navbar />
-          <main className="flex-1 overflow-y-auto bg-muted/40 dark:bg-[#151515]">
+          <main className="flex-1 overflow-y-auto bg-muted/40 dark:bg-[#151515] animate-in fade-in duration-200">
             {children}
           </main>
 

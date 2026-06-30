@@ -4,10 +4,18 @@
 @custom-variant dark (&:is(.dark *));
 
 @theme inline {
+  --animate-fade-in-up: fade-in-up 0.6s ease-out;
+  --animate-fade-in-up-sm: fade-in-up 0.4s ease-out;
+  --animate-fade-in-down: fade-in-down 0.5s ease-out;
+  --animate-scale-in: scale-in 0.4s ease-out;
+  --animate-slide-in-right: slide-in-right 0.3s ease-out;
+  --animate-shimmer: shimmer 2s infinite ease-in-out;
+  --animate-shimmer-fast: shimmer 1.2s infinite ease-in-out;
+  --animate-shrink-width: shrink-width 3.5s linear;
+
   --color-background: var(--background);
   --color-foreground: var(--foreground);
   --font-sans: var(--font-sans);
-  --font-mono: var(--font-geist-mono);
   --font-heading: var(--font-sans);
   --color-sidebar-ring: var(--sidebar-ring);
   --color-sidebar-border: var(--sidebar-border);
@@ -126,6 +134,38 @@
   --brand-hover: #FFB800;
 }
 
+@keyframes fade-in-up {
+  from { opacity: 0; transform: translateY(24px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes fade-in-down {
+  from { opacity: 0; transform: translateY(-12px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes scale-in {
+  from { opacity: 0; transform: scale(0.92); }
+  to { opacity: 1; transform: scale(1); }
+}
+
+@keyframes slide-in-right {
+  from { opacity: 0; transform: translateX(16px); }
+  to { opacity: 1; transform: translateX(0); }
+}
+
+@keyframes shimmer {
+  0% { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+
+@keyframes shrink-width {
+  from { width: 100%; }
+  to { width: 0%; }
+}
+
+
+
 @layer base {
   * {
     @apply border-border outline-ring/50;
@@ -135,5 +175,26 @@
   }
   html {
     @apply font-sans;
+  }
+  ::selection {
+    background-color: color-mix(in oklch, var(--primary) 25%, transparent);
+    color: inherit;
+  }
+  ::-moz-selection {
+    background-color: color-mix(in oklch, var(--primary) 25%, transparent);
+    color: inherit;
+  }
+  :focus-visible {
+    @apply outline-ring/50;
+    outline-offset: 2px;
+  }
+  .shimmer-bg {
+    background: linear-gradient(
+      90deg,
+      color-mix(in oklch, var(--muted-foreground) 6%, transparent) 0%,
+      color-mix(in oklch, var(--muted-foreground) 14%, transparent) 50%,
+      color-mix(in oklch, var(--muted-foreground) 6%, transparent) 100%
+    );
+    background-size: 200% 100%;
   }
 }

@@ -21,7 +21,7 @@ export function Logo() {
   return (
     <Link
       href="/"
-      className="flex items-center gap-2 select-none hover:opacity-90 transition-opacity"
+      className="flex items-center gap-2 select-none hover:opacity-90 hover:scale-[1.02] active:scale-95 transition-all duration-200"
     >
       <Image
         src={iconSrc}

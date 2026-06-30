@@ -3,14 +3,14 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 function Pulse({ className }: { className?: string }) {
   return (
     <div
-      className={`animate-pulse rounded-md bg-muted-foreground/10 ${className ?? ""}`}
+      className={`rounded-md shimmer-bg animate-shimmer ${className ?? ""}`}
     />
   );
 }
 
 export function TableSkeletonDesktop() {
   return (
-    <div className="rounded-2xl border border-border overflow-x-auto bg-card shadow-sm">
+    <div className="rounded-2xl border border-border overflow-x-auto bg-card shadow-sm animate-in fade-in duration-300">
       <Table>
         <TableHeader className="sticky top-0 z-10">
           <TableRow className="bg-muted/30">
@@ -74,7 +74,7 @@ export function ProgressSkeleton() {
       <div className="space-y-3">
         {["Easy", "Medium", "Hard"].map((d) => (
           <div key={d} className="flex items-center gap-3 rounded-xl p-4 bg-muted/30">
-            <div className="size-11 rounded-full bg-muted-foreground/10 animate-pulse" />
+            <div className="size-11 rounded-full shimmer-bg animate-shimmer-fast" />
             <div className="flex-1 space-y-1.5">
               <Pulse className="h-4 w-16" />
               <Pulse className="h-1.5 w-full" />

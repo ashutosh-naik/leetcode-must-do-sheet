@@ -3,12 +3,10 @@
 import { Suspense } from "react";
 import { ProblemsetContent } from "@/components/common/problemset-content";
 
-export default function ProblemsetPage() {
+export default function SolvedPage() {
   return (
     <Suspense>
-      <ProblemsetContent />
+      <ProblemsetContent defaultFilter="solved" />
     </Suspense>
   );
 }
-
-

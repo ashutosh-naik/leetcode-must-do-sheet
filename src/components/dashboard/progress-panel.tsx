@@ -35,7 +35,7 @@ function CircularGauge({ value, total }: { value: number; total: number }) {
           strokeLinecap="round"
           strokeDasharray={circ}
           strokeDashoffset={dashOffset}
-          className="text-primary transition-all duration-700 ease-out"
+          className="text-primary transition-all duration-1000 ease-out"
         />
       </svg>
       <div className="absolute inset-0 flex flex-col items-center justify-center">
@@ -84,10 +84,10 @@ function DifficultyCard({
   const pct = total > 0 ? Math.round((solved / total) * 100) : 0;
 
   return (
-    <div className={cn("flex items-center gap-3 rounded-xl p-4", cfg.bg)}>
+    <div className={cn("flex items-center gap-3 rounded-xl p-4 transition-all duration-200 hover:scale-[1.02] active:scale-[0.98] cursor-default", cfg.bg)}>
       <div
         className={cn(
-          "size-11 rounded-full flex items-center justify-center shrink-0",
+          "size-11 rounded-full flex items-center justify-center shrink-0 transition-transform duration-200 group-hover:scale-110",
           cfg.bg,
         )}
       >

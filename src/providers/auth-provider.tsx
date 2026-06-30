@@ -46,7 +46,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const ensureProfile = useCallback(async (currentUser: User) => {
     if (profileCreated.current) return;
-    profileCreated.current = true;
     try {
       await createProfile(
         currentUser.id,
@@ -56,14 +55,18 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           "User",
         currentUser.email ?? "",
       );
+      profileCreated.current = true;
     } catch (err) {
-      // profile already exists or other error — ignore
+      // profile already exists or other error — allow retry
       logger.error("Profile creation error:", err);
     }
   }, []);
 
   useEffect(() => {
+    let cancelled = false;
+
     supabase.auth.getSession().then(({ data: { session } }) => {
+      if (cancelled) return;
       const u = session?.user ?? null;
       setUser(u);
       setLoading(false);
@@ -77,6 +80,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     const {
       data: { subscription },
     } = supabase.auth.onAuthStateChange((_event, session) => {
+      if (cancelled) return;
       const u = session?.user ?? null;
       setUser(u);
       setLoading(false);
@@ -87,7 +91,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       }
     });
 
-    return () => subscription.unsubscribe();
+    return () => {
+      cancelled = true;
+      subscription.unsubscribe();
+    };
   }, [ensureProfile]);
 
   const login = useCallback(
@@ -97,7 +104,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         password,
       });
       if (error) return error.message;
-      router.push("/");
+      const params = new URLSearchParams(window.location.search);
+      router.push(params.get("next") ?? "/");
       return null;
     },
     [router],

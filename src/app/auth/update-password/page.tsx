@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -41,8 +41,13 @@ export default function UpdatePasswordPage() {
     }
 
     setSuccess(true);
-    setTimeout(() => router.push("/"), 1500);
   }
+
+  useEffect(() => {
+    if (!success) return;
+    const timer = setTimeout(() => router.push("/"), 1500);
+    return () => clearTimeout(timer);
+  }, [success, router]);
 
   return (
     <main className="flex min-h-screen items-center justify-center bg-background px-4 py-8">
