@@ -109,6 +109,25 @@ function useFilteredProblems(defaultFilter = "") {
     return PATTERN_ORDER.filter((p) => existing.has(p));
   }, []);
 
+  const difficultyCounts = useMemo(() => {
+    const counts: Record<string, number> = { Easy: 0, Medium: 0, Hard: 0 };
+    PROBLEMS.forEach((p) => {
+      if (counts[p.difficulty] !== undefined) counts[p.difficulty]++;
+    });
+    return counts;
+  }, []);
+
+  const patternCounts = useMemo(() => {
+    const counts: Record<string, number> = {};
+    PROBLEMS.forEach((p) =>
+      p.patterns.forEach((pat) => {
+        const t = pat.trim();
+        if (t) counts[t] = (counts[t] ?? 0) + 1;
+      }),
+    );
+    return counts;
+  }, []);
+
   const filtered = useMemo(() => {
     let list = [...PROBLEMS];
 
@@ -154,13 +173,13 @@ function useFilteredProblems(defaultFilter = "") {
     return { list, uniquePatterns };
   }, [q, difficulty, pattern, filter, sort, dir, uniquePatterns]);
 
-  return { ...filtered, q, difficulty, pattern, filter, sort, dir };
+  return { ...filtered, q, difficulty, pattern, filter, sort, dir, difficultyCounts, patternCounts };
 }
 
 export function ProblemsetContent({ defaultFilter = "" }: { defaultFilter?: string }) {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const { list, uniquePatterns, q, difficulty, pattern, filter, sort, dir } =
+  const { list, uniquePatterns, q, difficulty, pattern, filter, sort, dir, difficultyCounts, patternCounts } =
     useFilteredProblems(defaultFilter);
   const solvedProblemIds = useProblemStore((s) => s.solvedProblemIds);
   const toggleProblemSolved = useProblemStore((s) => s.toggleProblemSolved);
@@ -401,7 +420,10 @@ export function ProblemsetContent({ defaultFilter = "" }: { defaultFilter?: stri
                 <SelectItem value="all">All</SelectItem>
                 {DIFFICULTIES.map((d) => (
                   <SelectItem key={d} value={d}>
-                    {d}
+                    <span className="flex items-center justify-between w-full gap-2">
+                      <span>{d}</span>
+                      <span className="text-muted-foreground/60 text-xs tabular-nums">{difficultyCounts[d]}</span>
+                    </span>
                   </SelectItem>
                 ))}
               </SelectContent>
@@ -419,7 +441,10 @@ export function ProblemsetContent({ defaultFilter = "" }: { defaultFilter?: stri
                 <SelectItem value="all">All</SelectItem>
                 {uniquePatterns.map((p) => (
                   <SelectItem key={p} value={p}>
-                    {p}
+                    <span className="flex items-center justify-between w-full gap-2">
+                      <span>{p}</span>
+                      <span className="text-muted-foreground/60 text-xs tabular-nums">{patternCounts[p]}</span>
+                    </span>
                   </SelectItem>
                 ))}
               </SelectContent>
