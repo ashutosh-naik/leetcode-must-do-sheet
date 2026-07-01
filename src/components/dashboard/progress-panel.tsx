@@ -8,7 +8,7 @@ import { cn } from "@/lib/utils";
 import { Trophy, CheckCircle, RotateCcw } from "lucide-react";
 
 function CircularGauge({ value, total }: { value: number; total: number }) {
-  const pct = total > 0 ? Math.round((value / total) * 100) : 0;
+  const pct = total > 0 ? (value / total) * 100 : 0;
   const r = 60;
   const circ = 2 * Math.PI * r;
   const dashOffset = circ - (pct / 100) * circ;
@@ -46,7 +46,7 @@ function CircularGauge({ value, total }: { value: number; total: number }) {
           / {total}
         </span>
         <span className="text-xs font-semibold text-primary mt-0.5">
-          {pct}%
+          {pct.toFixed(1)}%
         </span>
       </div>
     </div>
@@ -81,7 +81,7 @@ function DifficultyCard({
   total: number;
 }) {
   const cfg = difficultyConfig[difficulty];
-  const pct = total > 0 ? Math.round((solved / total) * 100) : 0;
+  const pct = total > 0 ? (solved / total) * 100 : 0;
 
   return (
     <div className={cn("flex items-center gap-3 rounded-xl p-4 transition-all duration-200 hover:scale-[1.02] active:scale-[0.98] cursor-default", cfg.bg)}>

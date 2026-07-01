@@ -17,7 +17,7 @@ export default function DashboardPage() {
 
   const total = PROBLEMS.length;
   const solved = solvedSet.size;
-  const completion = total > 0 ? Math.round((solved / total) * 100) : 0;
+  const completion = total > 0 ? (solved / total) * 100 : 0;
 
   return (
     <div className="max-w-4xl mx-auto px-4 py-8 space-y-8">
@@ -66,7 +66,7 @@ export default function DashboardPage() {
                     animation: "scale-in 0.5s ease-out 400ms forwards",
                   }}
                 >
-                  {completion}%
+                  {completion.toFixed(1)}%
                 </span>
                 <p className="text-sm text-muted-foreground">Overall Completion</p>
                 <p className="text-xs text-muted-foreground">
