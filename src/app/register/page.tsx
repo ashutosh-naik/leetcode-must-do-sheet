@@ -17,6 +17,7 @@ export default function RegisterPage() {
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [loading, setLoading] = useState(false);
+  const [socialLoading, setSocialLoading] = useState<"google" | "github" | null>(null);
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
 
@@ -53,18 +54,24 @@ export default function RegisterPage() {
   }
 
   const handleGoogleLogin = async () => {
+    setSocialLoading("google");
     try {
       await googleLogin();
     } catch (err) {
       setError(err instanceof Error ? err.message : "An error occurred");
+    } finally {
+      setSocialLoading(null);
     }
   };
 
   const handleGitHubLogin = async () => {
+    setSocialLoading("github");
     try {
       await githubLogin();
     } catch (err) {
       setError(err instanceof Error ? err.message : "An error occurred");
+    } finally {
+      setSocialLoading(null);
     }
   };
 
@@ -181,19 +188,21 @@ export default function RegisterPage() {
             type="button"
             variant="outline"
             onClick={handleGoogleLogin}
-            className="flex-1 gap-2 font-medium cursor-pointer"
+            disabled={socialLoading !== null}
+            className="flex-1 gap-2 font-medium cursor-pointer disabled:opacity-50"
           >
             <Image src="/google.svg" alt="Google" width={20} height={20} />
-            Google
+            {socialLoading === "google" ? "Loading..." : "Google"}
           </Button>
           <Button
             type="button"
             variant="outline"
             onClick={handleGitHubLogin}
-            className="flex-1 gap-2 font-medium cursor-pointer"
+            disabled={socialLoading !== null}
+            className="flex-1 gap-2 font-medium cursor-pointer disabled:opacity-50"
           >
             <Image src="/github.svg" alt="GitHub" width={20} height={20} />
-            GitHub
+            {socialLoading === "github" ? "Loading..." : "GitHub"}
           </Button>
         </div>
       </div>

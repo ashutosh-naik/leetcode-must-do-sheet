@@ -42,6 +42,7 @@ export const ProblemCard = memo(function ProblemCard({
             checked={solved}
             onCheckedChange={handleToggle}
             disabled={!user}
+            aria-label={`Mark problem ${problem.id}: ${problem.name} as ${solved ? "unsolved" : "solved"}`}
             className="size-4 sm:size-5 shrink-0 data-[state=checked]:bg-primary data-[state=checked]:border-primary cursor-pointer transition-all duration-200 hover:scale-110 active:scale-90"
           />
           <div className="space-y-1 min-w-0">

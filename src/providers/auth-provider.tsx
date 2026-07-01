@@ -104,11 +104,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         password,
       });
       if (error) return error.message;
-      const params = new URLSearchParams(window.location.search);
-      router.push(params.get("next") ?? "/");
       return null;
     },
-    [router],
+    [],
   );
 
   const register = useCallback(

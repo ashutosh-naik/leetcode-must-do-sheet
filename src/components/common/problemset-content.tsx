@@ -287,6 +287,7 @@ export function ProblemsetContent({ defaultFilter = "" }: { defaultFilter?: stri
     const params = new URLSearchParams(window.location.search);
     const current = params.get("dir") ?? "asc";
     params.set("dir", current === "asc" ? "desc" : "asc");
+    params.delete("page");
     router.replace(`?${params.toString()}`, { scroll: false });
   }, [router]);
 
@@ -395,10 +396,7 @@ export function ProblemsetContent({ defaultFilter = "" }: { defaultFilter?: stri
             />
             {searchInput && (
               <button
-                onClick={() => {
-                  setSearchInput("");
-                  setParam("q", "");
-                }}
+                onClick={() => setSearchInput("")}
                 className="absolute right-2 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground hover:scale-110 active:scale-90 transition-all duration-200 cursor-pointer bg-transparent border-none p-0"
               >
                 <X className="h-4 w-4" />

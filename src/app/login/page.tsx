@@ -3,7 +3,7 @@
 import { useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
-import { useSearchParams } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { Logo } from "@/components/common/logo";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -11,10 +11,12 @@ import { useAuth } from "@/providers/auth-provider";
 
 export default function LoginPage() {
   const { login, googleLogin, githubLogin } = useAuth();
+  const router = useRouter();
   const searchParams = useSearchParams();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
+  const [socialLoading, setSocialLoading] = useState<"google" | "github" | null>(null);
   const [error, setError] = useState(searchParams.get("error") ? decodeURIComponent(searchParams.get("error")!) : "");
 
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
@@ -28,29 +30,35 @@ export default function LoginPage() {
       return;
     }
 
-    try {
-      const err = await login(email, password);
+    const err = await login(email, password);
+    if (err) {
       setLoading(false);
-      if (err) setError(err);
-    } catch (err) {
-      setLoading(false);
-      setError(err instanceof Error ? err.message : "An error occurred");
+      setError(err);
+      return;
     }
+    const next = searchParams.get("next") ?? "/";
+    router.push(next);
   }
 
   const handleGoogleLogin = async () => {
+    setSocialLoading("google");
     try {
       await googleLogin();
     } catch (err) {
       setError(err instanceof Error ? err.message : "An error occurred");
+    } finally {
+      setSocialLoading(null);
     }
   };
 
   const handleGitHubLogin = async () => {
+    setSocialLoading("github");
     try {
       await githubLogin();
     } catch (err) {
       setError(err instanceof Error ? err.message : "An error occurred");
+    } finally {
+      setSocialLoading(null);
     }
   };
 
@@ -140,19 +148,21 @@ export default function LoginPage() {
             type="button"
             variant="outline"
             onClick={handleGoogleLogin}
-            className="flex-1 gap-2 font-medium cursor-pointer"
+            disabled={socialLoading !== null}
+            className="flex-1 gap-2 font-medium cursor-pointer disabled:opacity-50"
           >
             <Image src="/google.svg" alt="Google" width={20} height={20} />
-            Google
+            {socialLoading === "google" ? "Loading..." : "Google"}
           </Button>
           <Button
             type="button"
             variant="outline"
             onClick={handleGitHubLogin}
-            className="flex-1 gap-2 font-medium cursor-pointer"
+            disabled={socialLoading !== null}
+            className="flex-1 gap-2 font-medium cursor-pointer disabled:opacity-50"
           >
             <Image src="/github.svg" alt="GitHub" width={20} height={20} />
-            GitHub
+            {socialLoading === "github" ? "Loading..." : "GitHub"}
           </Button>
         </div>
       </div>
