@@ -208,13 +208,13 @@ export function ProblemsetContent({ defaultFilter = "" }: { defaultFilter?: stri
     }
 
     if (currentUserId !== previousUserId) {
-      setSolvedProblemIds([]);
       synced.current = false;
     }
 
     if (!synced.current) {
       let cancelled = false;
-      syncSolvedProblems(user.id, useProblemStore.getState().solvedProblemIds)
+      const localIds = useProblemStore.getState().solvedProblemIds;
+      syncSolvedProblems(user.id, localIds)
         .then((merged) => {
           if (!cancelled) {
             synced.current = true;
@@ -224,6 +224,7 @@ export function ProblemsetContent({ defaultFilter = "" }: { defaultFilter?: stri
         .catch((err) => {
           if (!cancelled) {
             logger.error("Error syncing problems:", err);
+            synced.current = true;
           }
         });
       return () => { cancelled = true; };
@@ -342,6 +343,7 @@ export function ProblemsetContent({ defaultFilter = "" }: { defaultFilter?: stri
         {/* Mobile toggle */}
         <button
           onClick={() => setShowProgress(!showProgress)}
+          aria-expanded={showProgress}
           className="flex lg:hidden items-center gap-2 w-full rounded-xl bg-muted/50 dark:bg-[#202020] px-4 py-3 text-sm font-medium text-muted-foreground hover:text-foreground transition-all duration-200 active:scale-[0.98] cursor-pointer border-none"
         >
           <BarChart3 className="h-4 w-4 text-primary" />
@@ -650,6 +652,7 @@ const ProblemRow = memo(function ProblemRow({
           checked={solved}
           onCheckedChange={handleToggle}
           disabled={!user}
+          aria-label={`Mark problem ${problem.id}: ${problem.name} as ${solved ? "unsolved" : "solved"}`}
           className="cursor-pointer transition-all duration-200 hover:scale-110 active:scale-90"
         />
       </TableCell>

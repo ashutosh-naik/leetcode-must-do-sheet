@@ -1,9 +1,10 @@
+import { cn } from "@/lib/utils";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 
 function Pulse({ className }: { className?: string }) {
   return (
     <div
-      className={`rounded-md shimmer-bg animate-shimmer ${className ?? ""}`}
+      className={cn("rounded-md shimmer-bg animate-shimmer", className)}
     />
   );
 }

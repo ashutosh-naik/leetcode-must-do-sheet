@@ -84,7 +84,7 @@ function DifficultyCard({
   const pct = total > 0 ? (solved / total) * 100 : 0;
 
   return (
-    <div className={cn("flex items-center gap-3 rounded-xl p-4 transition-all duration-200 hover:scale-[1.02] active:scale-[0.98] cursor-default", cfg.bg)}>
+    <div className={cn("flex items-center gap-3 rounded-xl p-4 transition-all duration-200 hover:scale-[1.02] active:scale-[0.98] cursor-default group", cfg.bg)}>
       <div
         className={cn(
           "size-11 rounded-full flex items-center justify-center shrink-0 transition-transform duration-200 group-hover:scale-110",

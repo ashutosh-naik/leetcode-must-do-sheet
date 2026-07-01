@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useCallback, useSyncExternalStore } from "react";
+import React, { useCallback, useEffect, useSyncExternalStore } from "react";
 import { useTheme } from "next-themes";
 import Link from "next/link";
 import Image from "next/image";
@@ -37,7 +37,13 @@ export function Navbar() {
   const searchString = useSyncExternalStore(
     (cb) => {
       window.addEventListener("popstate", cb);
-      return () => window.removeEventListener("popstate", cb);
+      window.addEventListener("pushstate", cb);
+      window.addEventListener("replacestate", cb);
+      return () => {
+        window.removeEventListener("popstate", cb);
+        window.removeEventListener("pushstate", cb);
+        window.removeEventListener("replacestate", cb);
+      };
     },
     () => window.location.search,
     () => "",
@@ -50,6 +56,23 @@ export function Navbar() {
     () => true,
     () => false,
   );
+
+  useEffect(() => {
+    const originalPushState = history.pushState.bind(history);
+    const originalReplaceState = history.replaceState.bind(history);
+    history.pushState = function (data, unused, url) {
+      originalPushState(data, unused, url);
+      window.dispatchEvent(new Event("pushstate"));
+    };
+    history.replaceState = function (data, unused, url) {
+      originalReplaceState(data, unused, url);
+      window.dispatchEvent(new Event("replacestate"));
+    };
+    return () => {
+      history.pushState = originalPushState;
+      history.replaceState = originalReplaceState;
+    };
+  }, []);
 
   const isActive = useCallback((href: string) => {
     const [basePath, queryString] = href.split("?");

@@ -5,7 +5,7 @@ import { ProblemsetContent } from "@/components/common/problemset-content";
 
 export default function ProblemsetPage() {
   return (
-    <Suspense>
+    <Suspense fallback={<div className="flex min-h-[50vh] items-center justify-center"><div className="size-8 rounded-full border-2 border-primary border-t-transparent animate-spin" /></div>}>
       <ProblemsetContent />
     </Suspense>
   );
