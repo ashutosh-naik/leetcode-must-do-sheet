@@ -194,6 +194,16 @@ export function ProblemsetContent({ defaultFilter = "" }: { defaultFilter?: stri
   const [searchInput, setSearchInput] = useState(q);
   const debouncedSearch = useDebounce(searchInput, 300);
   const [showProgress, setShowProgress] = useState(false);
+  const prevQ = useRef(q);
+
+  useEffect(() => {
+    if (prevQ.current !== q) {
+      prevQ.current = q;
+      setSearchInput(q);
+    } else {
+      prevQ.current = q;
+    }
+  }, [q]);
   const pendingToggle = useRef(new Set<number>());
   const { toast } = useToast();
 
