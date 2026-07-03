@@ -371,7 +371,7 @@ export function ProblemsetContent({ defaultFilter = "" }: { defaultFilter?: stri
               Learning Order by DSA Pattern
             </h2>
             <p className="text-xs sm:text-sm text-muted-foreground">
-              Pattern Order · Easy → Hard
+              Pattern Order · Easy → Medium → Hard
               <br />
               High Frequency First
             </p>
