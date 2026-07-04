@@ -9,6 +9,7 @@ import type { Problem } from "@/constants/problems";
 import { cn } from "@/lib/utils";
 import { DifficultyBadge } from "@/components/common/difficulty-badge";
 import { useAuth } from "@/providers/auth-provider";
+import { useProblemStore } from "@/store/problem-store";
 
 interface ProblemCardProps {
   problem: Problem;
@@ -25,6 +26,8 @@ export const ProblemCard = memo(function ProblemCard({
 }: ProblemCardProps) {
   const handleToggle = useCallback(() => onToggle(problem.id), [onToggle, problem.id]);
   const { user } = useAuth();
+  const solvedProblemDates = useProblemStore((s) => s.solvedProblemDates);
+  const date = solvedProblemDates[problem.id];
   return (
     <Card
       className={cn(
@@ -76,6 +79,11 @@ export const ProblemCard = memo(function ProblemCard({
               {problem.frequency && (
                 <span className="text-[10px] font-mono text-muted-foreground/60 ml-auto sm:ml-1">
                   {problem.frequency}
+                </span>
+              )}
+              {date && (
+                <span className="text-[10px] text-green-600 dark:text-green-400 ml-2 tabular-nums">
+                  ✓ Solved {date}
                 </span>
               )}
             </div>

@@ -247,15 +247,11 @@ export function ProblemsetContent({ defaultFilter = "" }: { defaultFilter?: stri
       if (pendingToggle.current.has(id)) return;
       pendingToggle.current.add(id);
       try {
-        const store = useProblemStore.getState();
-        const wasSolved = store.solvedProblemIds.includes(id);
-        const newSolved = wasSolved
-          ? store.solvedProblemIds.filter((pId) => pId !== id)
-          : [...store.solvedProblemIds, id];
         toggleProblemSolved(id);
         const problem = PROBLEMS.find((p) => p.id === id);
         if (problem) {
-          const isSolved = newSolved.includes(id);
+          const store = useProblemStore.getState();
+          const isSolved = store.solvedProblemIds.includes(id);
           const slug = extractSlug(problem.link);
           await upsertProblemProgress(user.id, slug, isSolved);
         }
