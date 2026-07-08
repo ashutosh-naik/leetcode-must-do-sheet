@@ -90,6 +90,13 @@
   --sidebar-border: #EBEBEB;
   --sidebar-ring: #FFA116;
 
+  /* Chart colors */
+  --chart-1: #FFA116;
+  --chart-2: #00AF9B;
+  --chart-3: #FF375F;
+  --chart-4: #FFB800;
+  --chart-5: #4A90D9;
+
   /* Custom Light Mode Accents */
   --easy: #00AF9B;
   --medium: #FFB800;
@@ -126,6 +133,13 @@
   --sidebar-accent-foreground: #FFFFFF;
   --sidebar-border: #2A2A2A;
   --sidebar-ring: #FFA116;
+
+  /* Chart colors */
+  --chart-1: #FFA116;
+  --chart-2: #00CCB8;
+  --chart-3: #EF5350;
+  --chart-4: #FFC107;
+  --chart-5: #5C9EE6;
 
   /* Custom Dark Mode Accents */
   --easy: #00CCB8;

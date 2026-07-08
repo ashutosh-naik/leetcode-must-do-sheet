@@ -1,6 +1,6 @@
 "use client";
 
-import React from "react";
+import React, { useRef, useEffect } from "react";
 import { Navbar } from "./navbar";
 import { AuthProvider, useAuth } from "@/providers/auth-provider";
 import { useProblemStore } from "@/store/problem-store";
@@ -17,6 +17,8 @@ function ResetHandler() {
   const { showResetConfirm, setShowResetConfirm, resetProgress } =
     useProblemStore();
   const { toast } = useToast();
+  const dialogRef = useRef<HTMLDivElement>(null);
+  const previousFocusRef = useRef<HTMLElement | null>(null);
 
   const handleCancelReset = () => {
     setShowResetConfirm(false);
@@ -35,18 +37,69 @@ function ResetHandler() {
     }
   };
 
+  useEffect(() => {
+    if (showResetConfirm) {
+      previousFocusRef.current = document.activeElement as HTMLElement;
+      // Focus the Cancel button after mount
+      const timer = setTimeout(() => {
+        const cancelBtn = dialogRef.current?.querySelector("button");
+        cancelBtn?.focus();
+      }, 50);
+      return () => clearTimeout(timer);
+    } else if (previousFocusRef.current) {
+      previousFocusRef.current.focus();
+      previousFocusRef.current = null;
+    }
+  }, [showResetConfirm]);
+
+  // Focus trap
+  useEffect(() => {
+    if (!showResetConfirm) return;
+
+    function handleKeyDown(e: KeyboardEvent) {
+      if (e.key === "Escape") {
+        setShowResetConfirm(false);
+        return;
+      }
+      if (e.key !== "Tab") return;
+
+      const focusable = dialogRef.current?.querySelectorAll<HTMLElement>(
+        'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])',
+      );
+      if (!focusable || focusable.length === 0) return;
+
+      const first = focusable[0];
+      const last = focusable[focusable.length - 1];
+
+      if (e.shiftKey) {
+        if (document.activeElement === first) {
+          e.preventDefault();
+          last.focus();
+        }
+      } else {
+        if (document.activeElement === last) {
+          e.preventDefault();
+          first.focus();
+        }
+      }
+    }
+
+    document.addEventListener("keydown", handleKeyDown);
+    return () => document.removeEventListener("keydown", handleKeyDown);
+  }, [showResetConfirm, setShowResetConfirm]);
+
   if (!showResetConfirm) return null;
 
   return (
     <div
       className="fixed inset-0 z-[100] flex items-center justify-center bg-black/60 backdrop-blur-sm animate-in fade-in duration-200"
       onClick={handleCancelReset}
-      onKeyDown={(e) => e.key === "Escape" && handleCancelReset()}
       role="dialog"
       aria-modal="true"
       aria-label="Reset progress confirmation"
     >
       <div
+        ref={dialogRef}
         className="mx-4 w-full max-w-[420px] rounded-2xl border border-border/80 bg-card p-6 shadow-2xl animate-in fade-in zoom-in-95 duration-200"
         onClick={(e) => e.stopPropagation()}
       >

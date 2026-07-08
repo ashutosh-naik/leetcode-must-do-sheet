@@ -231,7 +231,8 @@ export function ProblemsetContent({ defaultFilter = "" }: { defaultFilter?: stri
     if (!synced.current) {
       let cancelled = false;
       const localIds = useProblemStore.getState().solvedProblemIds;
-      syncSolvedProblems(user.id, localIds)
+      const localDates = useProblemStore.getState().solvedProblemDates;
+      syncSolvedProblems(user.id, localIds, localDates)
         .then(({ ids, dates }) => {
           if (!cancelled) {
             synced.current = true;

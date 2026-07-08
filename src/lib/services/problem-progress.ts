@@ -86,6 +86,7 @@ export async function getSolvedProblemSlugs(userId: string): Promise<{ slug: str
 export async function syncSolvedProblems(
   userId: string,
   localIds: number[],
+  localDates?: Record<number, string>,
 ): Promise<{ ids: number[]; dates: Record<number, string> }> {
   let remoteRows: { slug: string; lastSolvedAt: string | null }[];
   try {
@@ -95,15 +96,21 @@ export async function syncSolvedProblems(
     remoteRows = [];
   }
 
+  // Build slug→id map once for O(n) lookups instead of O(n²)
+  const slugToId = new Map<string, number>();
+  for (const p of PROBLEMS) {
+    slugToId.set(extractSlug(p.link), p.id);
+  }
+
   const remoteIds = remoteRows
-    .map((r) => PROBLEMS.find((p) => extractSlug(p.link) === r.slug)?.id)
+    .map((r) => slugToId.get(r.slug))
     .filter((id): id is number => id != null);
 
   const allIds = [...new Set([...remoteIds, ...localIds])];
 
   const dates: Record<number, string> = {};
   for (const row of remoteRows) {
-    const id = PROBLEMS.find((p) => extractSlug(p.link) === row.slug)?.id;
+    const id = slugToId.get(row.slug);
     if (id != null && row.lastSolvedAt) {
       const d = new Date(row.lastSolvedAt);
       dates[id] = d.toLocaleDateString("en-GB", {
@@ -115,6 +122,16 @@ export async function syncSolvedProblems(
     }
   }
 
+  // Merge remote dates with local dates (remote wins if both exist)
+  if (localDates) {
+    for (const [idStr, date] of Object.entries(localDates)) {
+      const id = Number(idStr);
+      if (!(id in dates)) {
+        dates[id] = date;
+      }
+    }
+  }
+
   const remoteSlugSet = new Set(remoteRows.map((r) => r.slug));
   const toUpload = localIds.filter((id) => {
     const slug = getProblemSlug(id);
@@ -122,12 +139,24 @@ export async function syncSolvedProblems(
   });
 
   if (toUpload.length > 0) {
-    const rows = toUpload.map((id) => ({
-      user_id: userId,
-      problem_slug: getProblemSlug(id),
-      status: "Solved" as const,
-      last_solved_at: new Date().toISOString(),
-    }));
+    const rows = toUpload.map((id) => {
+      // Use local date if available, otherwise use now
+      const localDate = localDates?.[id];
+      let lastSolvedAt: string;
+      if (localDate) {
+        // Convert en-GB DD/MM/YYYY back to ISO
+        const [day, month, year] = localDate.split("/");
+        lastSolvedAt = new Date(`${year}-${month}-${day}T00:00:00Z`).toISOString();
+      } else {
+        lastSolvedAt = new Date().toISOString();
+      }
+      return {
+        user_id: userId,
+        problem_slug: getProblemSlug(id),
+        status: "Solved" as const,
+        last_solved_at: lastSolvedAt,
+      };
+    });
 
     const { error } = await supabase.from("problem_progress").upsert(rows, {
       onConflict: "user_id,problem_slug",
