@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useCallback, useEffect, useSyncExternalStore } from "react";
+import React, { useCallback, useEffect, useRef, useSyncExternalStore } from "react";
 import { useTheme } from "next-themes";
 import Link from "next/link";
 import Image from "next/image";
@@ -51,11 +51,41 @@ export function Navbar() {
   const { resolvedTheme, setTheme } = useTheme();
   const { user, loading, logout } = useAuth();
   const [mobileOpen, setMobileOpen] = React.useState(false);
+  const mobileNavRef = useRef<HTMLDivElement>(null);
+  const menuButtonRef = useRef<HTMLButtonElement>(null);
   const mounted = useSyncExternalStore(
     () => () => {},
     () => true,
     () => false,
   );
+
+  // Focus trap for mobile nav
+  useEffect(() => {
+    if (!mobileOpen) return;
+    const nav = mobileNavRef.current;
+    if (!nav) return;
+    const focusable = nav.querySelectorAll<HTMLElement>("a[href], button:not([disabled])");
+    if (focusable.length > 0) focusable[0].focus();
+    function handleKeyDown(e: KeyboardEvent) {
+      if (e.key === "Escape") {
+        setMobileOpen(false);
+        menuButtonRef.current?.focus();
+        return;
+      }
+      if (e.key !== "Tab") return;
+      const first = focusable[0];
+      const last = focusable[focusable.length - 1];
+      if (e.shiftKey && document.activeElement === first) {
+        e.preventDefault();
+        last.focus();
+      } else if (!e.shiftKey && document.activeElement === last) {
+        e.preventDefault();
+        first.focus();
+      }
+    }
+    document.addEventListener("keydown", handleKeyDown);
+    return () => document.removeEventListener("keydown", handleKeyDown);
+  }, [mobileOpen]);
 
   useEffect(() => {
     const originalPushState = history.pushState.bind(history);
@@ -198,6 +228,7 @@ export function Navbar() {
           ))}
 
         <Button
+          ref={menuButtonRef}
           variant="ghost"
           size="icon"
           onClick={() => setMobileOpen(!mobileOpen)}
@@ -221,6 +252,7 @@ export function Navbar() {
             onKeyDown={(e) => e.key === "Escape" && setMobileOpen(false)}
           />
           <div
+            ref={mobileNavRef}
             className="absolute top-14 sm:top-16 left-0 right-0 z-50 bg-background border-b border-border shadow-lg md:hidden animate-in fade-in slide-in-from-top-2 duration-200 max-h-[80vh] overflow-y-auto"
             role="dialog"
             aria-label="Mobile navigation menu"

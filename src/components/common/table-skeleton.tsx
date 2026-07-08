@@ -18,6 +18,7 @@ export function TableSkeletonDesktop() {
             <TableHead className="w-10 text-center">#</TableHead>
             <TableHead>Title</TableHead>
             <TableHead className="w-24">Difficulty</TableHead>
+            <TableHead className="hidden sm:table-cell">Solved</TableHead>
             <TableHead className="w-20 text-right hidden sm:table-cell">Freq</TableHead>
           </TableRow>
         </TableHeader>
@@ -33,6 +34,9 @@ export function TableSkeletonDesktop() {
               </TableCell>
               <TableCell className="py-3">
                 <Pulse className="h-5 w-16" />
+              </TableCell>
+              <TableCell className="hidden sm:table-cell py-3">
+                <Pulse className="h-3 w-20" />
               </TableCell>
               <TableCell className="text-right hidden sm:table-cell py-3">
                 <Pulse className="h-4 w-10 ml-auto" />

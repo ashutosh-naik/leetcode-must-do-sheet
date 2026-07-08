@@ -541,6 +541,7 @@ export function ProblemsetContent({ defaultFilter = "" }: { defaultFilter?: stri
                 <TableHead className="w-10 text-center">#</TableHead>
                 <TableHead>Title</TableHead>
                 <TableHead className="w-24">Difficulty</TableHead>
+                <TableHead className="hidden sm:table-cell">Solved</TableHead>
                 <TableHead className="w-20 text-right hidden sm:table-cell">
                   Freq
                 </TableHead>
@@ -550,7 +551,7 @@ export function ProblemsetContent({ defaultFilter = "" }: { defaultFilter?: stri
               {paged.length === 0 ? (
                 <TableRow>
                   <TableCell
-                    colSpan={4}
+                    colSpan={5}
                     className="text-center py-16 text-muted-foreground"
                   >
                     <div className="flex flex-col items-center gap-3 animate-in fade-in scale-in duration-300">
@@ -651,6 +652,7 @@ const ProblemRow = memo(function ProblemRow({
   index?: number;
 }) {
   const handleToggle = useCallback(() => onToggle(problem.id), [onToggle, problem.id]);
+  const date = useProblemStore((s) => s.solvedProblemDates[problem.id]);
   const isImportant = IMPORTANT_IDS.has(problem.id);
   return (
     <TableRow
@@ -712,6 +714,13 @@ const ProblemRow = memo(function ProblemRow({
       <TableCell className="py-3">
         <DifficultyBadge difficulty={problem.difficulty} />
       </TableCell>
+      {date && (
+        <TableCell className="py-3 hidden sm:table-cell">
+          <span className="text-[10px] text-green-600 dark:text-green-400 tabular-nums whitespace-nowrap">
+            ✓ {date}
+          </span>
+        </TableCell>
+      )}
       <TableCell className="text-right hidden sm:table-cell py-3">
         <span className="text-xs font-semibold tabular-nums text-muted-foreground">
           {problem.frequency ?? "—"}
