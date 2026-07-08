@@ -74,7 +74,6 @@ const PATTERN_ORDER = [
   "Binary Search",
   "Linked List",
   "Queue",
-  "Sorting",
   "Tree DFS",
   "Tree BFS",
   "BST",
@@ -212,6 +211,11 @@ export function ProblemsetContent({ defaultFilter = "" }: { defaultFilter?: stri
   }, [q]);
   const pendingToggle = useRef(new Set<number>());
   const { toast } = useToast();
+  const userRef = useRef(user);
+
+  useEffect(() => {
+    userRef.current = user;
+  });
 
   useEffect(() => {
     const currentUserId = user?.id;
@@ -261,13 +265,14 @@ export function ProblemsetContent({ defaultFilter = "" }: { defaultFilter?: stri
       pendingToggle.current.add(id);
       try {
         toggleProblemSolved(id);
-        if (user) {
+        const currentUser = userRef.current;
+        if (currentUser) {
           const problem = PROBLEMS.find((p) => p.id === id);
           if (problem) {
             const store = useProblemStore.getState();
             const isSolved = store.solvedProblemIds.includes(id);
             const slug = extractSlug(problem.link);
-            await upsertProblemProgress(user.id, slug, isSolved);
+            await upsertProblemProgress(currentUser.id, slug, isSolved);
           }
         }
       } catch (err) {
@@ -280,7 +285,7 @@ export function ProblemsetContent({ defaultFilter = "" }: { defaultFilter?: stri
         pendingToggle.current.delete(id);
       }
     },
-    [user, toggleProblemSolved, toast],
+    [toggleProblemSolved, toast],
   );
 
   const setParam = useCallback(
@@ -302,7 +307,7 @@ export function ProblemsetContent({ defaultFilter = "" }: { defaultFilter?: stri
 
   useEffect(() => {
     setParam("q", debouncedSearch);
-  }, [debouncedSearch]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [debouncedSearch, setParam]);
 
   const toggleSortDir = useCallback(() => {
     const params = new URLSearchParams(window.location.search);
@@ -336,12 +341,15 @@ export function ProblemsetContent({ defaultFilter = "" }: { defaultFilter?: stri
   const totalPages = Math.ceil(filteredList.length / PAGE_SIZE);
   const paged = filteredList.slice(page * PAGE_SIZE, (page + 1) * PAGE_SIZE);
 
-  const sortIcon =
-    dir === "asc" ? (
-      <ArrowUp className="h-3 w-3" />
-    ) : (
-      <ArrowDown className="h-3 w-3" />
-    );
+  const sortIcon = useMemo(
+    () =>
+      dir === "asc" ? (
+        <ArrowUp className="h-3 w-3" />
+      ) : (
+        <ArrowDown className="h-3 w-3" />
+      ),
+    [dir],
+  );
 
   return (
     <div className="flex flex-col gap-4 sm:gap-6 lg:flex-row lg:items-start justify-center mx-auto w-full max-w-7xl px-3 sm:px-6 lg:px-8 py-4 sm:py-6 lg:py-8">
