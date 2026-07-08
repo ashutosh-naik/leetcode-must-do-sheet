@@ -8,8 +8,8 @@ import { ExternalLink } from "lucide-react";
 import type { Problem } from "@/constants/problems";
 import { cn } from "@/lib/utils";
 import { DifficultyBadge } from "@/components/common/difficulty-badge";
-import { useAuth } from "@/providers/auth-provider";
 import { useProblemStore } from "@/store/problem-store";
+import { IMPORTANT_IDS } from "@/constants/important-problems";
 
 interface ProblemCardProps {
   problem: Problem;
@@ -25,9 +25,9 @@ export const ProblemCard = memo(function ProblemCard({
   index = 0,
 }: ProblemCardProps) {
   const handleToggle = useCallback(() => onToggle(problem.id), [onToggle, problem.id]);
-  const { user } = useAuth();
   const solvedProblemDates = useProblemStore((s) => s.solvedProblemDates);
   const date = solvedProblemDates[problem.id];
+  const isImportant = IMPORTANT_IDS.has(problem.id);
   return (
     <Card
       className={cn(
@@ -44,14 +44,13 @@ export const ProblemCard = memo(function ProblemCard({
             id={`problem-card-check-${problem.id}`}
             checked={solved}
             onCheckedChange={handleToggle}
-            disabled={!user}
             aria-label={`Mark problem ${problem.id}: ${problem.name} as ${solved ? "unsolved" : "solved"}`}
             className="size-4 sm:size-5 shrink-0 data-[state=checked]:bg-primary data-[state=checked]:border-primary cursor-pointer transition-all duration-200 hover:scale-110 active:scale-90"
           />
           <div className="space-y-1 min-w-0">
             <div className="flex items-center gap-1.5 sm:gap-2 flex-wrap">
               <span className="text-xs sm:text-sm font-semibold text-muted-foreground tabular-nums">
-                {problem.id}
+                {problem.id}.
               </span>
               <a
                 href={problem.link}
@@ -65,6 +64,11 @@ export const ProblemCard = memo(function ProblemCard({
                 {problem.name}
                 <ExternalLink className="h-2.5 w-2.5 sm:h-3 sm:w-3 shrink-0" />
               </a>
+              {isImportant && (
+                <Badge className="text-[9px] px-1.5 py-0 h-4 font-bold bg-amber-500/15 text-amber-600 dark:text-amber-400 border-amber-500/30 shrink-0">
+                  IMP
+                </Badge>
+              )}
             </div>
             <div className="flex items-center gap-1 sm:gap-1.5 flex-wrap">
               <DifficultyBadge difficulty={problem.difficulty} />

@@ -15,7 +15,6 @@ import {
   ArrowUpDown,
   Search,
   X,
-  Shuffle,
   ArrowUp,
   ArrowDown,
   BarChart3,
@@ -56,6 +55,7 @@ import { useDebounce } from "@/hooks/use-debounce";
 import { DifficultyBadge } from "@/components/common/difficulty-badge";
 import { useToast } from "@/components/ui/toast";
 import { logger } from "@/lib/logger";
+import { IMPORTANT_IDS } from "@/constants/important-problems";
 import {
   upsertProblemProgress,
   syncSolvedProblems,
@@ -93,6 +93,7 @@ function useFilteredProblems(defaultFilter = "") {
   const q = searchParams.get("q") ?? "";
   const difficulty = searchParams.get("difficulty") ?? "";
   const pattern = searchParams.get("pattern") ?? "";
+  const important = searchParams.get("important") === "1";
   const filter = searchParams.get("filter") ?? defaultFilter;
   const sort = (searchParams.get("sort") ?? "default") as
     "default" | "id" | "difficulty" | "frequency";
@@ -150,6 +151,9 @@ function useFilteredProblems(defaultFilter = "") {
         ),
       );
     }
+    if (important) {
+      list = list.filter((p) => IMPORTANT_IDS.has(p.id));
+    }
 
     if (sort !== "default") {
       list.sort((a, b) => {
@@ -171,15 +175,15 @@ function useFilteredProblems(defaultFilter = "") {
     }
 
     return { list, uniquePatterns };
-  }, [q, difficulty, pattern, sort, dir, uniquePatterns]);
+  }, [q, difficulty, pattern, important, sort, dir, uniquePatterns]);
 
-  return { ...filtered, q, difficulty, pattern, filter, sort, dir, difficultyCounts, patternCounts };
+  return { ...filtered, q, difficulty, pattern, important, filter, sort, dir, difficultyCounts, patternCounts };
 }
 
 export function ProblemsetContent({ defaultFilter = "" }: { defaultFilter?: string }) {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const { list, uniquePatterns, q, difficulty, pattern, filter, sort, dir, difficultyCounts, patternCounts } =
+  const { list, uniquePatterns, q, difficulty, pattern, important, filter, sort, dir, difficultyCounts, patternCounts } =
     useFilteredProblems(defaultFilter);
   const solvedProblemIds = useProblemStore((s) => s.solvedProblemIds);
   const toggleProblemSolved = useProblemStore((s) => s.toggleProblemSolved);
@@ -188,8 +192,8 @@ export function ProblemsetContent({ defaultFilter = "" }: { defaultFilter?: stri
   const synced = useRef(false);
   const prevUserId = useRef<string | undefined>(undefined);
   const solvedSet = useMemo(
-    () => (user ? new Set(solvedProblemIds) : new Set()),
-    [solvedProblemIds, user],
+    () => new Set(solvedProblemIds),
+    [solvedProblemIds],
   );
   const [searchInput, setSearchInput] = useState(q);
   const debouncedSearch = useDebounce(searchInput, 300);
@@ -243,17 +247,18 @@ export function ProblemsetContent({ defaultFilter = "" }: { defaultFilter?: stri
 
   const toggleSolved = useCallback(
     async (id: number) => {
-      if (!user) return;
       if (pendingToggle.current.has(id)) return;
       pendingToggle.current.add(id);
       try {
         toggleProblemSolved(id);
-        const problem = PROBLEMS.find((p) => p.id === id);
-        if (problem) {
-          const store = useProblemStore.getState();
-          const isSolved = store.solvedProblemIds.includes(id);
-          const slug = extractSlug(problem.link);
-          await upsertProblemProgress(user.id, slug, isSolved);
+        if (user) {
+          const problem = PROBLEMS.find((p) => p.id === id);
+          if (problem) {
+            const store = useProblemStore.getState();
+            const isSolved = store.solvedProblemIds.includes(id);
+            const slug = extractSlug(problem.link);
+            await upsertProblemProgress(user.id, slug, isSolved);
+          }
         }
       } catch (err) {
         toggleProblemSolved(id);
@@ -296,21 +301,6 @@ export function ProblemsetContent({ defaultFilter = "" }: { defaultFilter?: stri
     params.delete("page");
     router.replace(`?${params.toString()}`, { scroll: false });
   }, [router]);
-
-  const pickOne = useCallback(() => {
-    const today = new Date();
-    const seed =
-      today.getFullYear() * 10000 +
-      (today.getMonth() + 1) * 100 +
-      today.getDate();
-    const unsolved = PROBLEMS.filter((p) => !solvedSet.has(p.id));
-    const pool = unsolved.length > 0 ? unsolved : PROBLEMS;
-    const idx = seed % pool.length;
-    const picked = pool[idx];
-    if (picked) {
-      window.open(picked.link, "_blank", "noopener noreferrer");
-    }
-  }, [solvedSet]);
 
   const filteredList = useMemo(
     () => (filter === "solved" ? list.filter((p) => solvedSet.has(p.id)) : list),
@@ -456,15 +446,17 @@ export function ProblemsetContent({ defaultFilter = "" }: { defaultFilter?: stri
               </SelectContent>
             </Select>
 
-            {/* Pick One — hide label on mobile */}
+            {/* Important filter */}
             <Button
-              variant="outline"
+              variant={important ? "default" : "outline"}
               size="sm"
-              onClick={pickOne}
-              className="h-9 sm:h-10 gap-1.5 cursor-pointer shrink-0"
+              onClick={() => setParam("important", important ? "" : "1")}
+              className={cn(
+                "h-9 sm:h-10 gap-1.5 cursor-pointer shrink-0",
+                important && "bg-amber-500 hover:bg-amber-600 text-white border-amber-500",
+              )}
             >
-              <Shuffle className="h-3.5 w-3.5" />
-              <span className="hidden sm:inline">Pick One</span>
+              <span className="text-xs font-bold">IMP</span>
             </Button>
           </div>
 
@@ -638,7 +630,7 @@ const ProblemRow = memo(function ProblemRow({
   index?: number;
 }) {
   const handleToggle = useCallback(() => onToggle(problem.id), [onToggle, problem.id]);
-  const { user } = useAuth();
+  const isImportant = IMPORTANT_IDS.has(problem.id);
   return (
     <TableRow
       className={cn(
@@ -655,7 +647,6 @@ const ProblemRow = memo(function ProblemRow({
         <Checkbox
           checked={solved}
           onCheckedChange={handleToggle}
-          disabled={!user}
           aria-label={`Mark problem ${problem.id}: ${problem.name} as ${solved ? "unsolved" : "solved"}`}
           className="cursor-pointer transition-all duration-200 hover:scale-110 active:scale-90"
         />
@@ -674,6 +665,11 @@ const ProblemRow = memo(function ProblemRow({
             {problem.name}
             <ExternalLink className="h-3 w-3 text-muted-foreground/40 shrink-0" />
           </Link>
+          {isImportant && (
+            <Badge className="text-[9px] px-1.5 py-0 h-4 font-bold bg-amber-500/15 text-amber-600 dark:text-amber-400 border-amber-500/30 shrink-0">
+              IMP
+            </Badge>
+          )}
         </div>
         <div className="flex flex-wrap gap-1.5 mt-1.5">
           {problem.patterns.slice(0, 2).map((pat) => (
