@@ -11,7 +11,14 @@ import { useAuth } from "@/providers/auth-provider";
 
 export default function RegisterPage() {
   const router = useRouter();
-  const { register, googleLogin, githubLogin } = useAuth();
+  const { register, googleLogin, githubLogin, user, loading: authLoading } = useAuth();
+
+  useEffect(() => {
+    if (!authLoading && user) {
+      router.push("/");
+    }
+  }, [user, authLoading, router]);
+
   const [username, setUsername] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
