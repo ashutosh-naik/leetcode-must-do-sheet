@@ -1,7 +1,6 @@
-"use client";
-
 import Link from "next/link";
-import { Home, ArrowLeft } from "lucide-react";
+import { Home } from "lucide-react";
+import { GoBackButton } from "@/components/common/go-back-button";
 
 export default function NotFound() {
   return (
@@ -23,13 +22,7 @@ export default function NotFound() {
           <Home className="h-4 w-4" />
           Go Home
         </Link>
-        <button
-          onClick={() => window.history.back()}
-          className="inline-flex items-center gap-2 rounded-xl border border-border bg-background px-5 py-2.5 text-sm font-semibold text-foreground shadow-sm hover:bg-muted/50 active:scale-[0.97] transition-all cursor-pointer"
-        >
-          <ArrowLeft className="h-4 w-4" />
-          Go Back
-        </button>
+        <GoBackButton />
       </div>
     </div>
   );

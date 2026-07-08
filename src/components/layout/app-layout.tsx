@@ -8,6 +8,8 @@ import { deleteAllProblemProgress } from "@/lib/services/problem-progress";
 import { ToastProvider, useToast } from "@/components/ui/toast";
 import { AlertCircle } from "lucide-react";
 
+const CURRENT_YEAR = new Date().getFullYear();
+
 interface AppLayoutProps {
   children: React.ReactNode;
 }
