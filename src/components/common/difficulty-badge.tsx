@@ -18,7 +18,7 @@ const config: Record<string, { bg: string; text: string; label: string }> = {
   },
 };
 
-export function DifficultyBadge({ difficulty }: { difficulty: string }) {
+export function DifficultyBadge({ difficulty }: { difficulty: "Easy" | "Medium" | "Hard" }) {
   const c = config[difficulty] ?? config.Easy;
   return (
     <span

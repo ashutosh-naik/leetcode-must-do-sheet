@@ -74,6 +74,7 @@ const PATTERN_ORDER = [
   "Binary Search",
   "Linked List",
   "Queue",
+  "Sorting",
   "Tree DFS",
   "Tree BFS",
   "BST",
@@ -224,14 +225,18 @@ export function ProblemsetContent({ defaultFilter = "" }: { defaultFilter?: stri
 
     if (currentUserId !== previousUserId) {
       synced.current = false;
-      setSolvedProblemIds([]);
-      setSolvedProblemDates({});
     }
 
     if (!synced.current) {
       let cancelled = false;
+      // Read local state BEFORE clearing (Zustand updates are synchronous)
       const localIds = useProblemStore.getState().solvedProblemIds;
       const localDates = useProblemStore.getState().solvedProblemDates;
+      // Clear store for new user
+      if (currentUserId !== previousUserId) {
+        setSolvedProblemIds([]);
+        setSolvedProblemDates({});
+      }
       syncSolvedProblems(user.id, localIds, localDates)
         .then(({ ids, dates }) => {
           if (!cancelled) {
