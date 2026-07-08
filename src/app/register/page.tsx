@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import Image from "next/image";
@@ -20,6 +20,13 @@ export default function RegisterPage() {
   const [socialLoading, setSocialLoading] = useState<"google" | "github" | null>(null);
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
+  const redirectTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  useEffect(() => {
+    return () => {
+      if (redirectTimer.current) clearTimeout(redirectTimer.current);
+    };
+  }, []);
 
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
@@ -48,7 +55,7 @@ export default function RegisterPage() {
     }
 
     setSuccess("Account created! Check your email for a confirmation link.");
-    setTimeout(() => {
+    redirectTimer.current = setTimeout(() => {
       router.push("/login");
     }, 2000);
   }

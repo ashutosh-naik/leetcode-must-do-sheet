@@ -136,6 +136,7 @@ export function Navbar() {
               setTheme(resolvedTheme === "dark" ? "light" : "dark")
             }
             className="hover:bg-accent focus-visible:ring-0 cursor-pointer size-8"
+            aria-label={resolvedTheme === "dark" ? "Switch to light mode" : "Switch to dark mode"}
           >
             {resolvedTheme === "dark" ? (
               <Sun className="h-4 w-4 text-primary" />

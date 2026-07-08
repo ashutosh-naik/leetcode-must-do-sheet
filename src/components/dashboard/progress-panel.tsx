@@ -1,5 +1,6 @@
 "use client";
 
+import { useMemo } from "react";
 import { useProblemStore } from "@/store/problem-store";
 import { PROBLEMS } from "@/constants/problems";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
@@ -118,13 +119,13 @@ function DifficultyCard({
 
 export function ProgressPanel() {
   const solvedProblemIds = useProblemStore((s) => s.solvedProblemIds);
-  const solvedSet = new Set(solvedProblemIds);
   const setShowResetConfirm = useProblemStore((s) => s.setShowResetConfirm);
 
+  const solvedSet = useMemo(() => new Set(solvedProblemIds), [solvedProblemIds]);
   const total = PROBLEMS.length;
   const totalSolved = solvedSet.size;
 
-  const byDifficulty = PROBLEMS.reduce(
+  const byDifficulty = useMemo(() => PROBLEMS.reduce(
     (acc, p) => {
       const solved = solvedSet.has(p.id) ? 1 : 0;
       acc[p.difficulty].total++;
@@ -136,7 +137,7 @@ export function ProgressPanel() {
       Medium: { total: 0, solved: 0 },
       Hard: { total: 0, solved: 0 },
     } as Record<string, { total: number; solved: number }>,
-  );
+  ), [solvedSet]);
 
   return (
     <Card className="border-border/50 shadow-sm">
@@ -151,6 +152,7 @@ export function ProgressPanel() {
             size="icon"
             className="h-9 w-9 sm:h-8 sm:w-8 text-muted-foreground hover:text-foreground"
             onClick={() => setShowResetConfirm(true)}
+            aria-label="Reset progress"
           >
             <RotateCcw className="h-4 w-4" />
           </Button>
