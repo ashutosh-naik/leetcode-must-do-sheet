@@ -145,7 +145,7 @@ export function AppLayout({ children }: AppLayoutProps) {
           <footer className="border-t border-border bg-background/80 backdrop-blur-sm">
             <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-4 sm:py-6 flex flex-col sm:flex-row items-center justify-between gap-2 text-[11px] sm:text-sm text-muted-foreground">
               <p>&copy; {new Date().getFullYear()} LeetCode Must-Do Tracker</p>
-              <p>Built with ❤️</p>
+              <p>Built with ❤️ for Developers</p>
             </div>
           </footer>
 
