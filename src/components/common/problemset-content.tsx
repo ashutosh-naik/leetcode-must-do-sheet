@@ -410,7 +410,10 @@ export function ProblemsetContent({ defaultFilter = "" }: { defaultFilter?: stri
             />
             {searchInput && (
               <button
-                onClick={() => setSearchInput("")}
+                onClick={() => {
+                  setSearchInput("");
+                  setParam("q", "");
+                }}
                 className="absolute right-2 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground hover:scale-110 active:scale-90 transition-all duration-200 cursor-pointer bg-transparent border-none p-0"
               >
                 <X className="h-4 w-4" />

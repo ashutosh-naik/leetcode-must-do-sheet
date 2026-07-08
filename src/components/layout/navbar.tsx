@@ -135,7 +135,7 @@ export function Navbar() {
             onClick={() =>
               setTheme(resolvedTheme === "dark" ? "light" : "dark")
             }
-            className="hover:bg-accent focus-visible:ring-0 cursor-pointer size-8"
+            className="hover:bg-accent focus-visible:ring-0 cursor-pointer size-8 transition-colors duration-150"
             aria-label={resolvedTheme === "dark" ? "Switch to light mode" : "Switch to dark mode"}
           >
             {resolvedTheme === "dark" ? (
@@ -218,8 +218,14 @@ export function Navbar() {
           <div
             className="fixed inset-0 top-14 sm:top-16 z-40 bg-black/20 backdrop-blur-sm md:hidden"
             onClick={() => setMobileOpen(false)}
+            onKeyDown={(e) => e.key === "Escape" && setMobileOpen(false)}
           />
-          <div className="absolute top-14 sm:top-16 left-0 right-0 z-50 bg-background border-b border-border shadow-lg md:hidden animate-in fade-in slide-in-from-top-2 duration-200 max-h-[80vh] overflow-y-auto">
+          <div
+            className="absolute top-14 sm:top-16 left-0 right-0 z-50 bg-background border-b border-border shadow-lg md:hidden animate-in fade-in slide-in-from-top-2 duration-200 max-h-[80vh] overflow-y-auto"
+            role="dialog"
+            aria-label="Mobile navigation menu"
+            onKeyDown={(e) => e.key === "Escape" && setMobileOpen(false)}
+          >
             <nav className="flex flex-col p-3 gap-1" aria-label="Mobile navigation">
               {navLinks.map((link) => {
                 const active = isActive(link.href);

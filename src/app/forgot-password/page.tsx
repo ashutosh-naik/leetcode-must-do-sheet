@@ -55,7 +55,7 @@ export default function ForgotPasswordPage() {
               </p>
               <Link
                 href="/login"
-                className="block text-sm font-medium text-primary hover:underline"
+                className="block text-sm font-medium text-primary hover:underline transition-colors duration-150"
               >
                 Back to Sign In
               </Link>
@@ -93,7 +93,7 @@ export default function ForgotPasswordPage() {
                 Remember your password?{" "}
                 <Link
                   href="/login"
-                  className="font-medium text-primary hover:underline"
+                  className="font-medium text-primary hover:underline transition-colors duration-150"
                 >
                   Sign In
                 </Link>

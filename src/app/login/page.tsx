@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { Suspense, useState, useEffect } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { useRouter, useSearchParams } from "next/navigation";
@@ -9,15 +9,9 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useAuth } from "@/providers/auth-provider";
 
-export default function LoginPage() {
+function LoginForm() {
   const { login, googleLogin, githubLogin, user, loading: authLoading } = useAuth();
   const router = useRouter();
-
-  useEffect(() => {
-    if (!authLoading && user) {
-      router.push("/");
-    }
-  }, [user, authLoading, router]);
   const searchParams = useSearchParams();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -30,6 +24,12 @@ export default function LoginPage() {
       return "";
     }
   });
+
+  useEffect(() => {
+    if (!authLoading && user) {
+      router.push("/");
+    }
+  }, [user, authLoading, router]);
 
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
@@ -135,13 +135,13 @@ export default function LoginPage() {
           <div className="mt-4 flex items-center justify-between text-sm">
             <Link
               href="/forgot-password"
-              className="text-muted-foreground hover:text-foreground"
+              className="text-muted-foreground hover:text-foreground transition-colors duration-150"
             >
               Forgot Password?
             </Link>
             <Link
               href="/register"
-              className="font-medium text-primary hover:underline"
+              className="font-medium text-primary hover:underline transition-colors duration-150"
             >
               Sign Up
             </Link>
@@ -183,5 +183,17 @@ export default function LoginPage() {
         </div>
       </div>
     </main>
+  );
+}
+
+export default function LoginPage() {
+  return (
+    <Suspense fallback={
+      <main className="flex min-h-screen items-center justify-center bg-background">
+        <div className="text-sm text-muted-foreground">Loading...</div>
+      </main>
+    }>
+      <LoginForm />
+    </Suspense>
   );
 }

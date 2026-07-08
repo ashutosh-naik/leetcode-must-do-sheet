@@ -150,7 +150,7 @@ export function ProgressPanel() {
           <Button
             variant="ghost"
             size="icon"
-            className="h-9 w-9 sm:h-8 sm:w-8 text-muted-foreground hover:text-foreground"
+            className="h-9 w-9 sm:h-8 sm:w-8 text-muted-foreground hover:text-foreground transition-colors duration-150"
             onClick={() => setShowResetConfirm(true)}
             aria-label="Reset progress"
           >
