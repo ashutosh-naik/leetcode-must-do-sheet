@@ -8,11 +8,22 @@ function isValidOtpType(value: string): value is OtpType {
   return VALID_OTP_TYPES.includes(value as OtpType);
 }
 
+function isSafePath(path: string): boolean {
+  if (!path.startsWith("/") || path.startsWith("//") || path.startsWith("\\")) return false;
+  try {
+    const url = new URL(path, "http://localhost");
+    return url.pathname.startsWith("/");
+  } catch {
+    return false;
+  }
+}
+
 export async function GET(request: NextRequest) {
   const { searchParams, origin } = new URL(request.url);
   const token_hash = searchParams.get("token_hash");
   const rawType = searchParams.get("type");
-  const next = searchParams.get("next") ?? "/";
+  const nextParam = searchParams.get("next") ?? "/";
+  const next = isSafePath(nextParam) ? nextParam : "/";
 
   if (token_hash && rawType && isValidOtpType(rawType)) {
     const response = NextResponse.redirect(`${origin}${next}`);

@@ -188,6 +188,7 @@ export function ProblemsetContent({ defaultFilter = "" }: { defaultFilter?: stri
   const solvedProblemIds = useProblemStore((s) => s.solvedProblemIds);
   const toggleProblemSolved = useProblemStore((s) => s.toggleProblemSolved);
   const setSolvedProblemIds = useProblemStore((s) => s.setSolvedProblemIds);
+  const setSolvedProblemDates = useProblemStore((s) => s.setSolvedProblemDates);
   const { user, loading: authLoading } = useAuth();
   const synced = useRef(false);
   const prevUserId = useRef<string | undefined>(undefined);
@@ -223,16 +224,19 @@ export function ProblemsetContent({ defaultFilter = "" }: { defaultFilter?: stri
 
     if (currentUserId !== previousUserId) {
       synced.current = false;
+      setSolvedProblemIds([]);
+      setSolvedProblemDates({});
     }
 
     if (!synced.current) {
       let cancelled = false;
       const localIds = useProblemStore.getState().solvedProblemIds;
       syncSolvedProblems(user.id, localIds)
-        .then((merged) => {
+        .then(({ ids, dates }) => {
           if (!cancelled) {
             synced.current = true;
-            setSolvedProblemIds(merged);
+            setSolvedProblemIds(ids);
+            setSolvedProblemDates(dates);
           }
         })
         .catch((err) => {
@@ -243,7 +247,7 @@ export function ProblemsetContent({ defaultFilter = "" }: { defaultFilter?: stri
         });
       return () => { cancelled = true; };
     }
-  }, [user, setSolvedProblemIds]);
+  }, [user, setSolvedProblemIds, setSolvedProblemDates]);
 
   const toggleSolved = useCallback(
     async (id: number) => {

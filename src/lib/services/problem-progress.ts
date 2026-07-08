@@ -66,10 +66,10 @@ export async function upsertProblemProgress(
   }
 }
 
-export async function getSolvedProblemSlugs(userId: string): Promise<string[]> {
+export async function getSolvedProblemSlugs(userId: string): Promise<{ slug: string; lastSolvedAt: string | null }[]> {
   const { data, error } = await supabase
     .from("problem_progress")
-    .select("problem_slug")
+    .select("problem_slug, last_solved_at")
     .eq("user_id", userId)
     .eq("status", "Solved");
 
@@ -77,28 +77,45 @@ export async function getSolvedProblemSlugs(userId: string): Promise<string[]> {
     logSupabaseError("getSolvedProblemSlugs", error);
     throw error;
   }
-  return (data ?? []).map((r) => r.problem_slug);
+  return (data ?? []).map((r) => ({
+    slug: r.problem_slug,
+    lastSolvedAt: r.last_solved_at ?? null,
+  }));
 }
 
 export async function syncSolvedProblems(
   userId: string,
   localIds: number[],
-): Promise<number[]> {
-  let remoteSlugs: string[];
+): Promise<{ ids: number[]; dates: Record<number, string> }> {
+  let remoteRows: { slug: string; lastSolvedAt: string | null }[];
   try {
-    remoteSlugs = await getSolvedProblemSlugs(userId);
+    remoteRows = await getSolvedProblemSlugs(userId);
   } catch (err) {
     logSupabaseError("syncSolvedProblems-fetch", err);
-    remoteSlugs = [];
+    remoteRows = [];
   }
 
-  const remoteIds = remoteSlugs
-    .map((slug) => PROBLEMS.find((p) => extractSlug(p.link) === slug)?.id)
+  const remoteIds = remoteRows
+    .map((r) => PROBLEMS.find((p) => extractSlug(p.link) === r.slug)?.id)
     .filter((id): id is number => id != null);
 
   const allIds = [...new Set([...remoteIds, ...localIds])];
 
-  const remoteSlugSet = new Set(remoteSlugs);
+  const dates: Record<number, string> = {};
+  for (const row of remoteRows) {
+    const id = PROBLEMS.find((p) => extractSlug(p.link) === row.slug)?.id;
+    if (id != null && row.lastSolvedAt) {
+      const d = new Date(row.lastSolvedAt);
+      dates[id] = d.toLocaleDateString("en-GB", {
+        day: "2-digit",
+        month: "2-digit",
+        year: "numeric",
+        timeZone: "UTC",
+      });
+    }
+  }
+
+  const remoteSlugSet = new Set(remoteRows.map((r) => r.slug));
   const toUpload = localIds.filter((id) => {
     const slug = getProblemSlug(id);
     return !remoteSlugSet.has(slug);
@@ -121,7 +138,7 @@ export async function syncSolvedProblems(
     }
   }
 
-  return allIds;
+  return { ids: allIds, dates };
 }
 
 export async function deleteAllProblemProgress(userId: string) {
