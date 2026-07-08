@@ -25,8 +25,7 @@ export const ProblemCard = memo(function ProblemCard({
   index = 0,
 }: ProblemCardProps) {
   const handleToggle = useCallback(() => onToggle(problem.id), [onToggle, problem.id]);
-  const solvedProblemDates = useProblemStore((s) => s.solvedProblemDates);
-  const date = solvedProblemDates[problem.id];
+  const date = useProblemStore((s) => s.solvedProblemDates[problem.id]);
   const isImportant = IMPORTANT_IDS.has(problem.id);
   return (
     <Card

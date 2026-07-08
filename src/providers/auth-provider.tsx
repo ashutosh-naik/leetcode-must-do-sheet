@@ -42,10 +42,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
   const router = useRouter();
-  const profileCreated = useRef(false);
+  const profileCreated = useRef<string | null>(null);
 
   const ensureProfile = useCallback(async (currentUser: User) => {
-    if (profileCreated.current) return;
+    if (profileCreated.current === currentUser.id) return;
     try {
       await createProfile(
         currentUser.id,
@@ -55,7 +55,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           "User",
         currentUser.email ?? "",
       );
-      profileCreated.current = true;
+      profileCreated.current = currentUser.id;
     } catch (err) {
       // profile already exists or other error — allow retry
       logger.error("Profile creation error:", err);

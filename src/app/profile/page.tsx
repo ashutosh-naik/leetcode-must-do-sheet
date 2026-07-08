@@ -16,7 +16,7 @@ export default function ProfilePage() {
           </div>
           <div>
             <h2 className="text-lg font-semibold">{user?.user_metadata?.name ?? "User"}</h2>
-            <p className="text-sm text-muted-foreground">{user?.email}</p>
+            <p className="text-sm text-muted-foreground">{user?.email ?? "No email"}</p>
           </div>
         </div>
         <hr className="border-border" />

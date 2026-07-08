@@ -17,7 +17,13 @@ export default function LoginPage() {
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
   const [socialLoading, setSocialLoading] = useState<"google" | "github" | null>(null);
-  const [error, setError] = useState(searchParams.get("error") ? decodeURIComponent(searchParams.get("error")!) : "");
+  const [error, setError] = useState(() => {
+    try {
+      return searchParams.get("error") ? decodeURIComponent(searchParams.get("error")!) : "";
+    } catch {
+      return "";
+    }
+  });
 
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
@@ -36,8 +42,12 @@ export default function LoginPage() {
       setError(err);
       return;
     }
-    const next = searchParams.get("next") ?? "/";
-    router.push(next);
+    const next = searchParams.get("next");
+    if (next && next.startsWith("/") && !next.includes("://")) {
+      router.push(next);
+    } else {
+      router.push("/");
+    }
   }
 
   const handleGoogleLogin = async () => {
