@@ -24,18 +24,23 @@ export default function ForgotPasswordPage() {
       return;
     }
 
-    const { error: err } = await supabase.auth.resetPasswordForEmail(email, {
-      redirectTo: `${window.location.origin}/auth/update-password`,
-    });
+    try {
+      const { error: err } = await supabase.auth.resetPasswordForEmail(email, {
+        redirectTo: `${window.location.origin}/auth/update-password`,
+      });
 
-    setLoading(false);
+      setLoading(false);
 
-    if (err) {
-      setError(err.message);
-      return;
+      if (err) {
+        setError(err.message);
+        return;
+      }
+
+      setSent(true);
+    } catch {
+      setLoading(false);
+      setError("Network error. Please try again.");
     }
-
-    setSent(true);
   }
 
   return (

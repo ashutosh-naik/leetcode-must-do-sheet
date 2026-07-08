@@ -215,7 +215,7 @@ export function ProblemsetContent({ defaultFilter = "" }: { defaultFilter?: stri
 
   useEffect(() => {
     userRef.current = user;
-  });
+  }, [user]);
 
   useEffect(() => {
     const currentUserId = user?.id;
@@ -414,6 +414,7 @@ export function ProblemsetContent({ defaultFilter = "" }: { defaultFilter?: stri
                   setSearchInput("");
                   setParam("q", "");
                 }}
+                aria-label="Clear search"
                 className="absolute right-2 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground hover:scale-110 active:scale-90 transition-all duration-200 cursor-pointer bg-transparent border-none p-0"
               >
                 <X className="h-4 w-4" />
@@ -502,6 +503,7 @@ export function ProblemsetContent({ defaultFilter = "" }: { defaultFilter?: stri
                       setParam("sort", key);
                     }
                   }}
+                  aria-label={`Sort by ${label}${sort === key ? ` ${dir === "asc" ? "ascending" : "descending"}` : ""}`}
                   className={cn(
                     "flex items-center gap-1 sm:gap-1.5 px-2 sm:px-3 py-1.5 rounded-lg text-[11px] sm:text-xs font-medium transition-all duration-200 cursor-pointer border-none bg-transparent whitespace-nowrap active:scale-95",
                     sort === key
@@ -617,6 +619,7 @@ export function ProblemsetContent({ defaultFilter = "" }: { defaultFilter?: stri
               size="sm"
               disabled={page === 0}
               onClick={() => setPage(Math.max(0, page - 1))}
+              aria-label="Go to previous page"
               className="cursor-pointer text-xs sm:text-sm px-2 sm:px-4"
             >
               ← Prev
@@ -629,6 +632,7 @@ export function ProblemsetContent({ defaultFilter = "" }: { defaultFilter?: stri
               size="sm"
               disabled={page >= totalPages - 1}
               onClick={() => setPage(Math.min(totalPages - 1, page + 1))}
+              aria-label="Go to next page"
               className="cursor-pointer text-xs sm:text-sm px-2 sm:px-4"
             >
               Next →

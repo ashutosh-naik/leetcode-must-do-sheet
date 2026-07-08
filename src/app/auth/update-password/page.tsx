@@ -33,16 +33,21 @@ export default function UpdatePasswordPage() {
       return;
     }
 
-    const { error: err } = await supabase.auth.updateUser({ password });
+    try {
+      const { error: err } = await supabase.auth.updateUser({ password });
 
-    setLoading(false);
+      setLoading(false);
 
-    if (err) {
-      setError(err.message);
-      return;
+      if (err) {
+        setError(err.message);
+        return;
+      }
+
+      setSuccess(true);
+    } catch {
+      setLoading(false);
+      setError("Network error. Please try again.");
     }
-
-    setSuccess(true);
   }
 
   useEffect(() => {
