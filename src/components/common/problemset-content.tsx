@@ -475,6 +475,7 @@ export function ProblemsetContent({ defaultFilter = "" }: { defaultFilter?: stri
               variant={important ? "default" : "outline"}
               size="sm"
               onClick={() => setParam("important", important ? "" : "1")}
+              aria-label={important ? "Show all problems" : "Filter important problems"}
               className={cn(
                 "h-9 sm:h-10 gap-1.5 cursor-pointer shrink-0",
                 important && "bg-amber-500 hover:bg-amber-600 text-white border-amber-500",
