@@ -202,7 +202,7 @@ export default function RegisterPage() {
             type="button"
             variant="outline"
             onClick={handleGoogleLogin}
-            disabled={socialLoading !== null}
+            disabled={loading || socialLoading !== null}
             className="flex-1 gap-2 font-medium cursor-pointer disabled:opacity-50"
           >
             <Image src="/google.svg" alt="Google" width={20} height={20} />
@@ -212,7 +212,7 @@ export default function RegisterPage() {
             type="button"
             variant="outline"
             onClick={handleGitHubLogin}
-            disabled={socialLoading !== null}
+            disabled={loading || socialLoading !== null}
             className="flex-1 gap-2 font-medium cursor-pointer disabled:opacity-50"
           >
             <Image src="/github.svg" alt="GitHub" width={20} height={20} />
