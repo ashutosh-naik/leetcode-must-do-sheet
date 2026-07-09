@@ -1,21 +1,12 @@
 import { type NextRequest, NextResponse } from "next/server";
 import { createServerClient } from "@supabase/ssr";
+import { isSafePath } from "@/lib/utils";
 
 const VALID_OTP_TYPES = ["email", "signup", "recovery", "invite"] as const;
 type OtpType = (typeof VALID_OTP_TYPES)[number];
 
 function isValidOtpType(value: string): value is OtpType {
   return VALID_OTP_TYPES.includes(value as OtpType);
-}
-
-function isSafePath(path: string): boolean {
-  if (!path.startsWith("/") || path.startsWith("//") || path.startsWith("\\")) return false;
-  try {
-    const url = new URL(path, "http://localhost");
-    return url.pathname.startsWith("/");
-  } catch {
-    return false;
-  }
 }
 
 export async function GET(request: NextRequest) {
