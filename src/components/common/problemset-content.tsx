@@ -307,7 +307,12 @@ export function ProblemsetContent({ defaultFilter = "" }: { defaultFilter?: stri
     [router],
   );
 
+  const skipInitialSearch = useRef(true);
   useEffect(() => {
+    if (skipInitialSearch.current) {
+      skipInitialSearch.current = false;
+      return;
+    }
     setParam("q", debouncedSearch);
   }, [debouncedSearch, setParam]);
 
