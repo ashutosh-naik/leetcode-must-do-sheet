@@ -86,6 +86,8 @@ const PATTERN_ORDER = [
   "Greedy",
   "Dynamic Programming",
   "Bit Manipulation",
+  "Design",
+  "Sorting",
 ];
 
 function useFilteredProblems(defaultFilter = "") {

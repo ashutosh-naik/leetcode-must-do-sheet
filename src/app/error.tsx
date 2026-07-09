@@ -11,7 +11,7 @@ export default function ErrorPage({
   reset: () => void;
 }) {
   useEffect(() => {
-    logger.error(error);
+    logger.error(error.message, { stack: error.stack, digest: error.digest });
   }, [error]);
 
   return (
