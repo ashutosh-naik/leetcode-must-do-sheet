@@ -718,13 +718,13 @@ const ProblemRow = memo(function ProblemRow({
       <TableCell className="py-3">
         <DifficultyBadge difficulty={problem.difficulty} />
       </TableCell>
-      {date && (
-        <TableCell className="py-3 hidden sm:table-cell">
+      <TableCell className="py-3 hidden sm:table-cell">
+        {date && (
           <span className="text-[10px] text-green-600 dark:text-green-400 tabular-nums whitespace-nowrap">
             ✓ {date}
           </span>
-        </TableCell>
-      )}
+        )}
+      </TableCell>
       <TableCell className="text-right hidden sm:table-cell py-3">
         <span className="text-xs font-semibold tabular-nums text-muted-foreground">
           {problem.frequency ?? "—"}
