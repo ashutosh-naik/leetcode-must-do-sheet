@@ -1,20 +1,6 @@
 import { type NextRequest, NextResponse } from "next/server";
 import { createServerClient } from "@supabase/ssr";
-
-function isSafePath(path: string): boolean {
-  try {
-    const url = new URL(path, "http://localhost");
-    if (url.host !== "localhost") return false;
-    const sanitized = url.pathname + url.search;
-    return (
-      sanitized.startsWith("/") &&
-      !sanitized.startsWith("//") &&
-      !sanitized.startsWith("\\")
-    );
-  } catch {
-    return false;
-  }
-}
+import { isSafePath } from "@/lib/utils";
 
 export async function GET(request: NextRequest) {
   const { searchParams, origin } = new URL(request.url);
