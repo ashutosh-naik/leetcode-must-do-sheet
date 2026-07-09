@@ -4,6 +4,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 function Pulse({ className }: { className?: string }) {
   return (
     <div
+      aria-hidden="true"
       className={cn("rounded-md shimmer-bg animate-shimmer", className)}
     />
   );
