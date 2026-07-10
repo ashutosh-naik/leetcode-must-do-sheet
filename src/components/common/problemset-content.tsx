@@ -444,7 +444,11 @@ export function ProblemsetContent({ defaultFilter = "" }: { defaultFilter?: stri
                 {DIFFICULTIES.map((d) => (
                   <SelectItem key={d} value={d}>
                     <span className="flex items-center justify-between w-full gap-2">
-                      <span>{d}</span>
+                      <span className={
+                        d === "Easy" ? "text-green-600 dark:text-green-400 font-semibold" :
+                        d === "Medium" ? "text-amber-600 dark:text-amber-400 font-semibold" :
+                        "text-red-600 dark:text-red-400 font-semibold"
+                      }>{d}</span>
                       <span className="text-muted-foreground/60 text-xs tabular-nums">{difficultyCounts[d]}</span>
                     </span>
                   </SelectItem>
