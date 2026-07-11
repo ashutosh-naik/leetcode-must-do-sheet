@@ -34,20 +34,6 @@ const navLinks = [
 
 export function Navbar() {
   const pathname = usePathname();
-  const searchString = useSyncExternalStore(
-    (cb) => {
-      window.addEventListener("popstate", cb);
-      window.addEventListener("pushstate", cb);
-      window.addEventListener("replacestate", cb);
-      return () => {
-        window.removeEventListener("popstate", cb);
-        window.removeEventListener("pushstate", cb);
-        window.removeEventListener("replacestate", cb);
-      };
-    },
-    () => window.location.search,
-    () => "",
-  );
   const { resolvedTheme, setTheme } = useTheme();
   const { user, loading, logout } = useAuth();
   const [mobileOpen, setMobileOpen] = React.useState(false);
@@ -96,34 +82,10 @@ export function Navbar() {
     return () => document.removeEventListener("keydown", handleKeyDown);
   }, [mobileOpen]);
 
-  useEffect(() => {
-    const originalPushState = history.pushState.bind(history);
-    const originalReplaceState = history.replaceState.bind(history);
-    history.pushState = function (data, unused, url) {
-      originalPushState(data, unused, url);
-      window.dispatchEvent(new Event("pushstate"));
-    };
-    history.replaceState = function (data, unused, url) {
-      originalReplaceState(data, unused, url);
-      window.dispatchEvent(new Event("replacestate"));
-    };
-    return () => {
-      history.pushState = originalPushState;
-      history.replaceState = originalReplaceState;
-    };
-  }, []);
-
   const isActive = useCallback((href: string) => {
-    const [basePath, queryString] = href.split("?");
-    if (pathname !== basePath) return false;
-    if (!queryString) return true;
-    const linkParams = new URLSearchParams(queryString);
-    const currentParams = new URLSearchParams(searchString);
-    for (const [key, value] of linkParams) {
-      if (currentParams.get(key) !== value) return false;
-    }
-    return true;
-  }, [pathname, searchString]);
+    const [basePath] = href.split("?");
+    return pathname === basePath;
+  }, [pathname]);
 
   async function handleSignOut() {
     await logout();
@@ -174,7 +136,7 @@ export function Navbar() {
             onClick={() =>
               setTheme(resolvedTheme === "dark" ? "light" : "dark")
             }
-            className="hover:bg-accent focus-visible:ring-0 cursor-pointer size-8 transition-colors duration-150"
+            className="hover:bg-accent focus-visible:ring-0 cursor-pointer size-9 sm:size-10 transition-colors duration-150"
             aria-label={resolvedTheme === "dark" ? "Switch to light mode" : "Switch to dark mode"}
           >
             {resolvedTheme === "dark" ? (
@@ -241,7 +203,7 @@ export function Navbar() {
           variant="ghost"
           size="icon"
           onClick={() => setMobileOpen(!mobileOpen)}
-          className="md:hidden size-8 cursor-pointer"
+          className="md:hidden size-9 sm:size-10 cursor-pointer"
           aria-label="Toggle menu"
         >
           {mobileOpen ? (

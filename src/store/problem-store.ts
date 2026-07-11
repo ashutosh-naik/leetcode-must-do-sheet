@@ -6,9 +6,7 @@ interface ProblemState {
   solvedProblemDates: Record<number, string>;
   toggleProblemSolved: (id: number) => void;
   setSolvedProblemIds: (ids: number[]) => void;
-  setSolvedProblemDate: (id: number, date: string) => void;
   setSolvedProblemDates: (dates: Record<number, string>) => void;
-  removeSolvedProblemDate: (id: number) => void;
   resetProgress: () => void;
   showResetConfirm: boolean;
   setShowResetConfirm: (show: boolean) => void;
@@ -43,22 +41,10 @@ export const useProblemStore = create<ProblemState>()(
 
       setSolvedProblemIds: (ids) => set({ solvedProblemIds: ids }),
 
-      setSolvedProblemDate: (id, date) =>
-        set((state) => ({
-          solvedProblemDates: { ...state.solvedProblemDates, [id]: date },
-        })),
-
       setSolvedProblemDates: (dates) =>
         set((state) => ({
           solvedProblemDates: { ...state.solvedProblemDates, ...dates },
         })),
-
-      removeSolvedProblemDate: (id) =>
-        set((state) => {
-          const newDates = { ...state.solvedProblemDates };
-          delete newDates[id];
-          return { solvedProblemDates: newDates };
-        }),
 
       resetProgress: () => set({ solvedProblemIds: [], solvedProblemDates: {} }),
 

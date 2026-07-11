@@ -194,10 +194,6 @@
     background-color: color-mix(in oklch, var(--primary) 25%, transparent);
     color: inherit;
   }
-  ::-moz-selection {
-    background-color: color-mix(in oklch, var(--primary) 25%, transparent);
-    color: inherit;
-  }
   :focus-visible {
     @apply outline-ring/50;
     outline-offset: 2px;

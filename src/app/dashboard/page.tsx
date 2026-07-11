@@ -16,6 +16,7 @@ export default function DashboardPage() {
   const setSolvedProblemDates = useProblemStore((s) => s.setSolvedProblemDates);
   const synced = useRef(false);
   const prevUserId = useRef<string | undefined>(undefined);
+  const wasEverSynced = useRef(false);
 
   useEffect(() => {
     const currentUserId = user?.id;
@@ -35,13 +36,21 @@ export default function DashboardPage() {
       let cancelled = false;
       const localIds = useProblemStore.getState().solvedProblemIds;
       const localDates = useProblemStore.getState().solvedProblemDates;
+
       if (currentUserId !== previousUserId) {
         setSolvedProblemIds([]);
         setSolvedProblemDates({});
       }
-      syncSolvedProblems(user.id, localIds, localDates)
+
+      const isGuestTransition = !wasEverSynced.current;
+      syncSolvedProblems(
+        user.id,
+        isGuestTransition ? localIds : [],
+        isGuestTransition ? localDates : {},
+      )
         .then(({ ids, dates }) => {
           if (!cancelled) {
+            wasEverSynced.current = true;
             synced.current = true;
             setSolvedProblemIds(ids);
             setSolvedProblemDates(dates);

@@ -125,19 +125,19 @@ export function ProgressPanel() {
   const total = PROBLEMS.length;
   const totalSolved = solvedSet.size;
 
-  const byDifficulty = useMemo(() => PROBLEMS.reduce(
-    (acc, p) => {
-      const solved = solvedSet.has(p.id) ? 1 : 0;
-      acc[p.difficulty].total++;
-      acc[p.difficulty].solved += solved;
-      return acc;
-    },
-    {
+  const byDifficulty = useMemo(() => {
+    const acc: Record<string, { total: number; solved: number }> = {
       Easy: { total: 0, solved: 0 },
       Medium: { total: 0, solved: 0 },
       Hard: { total: 0, solved: 0 },
-    } as Record<string, { total: number; solved: number }>,
-  ), [solvedSet]);
+    };
+    for (const p of PROBLEMS) {
+      const solved = solvedSet.has(p.id) ? 1 : 0;
+      acc[p.difficulty].total++;
+      acc[p.difficulty].solved += solved;
+    }
+    return acc;
+  }, [solvedSet]);
 
   return (
     <Card className="border-border/50 shadow-sm">
@@ -150,7 +150,7 @@ export function ProgressPanel() {
           <Button
             variant="ghost"
             size="icon"
-            className="h-9 w-9 sm:h-8 sm:w-8 text-muted-foreground hover:text-foreground transition-colors duration-150"
+            className="size-10 text-muted-foreground hover:text-foreground transition-colors duration-150"
             onClick={() => setShowResetConfirm(true)}
             aria-label="Reset progress"
           >

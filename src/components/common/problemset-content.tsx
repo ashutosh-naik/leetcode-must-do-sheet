@@ -195,6 +195,7 @@ export function ProblemsetContent({ defaultFilter = "" }: { defaultFilter?: stri
   const { user, loading: authLoading } = useAuth();
   const synced = useRef(false);
   const prevUserId = useRef<string | undefined>(undefined);
+  const wasEverSynced = useRef(false);
   const solvedSet = useMemo(
     () => new Set(solvedProblemIds),
     [solvedProblemIds],
@@ -236,17 +237,25 @@ export function ProblemsetContent({ defaultFilter = "" }: { defaultFilter?: stri
 
     if (!synced.current) {
       let cancelled = false;
-      // Read local state BEFORE clearing (Zustand updates are synchronous)
       const localIds = useProblemStore.getState().solvedProblemIds;
       const localDates = useProblemStore.getState().solvedProblemDates;
-      // Clear store for new user
+
       if (currentUserId !== previousUserId) {
         setSolvedProblemIds([]);
         setSolvedProblemDates({});
       }
-      syncSolvedProblems(user.id, localIds, localDates)
+
+      // Only carry local data on guest→user (never synced before)
+      // On user→user switch, start fresh from server
+      const isGuestTransition = !wasEverSynced.current;
+      syncSolvedProblems(
+        user.id,
+        isGuestTransition ? localIds : [],
+        isGuestTransition ? localDates : {},
+      )
         .then(({ ids, dates }) => {
           if (!cancelled) {
+            wasEverSynced.current = true;
             synced.current = true;
             setSolvedProblemIds(ids);
             setSolvedProblemDates(dates);
