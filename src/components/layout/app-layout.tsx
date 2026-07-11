@@ -1,12 +1,15 @@
 "use client";
 
-import React, { useRef, useEffect } from "react";
+import React, { useRef, useEffect, useState, useCallback } from "react";
 import { Navbar } from "./navbar";
 import { AuthProvider, useAuth } from "@/providers/auth-provider";
 import { useProblemStore } from "@/store/problem-store";
 import { deleteAllProblemProgress } from "@/lib/services/problem-progress";
 import { ToastProvider, useToast } from "@/components/ui/toast";
 import { AlertCircle } from "lucide-react";
+import { useRouter } from "next/navigation";
+import { useTheme } from "next-themes";
+import { KeyboardShortcutsModal } from "@/components/common/keyboard-shortcuts";
 
 const CURRENT_YEAR = new Date().getFullYear();
 
@@ -135,6 +138,89 @@ function ResetHandler() {
 }
 
 export function AppLayout({ children }: AppLayoutProps) {
+  const [showShortcuts, setShowShortcuts] = useState(false);
+  const router = useRouter();
+  const { setTheme, resolvedTheme } = useTheme();
+  const goKeyRef = useRef(false);
+
+  const closeShortcuts = useCallback(() => setShowShortcuts(false), []);
+
+  useEffect(() => {
+    function handleKeyDown(e: KeyboardEvent) {
+      const tag = (e.target as HTMLElement).tagName;
+      const isInput = tag === "INPUT" || tag === "TEXTAREA" || tag === "SELECT";
+      const isMod = e.metaKey || e.ctrlKey;
+
+      if (e.key === "?" && !isInput) {
+        e.preventDefault();
+        setShowShortcuts((prev) => !prev);
+        return;
+      }
+
+      if (isMod && e.key === "/") {
+        e.preventDefault();
+        setShowShortcuts((prev) => !prev);
+        return;
+      }
+
+      if (showShortcuts && e.key === "Escape") {
+        setShowShortcuts(false);
+        return;
+      }
+
+      if (e.key === "Escape") return;
+
+      if (isInput) return;
+
+      if (goKeyRef.current && e.key === "g") {
+        goKeyRef.current = false;
+        return;
+      }
+
+      if (e.key === "g") {
+        goKeyRef.current = true;
+        setTimeout(() => { goKeyRef.current = false; }, 500);
+        return;
+      }
+
+      if (!goKeyRef.current) return;
+      goKeyRef.current = false;
+
+      switch (e.key) {
+        case "p":
+          router.push("/problemset");
+          break;
+        case "d":
+          router.push("/dashboard");
+          break;
+        case "s":
+          router.push("/streaks");
+          break;
+        case "c":
+          router.push("/daily-challenge");
+          break;
+        case "h":
+          router.push("/");
+          break;
+      }
+    }
+
+    document.addEventListener("keydown", handleKeyDown);
+    return () => document.removeEventListener("keydown", handleKeyDown);
+  }, [router, showShortcuts]);
+
+  useEffect(() => {
+    function handleKeyDown(e: KeyboardEvent) {
+      const tag = (e.target as HTMLElement).tagName;
+      const isInput = tag === "INPUT" || tag === "TEXTAREA" || tag === "SELECT";
+      if (isInput || e.key !== "t") return;
+      e.preventDefault();
+      setTheme(resolvedTheme === "dark" ? "light" : "dark");
+    }
+    document.addEventListener("keydown", handleKeyDown);
+    return () => document.removeEventListener("keydown", handleKeyDown);
+  }, [setTheme, resolvedTheme]);
+
   return (
     <AuthProvider>
       <ToastProvider>
@@ -152,6 +238,7 @@ export function AppLayout({ children }: AppLayoutProps) {
           </footer>
 
           <ResetHandler />
+          <KeyboardShortcutsModal open={showShortcuts} onClose={closeShortcuts} />
         </div>
       </ToastProvider>
     </AuthProvider>

@@ -185,6 +185,7 @@ export function ProblemsetContent({ defaultFilter = "" }: { defaultFilter?: stri
   const searchParams = useSearchParams();
   const { list, uniquePatterns, q, difficulty, pattern, important, filter, sort, dir, difficultyCounts, patternCounts } =
     useFilteredProblems(defaultFilter);
+  const searchRef = useRef<HTMLInputElement>(null);
   const solvedProblemIds = useProblemStore((s) => s.solvedProblemIds);
   const toggleProblemSolved = useProblemStore((s) => s.toggleProblemSolved);
   const setSolvedProblemIds = useProblemStore((s) => s.setSolvedProblemIds);
@@ -314,6 +315,59 @@ export function ProblemsetContent({ defaultFilter = "" }: { defaultFilter?: stri
     setParam("q", debouncedSearch);
   }, [debouncedSearch, setParam]);
 
+  // Problemset page keyboard shortcuts
+  useEffect(() => {
+    function handleKeyDown(e: KeyboardEvent) {
+      const tag = (e.target as HTMLElement).tagName;
+      const isInput = tag === "INPUT" || tag === "TEXTAREA" || tag === "SELECT";
+      const isMod = e.metaKey || e.ctrlKey;
+
+      if (e.key === "/" && !isInput) {
+        e.preventDefault();
+        searchRef.current?.focus();
+        return;
+      }
+
+      if (isMod && e.key === "k") {
+        e.preventDefault();
+        searchRef.current?.focus();
+        return;
+      }
+
+      if (isInput) return;
+
+      if (e.key === "i") {
+        e.preventDefault();
+        setParam("important", important ? "" : "1");
+        return;
+      }
+
+      if (e.key === "d") {
+        e.preventDefault();
+        const cycle = ["", "Easy", "Medium", "Hard"];
+        const idx = cycle.indexOf(difficulty);
+        const next = cycle[(idx + 1) % cycle.length];
+        setParam("difficulty", next);
+        return;
+      }
+
+      if (e.key === "r") {
+        e.preventDefault();
+        setParam("q", "");
+        setParam("difficulty", "");
+        setParam("pattern", "");
+        setParam("important", "");
+        setParam("sort", "");
+        setParam("dir", "");
+        setSearchInput("");
+        return;
+      }
+    }
+
+    document.addEventListener("keydown", handleKeyDown);
+    return () => document.removeEventListener("keydown", handleKeyDown);
+  }, [difficulty, important, setParam, setSearchInput]);
+
   const toggleSortDir = useCallback(() => {
     const params = new URLSearchParams(window.location.search);
     const current = params.get("dir") ?? "asc";
@@ -407,6 +461,7 @@ export function ProblemsetContent({ defaultFilter = "" }: { defaultFilter?: stri
           <div className="relative w-full sm:flex-1 sm:min-w-[200px] sm:max-w-xs">
             <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground pointer-events-none" />
             <Input
+              ref={searchRef}
               type="text"
               placeholder="Search problems..."
               value={searchInput}
