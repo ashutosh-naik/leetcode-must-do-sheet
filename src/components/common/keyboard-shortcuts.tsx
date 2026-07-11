@@ -1,47 +1,12 @@
 "use client";
 
+import { useSyncExternalStore } from "react";
 import { Command } from "lucide-react";
-
-const isMac = typeof navigator !== "undefined" && navigator.platform.toLowerCase().includes("mac");
-
-const mod = isMac ? "\u2318" : "Ctrl";
 
 interface ShortcutGroup {
   label: string;
   shortcuts: { keys: string; description: string }[];
 }
-
-const groups: ShortcutGroup[] = [
-  {
-    label: "Navigation",
-    shortcuts: [
-      { keys: "g → p", description: "Go to Problem Set" },
-      { keys: "g → d", description: "Go to Dashboard" },
-      { keys: "g → s", description: "Go to Streaks" },
-      { keys: "g → c", description: "Go to Daily Challenge" },
-      { keys: "g → h", description: "Go to Home" },
-    ],
-  },
-  {
-    label: "Problem Set",
-    shortcuts: [
-      { keys: "/", description: "Focus search" },
-      { keys: `${mod}+K`, description: "Focus search" },
-      { keys: "i", description: "Toggle Important filter" },
-      { keys: "d", description: "Cycle difficulty filter" },
-      { keys: "r", description: "Reset all filters" },
-    ],
-  },
-  {
-    label: "General",
-    shortcuts: [
-      { keys: "?", description: "Toggle this help" },
-      { keys: `${mod}+/`, description: "Toggle this help" },
-      { keys: "t", description: "Toggle theme" },
-      { keys: "Esc", description: "Close modals / dropdowns" },
-    ],
-  },
-];
 
 interface KeyboardShortcutsModalProps {
   open: boolean;
@@ -49,6 +14,45 @@ interface KeyboardShortcutsModalProps {
 }
 
 export function KeyboardShortcutsModal({ open, onClose }: KeyboardShortcutsModalProps) {
+  const isMac = useSyncExternalStore(
+    () => () => {},
+    () => typeof navigator !== "undefined" && navigator.platform.toLowerCase().includes("mac"),
+    () => false,
+  );
+  const mod = isMac ? "\u2318" : "Ctrl";
+
+  const groups: ShortcutGroup[] = [
+    {
+      label: "Navigation",
+      shortcuts: [
+        { keys: "g → p", description: "Go to Problem Set" },
+        { keys: "g → d", description: "Go to Dashboard" },
+        { keys: "g → s", description: "Go to Streaks" },
+        { keys: "g → c", description: "Go to Daily Challenge" },
+        { keys: "g → h", description: "Go to Home" },
+      ],
+    },
+    {
+      label: "Problem Set",
+      shortcuts: [
+        { keys: "/", description: "Focus search" },
+        { keys: `${mod}+K`, description: "Focus search" },
+        { keys: "i", description: "Toggle Important filter" },
+        { keys: "d", description: "Cycle difficulty filter" },
+        { keys: "r", description: "Reset all filters" },
+      ],
+    },
+    {
+      label: "General",
+      shortcuts: [
+        { keys: "?", description: "Toggle this help" },
+        { keys: `${mod}+/`, description: "Toggle this help" },
+        { keys: "t", description: "Toggle theme" },
+        { keys: "Esc", description: "Close modals / dropdowns" },
+      ],
+    },
+  ];
+
   if (!open) return null;
 
   return (

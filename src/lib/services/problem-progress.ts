@@ -144,9 +144,13 @@ export async function syncSolvedProblems(
       const localDate = localDates?.[id];
       let lastSolvedAt: string;
       if (localDate) {
-        // Convert en-GB DD/MM/YYYY back to ISO
-        const [day, month, year] = localDate.split("/");
-        lastSolvedAt = new Date(`${year}-${month}-${day}T00:00:00Z`).toISOString();
+        const parts = localDate.split("/");
+        if (parts.length === 3) {
+          const [day, month, year] = parts;
+          lastSolvedAt = new Date(`${year}-${month}-${day}T00:00:00Z`).toISOString();
+        } else {
+          lastSolvedAt = new Date().toISOString();
+        }
       } else {
         lastSolvedAt = new Date().toISOString();
       }

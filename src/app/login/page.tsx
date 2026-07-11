@@ -8,6 +8,7 @@ import { Logo } from "@/components/common/logo";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useAuth } from "@/providers/auth-provider";
+import { isSafePath } from "@/lib/utils";
 
 function LoginForm() {
   const { login, googleLogin, githubLogin, user, loading: authLoading } = useAuth();
@@ -49,7 +50,7 @@ function LoginForm() {
       return;
     }
     const next = searchParams.get("next");
-    if (next && next.startsWith("/") && !next.includes("://")) {
+    if (next && isSafePath(next)) {
       router.push(next);
     } else {
       router.push("/");

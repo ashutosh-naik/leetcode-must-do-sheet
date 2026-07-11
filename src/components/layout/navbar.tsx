@@ -59,7 +59,16 @@ export function Navbar() {
     () => false,
   );
 
-  // Focus trap for mobile nav
+  // Body scroll lock + focus trap for mobile nav
+  useEffect(() => {
+    if (mobileOpen) {
+      document.body.style.overflow = "hidden";
+    } else {
+      document.body.style.overflow = "";
+    }
+    return () => { document.body.style.overflow = ""; };
+  }, [mobileOpen]);
+
   useEffect(() => {
     if (!mobileOpen) return;
     const nav = mobileNavRef.current;
@@ -183,7 +192,7 @@ export function Navbar() {
                 {avatarUrl ? (
                   <Image
                     src={avatarUrl}
-                    alt=""
+                    alt={displayName}
                     width={20}
                     height={20}
                     className="size-5 rounded-full object-cover"
@@ -284,7 +293,7 @@ export function Navbar() {
                     {avatarUrl ? (
                       <Image
                         src={avatarUrl}
-                        alt=""
+                        alt={displayName}
                         width={20}
                         height={20}
                         className="size-5 rounded-full object-cover shrink-0"

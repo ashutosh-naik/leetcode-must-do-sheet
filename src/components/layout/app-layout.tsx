@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useRef, useEffect, useState, useCallback } from "react";
+import React, { useRef, useEffect, useState, useCallback, useSyncExternalStore } from "react";
 import { Navbar } from "./navbar";
 import { AuthProvider, useAuth } from "@/providers/auth-provider";
 import { useProblemStore } from "@/store/problem-store";
@@ -10,8 +10,6 @@ import { AlertCircle } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useTheme } from "next-themes";
 import { KeyboardShortcutsModal } from "@/components/common/keyboard-shortcuts";
-
-const CURRENT_YEAR = new Date().getFullYear();
 
 interface AppLayoutProps {
   children: React.ReactNode;
@@ -142,6 +140,18 @@ export function AppLayout({ children }: AppLayoutProps) {
   const router = useRouter();
   const { setTheme, resolvedTheme } = useTheme();
   const goKeyRef = useRef(false);
+  const goTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const themeRef = useRef(resolvedTheme);
+
+  useEffect(() => {
+    themeRef.current = resolvedTheme;
+  }, [resolvedTheme]);
+
+  const year = useSyncExternalStore(
+    () => () => {},
+    () => new Date().getFullYear(),
+    () => new Date().getFullYear(),
+  );
 
   const closeShortcuts = useCallback(() => setShowShortcuts(false), []);
 
@@ -179,7 +189,8 @@ export function AppLayout({ children }: AppLayoutProps) {
 
       if (e.key === "g") {
         goKeyRef.current = true;
-        setTimeout(() => { goKeyRef.current = false; }, 500);
+        if (goTimerRef.current) clearTimeout(goTimerRef.current);
+        goTimerRef.current = setTimeout(() => { goKeyRef.current = false; }, 500);
         return;
       }
 
@@ -206,7 +217,10 @@ export function AppLayout({ children }: AppLayoutProps) {
     }
 
     document.addEventListener("keydown", handleKeyDown);
-    return () => document.removeEventListener("keydown", handleKeyDown);
+    return () => {
+      document.removeEventListener("keydown", handleKeyDown);
+      if (goTimerRef.current) clearTimeout(goTimerRef.current);
+    };
   }, [router, showShortcuts]);
 
   useEffect(() => {
@@ -215,11 +229,11 @@ export function AppLayout({ children }: AppLayoutProps) {
       const isInput = tag === "INPUT" || tag === "TEXTAREA" || tag === "SELECT";
       if (isInput || e.key !== "t") return;
       e.preventDefault();
-      setTheme(resolvedTheme === "dark" ? "light" : "dark");
+      setTheme(themeRef.current === "dark" ? "light" : "dark");
     }
     document.addEventListener("keydown", handleKeyDown);
     return () => document.removeEventListener("keydown", handleKeyDown);
-  }, [setTheme, resolvedTheme]);
+  }, [setTheme]);
 
   return (
     <AuthProvider>
@@ -232,7 +246,7 @@ export function AppLayout({ children }: AppLayoutProps) {
 
           <footer className="border-t border-border bg-background/80 backdrop-blur-sm">
             <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-4 sm:py-6 flex flex-col sm:flex-row items-center justify-between gap-2 text-[11px] sm:text-sm text-muted-foreground">
-              <p suppressHydrationWarning>&copy; {CURRENT_YEAR} LeetCode Must-Do Tracker</p>
+              <p>&copy; {year} LeetCode Must-Do Tracker</p>
               <p>Built with ❤️ for Developers</p>
             </div>
           </footer>

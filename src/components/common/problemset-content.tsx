@@ -65,6 +65,8 @@ import type { Problem } from "@/constants/problems";
 
 const DIFFICULTIES = ["Easy", "Medium", "Hard"] as const;
 
+const PAGE_SIZE = 50;
+
 const PATTERN_ORDER = [
   "Arrays & Hashing",
   "Two Pointers",
@@ -353,12 +355,7 @@ export function ProblemsetContent({ defaultFilter = "" }: { defaultFilter?: stri
 
       if (e.key === "r") {
         e.preventDefault();
-        setParam("q", "");
-        setParam("difficulty", "");
-        setParam("pattern", "");
-        setParam("important", "");
-        setParam("sort", "");
-        setParam("dir", "");
+        router.replace(window.location.pathname, { scroll: false });
         setSearchInput("");
         return;
       }
@@ -366,7 +363,7 @@ export function ProblemsetContent({ defaultFilter = "" }: { defaultFilter?: stri
 
     document.addEventListener("keydown", handleKeyDown);
     return () => document.removeEventListener("keydown", handleKeyDown);
-  }, [difficulty, important, setParam, setSearchInput]);
+  }, [difficulty, important, router, setParam, setSearchInput]);
 
   const toggleSortDir = useCallback(() => {
     const params = new URLSearchParams(window.location.search);
@@ -381,7 +378,6 @@ export function ProblemsetContent({ defaultFilter = "" }: { defaultFilter?: stri
     [filter, list, solvedSet],
   );
 
-  const PAGE_SIZE = 50;
   const rawPage = parseInt(searchParams.get("page") ?? "1", 10);
   const page = Number.isFinite(rawPage) && rawPage > 0 ? rawPage - 1 : 0;
   const setPage = useCallback(
