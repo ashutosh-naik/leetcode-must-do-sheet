@@ -8,6 +8,7 @@ import { usePathname } from "next/navigation";
 import {
   Sun,
   Moon,
+  Monitor,
   LogIn,
   UserPlus,
   LogOut,
@@ -34,7 +35,7 @@ const navLinks = [
 
 export function Navbar() {
   const pathname = usePathname();
-  const { resolvedTheme, setTheme } = useTheme();
+  const { theme, setTheme } = useTheme();
   const { user, loading, logout } = useAuth();
   const [mobileOpen, setMobileOpen] = React.useState(false);
   const mobileNavRef = useRef<HTMLDivElement>(null);
@@ -134,15 +135,17 @@ export function Navbar() {
             variant="ghost"
             size="icon"
             onClick={() =>
-              setTheme(resolvedTheme === "dark" ? "light" : "dark")
+              setTheme(theme === "light" ? "dark" : theme === "dark" ? "system" : "light")
             }
             className="hover:bg-accent focus-visible:ring-0 cursor-pointer size-9 sm:size-10 transition-colors duration-150"
-            aria-label={resolvedTheme === "dark" ? "Switch to light mode" : "Switch to dark mode"}
+            aria-label={theme === "light" ? "Switch to dark mode" : theme === "dark" ? "Switch to system theme" : "Switch to light mode"}
           >
-            {resolvedTheme === "dark" ? (
+            {theme === "light" ? (
               <Sun className="h-4 w-4 text-primary" />
-            ) : (
+            ) : theme === "dark" ? (
               <Moon className="h-4 w-4 text-foreground" />
+            ) : (
+              <Monitor className="h-4 w-4 text-foreground" />
             )}
           </Button>
         )}

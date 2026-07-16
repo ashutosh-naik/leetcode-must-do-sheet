@@ -138,14 +138,14 @@ function ResetHandler() {
 export function AppLayout({ children }: AppLayoutProps) {
   const [showShortcuts, setShowShortcuts] = useState(false);
   const router = useRouter();
-  const { setTheme, resolvedTheme } = useTheme();
+  const { setTheme, theme } = useTheme();
   const goKeyRef = useRef(false);
   const goTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
-  const themeRef = useRef(resolvedTheme);
+  const themeRef = useRef(theme);
 
   useEffect(() => {
-    themeRef.current = resolvedTheme;
-  }, [resolvedTheme]);
+    themeRef.current = theme;
+  }, [theme]);
 
   const year = useSyncExternalStore(
     () => () => {},
@@ -229,7 +229,8 @@ export function AppLayout({ children }: AppLayoutProps) {
       const isInput = tag === "INPUT" || tag === "TEXTAREA" || tag === "SELECT";
       if (isInput || e.key !== "t") return;
       e.preventDefault();
-      setTheme(themeRef.current === "dark" ? "light" : "dark");
+      const current = themeRef.current;
+      setTheme(current === "light" ? "dark" : current === "dark" ? "system" : "light");
     }
     document.addEventListener("keydown", handleKeyDown);
     return () => document.removeEventListener("keydown", handleKeyDown);
