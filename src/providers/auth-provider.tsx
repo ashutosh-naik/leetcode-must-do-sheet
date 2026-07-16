@@ -11,7 +11,7 @@ import {
 import type { User } from "@supabase/supabase-js";
 import { useRouter } from "next/navigation";
 import { supabase } from "@/lib/supabase";
-import { createProfile } from "@/lib/services/profile";
+import { createProfile, getProfile, updateProfile } from "@/lib/services/profile";
 import { generateUniqueUsername } from "@/lib/username";
 import { logger } from "@/lib/logger";
 
@@ -48,20 +48,29 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const ensureProfile = useCallback(async (currentUser: User) => {
     if (profileCreated.current === currentUser.id) return;
     try {
-      const emailPrefix = currentUser.email?.split("@")[0] ?? "user";
-      const username = await generateUniqueUsername(emailPrefix);
-      await createProfile(
-        currentUser.id,
+      const name =
         currentUser.user_metadata?.name ??
-          currentUser.user_metadata?.username ??
-          currentUser.email?.split("@")[0] ??
-          "User",
-        currentUser.email ?? "",
-        username,
-      );
+        currentUser.user_metadata?.username ??
+        currentUser.email?.split("@")[0] ??
+        "User";
+      const email = currentUser.email ?? "";
+
+      const existing = await getProfile(currentUser.id);
+
+      if (existing) {
+        if (!existing.username) {
+          const emailPrefix = currentUser.email?.split("@")[0] ?? "user";
+          const username = await generateUniqueUsername(emailPrefix);
+          await updateProfile(currentUser.id, { username });
+        }
+      } else {
+        const emailPrefix = currentUser.email?.split("@")[0] ?? "user";
+        const username = await generateUniqueUsername(emailPrefix);
+        await createProfile(currentUser.id, name, email, username);
+      }
+
       profileCreated.current = currentUser.id;
     } catch (err) {
-      // profile already exists or other error — allow retry
       logger.error("Profile creation error:", err);
     }
   }, []);
