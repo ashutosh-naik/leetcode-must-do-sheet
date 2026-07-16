@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Geist } from "next/font/google";
+import { Figtree } from "next/font/google";
 import "./globals.css";
 
 import { cn } from "@/lib/utils";
@@ -7,7 +7,7 @@ import { ThemeProvider } from "@/providers/theme-provider";
 import { AppLayout } from "@/components/layout/app-layout";
 import { ErrorBoundary } from "@/components/common/error-boundary";
 
-const geist = Geist({
+const figtree = Figtree({
   subsets: ["latin"],
   variable: "--font-sans",
 });
@@ -29,7 +29,7 @@ export default function RootLayout({
     <html
       lang="en"
       suppressHydrationWarning
-      className={cn(geist.variable, "h-full")}
+      className={cn(figtree.variable, "h-full")}
     >
       <body className="min-h-screen font-sans antialiased" suppressHydrationWarning>
         <ThemeProvider>
