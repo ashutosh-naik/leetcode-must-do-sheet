@@ -447,7 +447,16 @@ export function LocationInput({ value, onChange }: LocationInputProps) {
   const filtered = useMemo(() => {
     if (!query || query.length < 1) return [];
     const lower = query.toLowerCase();
-    return CITIES.filter((c) => c.toLowerCase().startsWith(lower)).slice(0, 10);
+    return CITIES.filter((c) => {
+      const cl = c.toLowerCase();
+      if (cl.startsWith(lower)) return true;
+      const commaIdx = cl.lastIndexOf(", ");
+      if (commaIdx !== -1) {
+        const country = cl.slice(commaIdx + 2);
+        if (country.startsWith(lower)) return true;
+      }
+      return false;
+    }).slice(0, 10);
   }, [query]);
 
   useEffect(() => {
