@@ -49,11 +49,10 @@ export function Navbar() {
   // Body scroll lock + focus trap for mobile nav
   useEffect(() => {
     if (mobileOpen) {
+      const prev = document.body.style.overflow;
       document.body.style.overflow = "hidden";
-    } else {
-      document.body.style.overflow = "";
+      return () => { document.body.style.overflow = prev; };
     }
-    return () => { document.body.style.overflow = ""; };
   }, [mobileOpen]);
 
   useEffect(() => {

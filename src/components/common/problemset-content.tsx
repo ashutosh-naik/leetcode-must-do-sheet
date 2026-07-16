@@ -361,6 +361,9 @@ export function ProblemsetContent({ defaultFilter = "" }: { defaultFilter?: stri
 
       if (isInput) return;
 
+      // Skip if handled by global nav shortcuts (g→d, g→p, etc.)
+      if ((window as unknown as Record<string, unknown>).__goKeyHandled) return;
+
       if (e.key === "i") {
         e.preventDefault();
         setParam("important", important ? "" : "1");

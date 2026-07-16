@@ -29,9 +29,6 @@ function ResetHandler() {
   };
 
   const handleConfirmReset = async () => {
-    resetProgress();
-    setShowResetConfirm(false);
-    toast("Progress reset", "success");
     if (user) {
       try {
         await deleteAllProblemProgress(user.id);
@@ -39,6 +36,9 @@ function ResetHandler() {
         toast("Failed to sync reset to cloud", "error");
       }
     }
+    resetProgress();
+    setShowResetConfirm(false);
+    toast("Progress reset", "success");
   };
 
   useEffect(() => {
@@ -200,6 +200,11 @@ export function AppLayout({ children }: AppLayoutProps) {
 
       if (!goKeyRef.current) return;
       goKeyRef.current = false;
+
+      // Mark event as handled by global nav shortcuts
+      // so problemset-content.tsx doesn't also process 'd' as difficulty cycle
+      (window as unknown as Record<string, unknown>).__goKeyHandled = true;
+      queueMicrotask(() => { (window as unknown as Record<string, unknown>).__goKeyHandled = false; });
 
       switch (e.key) {
         case "p":

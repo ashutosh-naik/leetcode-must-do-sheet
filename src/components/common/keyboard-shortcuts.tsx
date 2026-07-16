@@ -1,6 +1,6 @@
 "use client";
 
-import { useSyncExternalStore } from "react";
+import { useSyncExternalStore, useEffect, useRef } from "react";
 import { Command } from "lucide-react";
 
 interface ShortcutGroup {
@@ -20,6 +20,43 @@ export function KeyboardShortcutsModal({ open, onClose }: KeyboardShortcutsModal
     () => false,
   );
   const mod = isMac ? "\u2318" : "Ctrl";
+  const dialogRef = useRef<HTMLDivElement>(null);
+  const previousFocusRef = useRef<HTMLElement | null>(null);
+
+  useEffect(() => {
+    if (!open) return;
+    previousFocusRef.current = document.activeElement as HTMLElement;
+    const timer = setTimeout(() => {
+      const closeBtn = dialogRef.current?.querySelector("button");
+      closeBtn?.focus();
+    }, 50);
+    return () => {
+      clearTimeout(timer);
+      previousFocusRef.current?.focus();
+    };
+  }, [open]);
+
+  useEffect(() => {
+    if (!open) return;
+    function handleKeyDown(e: KeyboardEvent) {
+      if (e.key !== "Tab") return;
+      const focusable = dialogRef.current?.querySelectorAll<HTMLElement>(
+        "button:not([disabled])",
+      );
+      if (!focusable || focusable.length === 0) return;
+      const first = focusable[0];
+      const last = focusable[focusable.length - 1];
+      if (e.shiftKey && document.activeElement === first) {
+        e.preventDefault();
+        last.focus();
+      } else if (!e.shiftKey && document.activeElement === last) {
+        e.preventDefault();
+        first.focus();
+      }
+    }
+    document.addEventListener("keydown", handleKeyDown);
+    return () => document.removeEventListener("keydown", handleKeyDown);
+  }, [open]);
 
   if (!open) return null;
 
@@ -64,6 +101,7 @@ export function KeyboardShortcutsModal({ open, onClose }: KeyboardShortcutsModal
       aria-label="Keyboard shortcuts"
     >
       <div
+        ref={dialogRef}
         className="mx-4 w-full max-w-lg rounded-2xl border border-border/80 bg-card p-6 shadow-2xl animate-in fade-in zoom-in-95 duration-200 max-h-[80vh] overflow-y-auto"
         onClick={(e) => e.stopPropagation()}
       >
