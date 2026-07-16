@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useRef, useEffect, useCallback } from "react";
-import { X, Check } from "lucide-react";
+import { X, Check, ZoomIn, ZoomOut } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 interface CropModalProps {
@@ -16,6 +16,8 @@ export function CropModal({ imageSrc, onCrop, onCancel }: CropModalProps) {
   const containerRef = useRef<HTMLDivElement>(null);
   const [ready, setReady] = useState(false);
   const [cropSize, setCropSize] = useState(200);
+  const [minSize, setMinSize] = useState(80);
+  const [maxSize, setMaxSize] = useState(220);
   const [pos, setPos] = useState({ x: 0, y: 0 });
   const dragging = useRef(false);
   const dragStart = useRef({ x: 0, y: 0, startX: 0, startY: 0 });
@@ -32,13 +34,25 @@ export function CropModal({ imageSrc, onCrop, onCancel }: CropModalProps) {
       const scale = Math.min(cw / img.width, ch / img.height, 1);
       const dw = img.width * scale;
       const dh = img.height * scale;
-      const cs = Math.min(dw, dh, 220);
-      setCropSize(cs);
-      setPos({ x: (cw - cs) / 2, y: (ch - cs) / 2 });
+      const mx = Math.min(dw, dh, 240);
+      const mn = Math.max(60, Math.min(dw, dh) * 0.3);
+      setMaxSize(mx);
+      setMinSize(mn);
+      setCropSize(mx);
+      setPos({ x: (cw - mx) / 2, y: (ch - mx) / 2 });
       setReady(true);
     };
     img.src = imageSrc;
   }, [imageSrc]);
+
+  const clampPosition = useCallback((nx: number, ny: number, size: number) => {
+    const container = containerRef.current;
+    if (!container) return { x: nx, y: ny };
+    return {
+      x: Math.max(0, Math.min(container.clientWidth - size, nx)),
+      y: Math.max(0, Math.min(250 - size, ny)),
+    };
+  }, []);
 
   const handleMouseDown = useCallback((e: React.MouseEvent) => {
     e.preventDefault();
@@ -48,18 +62,27 @@ export function CropModal({ imageSrc, onCrop, onCancel }: CropModalProps) {
 
   const handleMouseMove = useCallback((e: React.MouseEvent) => {
     if (!dragging.current) return;
-    const container = containerRef.current;
-    if (!container) return;
     const dx = e.clientX - dragStart.current.x;
     const dy = e.clientY - dragStart.current.y;
-    const nx = Math.max(0, Math.min(container.clientWidth - cropSize, dragStart.current.startX + dx));
-    const ny = Math.max(0, Math.min(250 - cropSize, dragStart.current.startY + dy));
-    setPos({ x: nx, y: ny });
-  }, [cropSize]);
+    const next = clampPosition(dragStart.current.startX + dx, dragStart.current.startY + dy, cropSize);
+    setPos(next);
+  }, [cropSize, clampPosition]);
 
   const handleMouseUp = useCallback(() => {
     dragging.current = false;
   }, []);
+
+  const handleZoomChange = useCallback((newSize: number) => {
+    const container = containerRef.current;
+    if (!container) return;
+    const cx = pos.x + cropSize / 2;
+    const cy = pos.y + cropSize / 2;
+    const nx = cx - newSize / 2;
+    const ny = cy - newSize / 2;
+    const clamped = clampPosition(nx, ny, newSize);
+    setCropSize(newSize);
+    setPos(clamped);
+  }, [pos, cropSize, clampPosition]);
 
   const handleCrop = useCallback(() => {
     const canvas = canvasRef.current;
@@ -130,7 +153,23 @@ export function CropModal({ imageSrc, onCrop, onCancel }: CropModalProps) {
             )}
           </div>
 
-          <p className="text-xs text-muted-foreground text-center mt-2">Drag to position the crop area</p>
+          {/* Zoom slider */}
+          {ready && (
+            <div className="flex items-center gap-2.5 mt-3">
+              <ZoomOut className="h-3.5 w-3.5 text-muted-foreground shrink-0" />
+              <input
+                type="range"
+                min={minSize}
+                max={maxSize}
+                value={cropSize}
+                onChange={(e) => handleZoomChange(Number(e.target.value))}
+                className="flex-1 h-1.5 rounded-full appearance-none bg-muted cursor-pointer accent-primary"
+              />
+              <ZoomIn className="h-3.5 w-3.5 text-muted-foreground shrink-0" />
+            </div>
+          )}
+
+          <p className="text-xs text-muted-foreground text-center mt-1.5">Drag to position &middot; Slider to resize</p>
 
           <canvas ref={canvasRef} className="hidden" />
 
