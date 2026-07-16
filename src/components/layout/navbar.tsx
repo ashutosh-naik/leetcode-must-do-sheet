@@ -152,7 +152,10 @@ export function Navbar() {
         {!loading &&
           (user ? (
             <>
-              <div className="hidden sm:flex items-center gap-2 px-3 py-1.5 rounded-lg bg-muted/50 text-sm text-muted-foreground">
+              <Link
+                href="/profile"
+                className="hidden sm:flex items-center gap-2 px-3 py-1.5 rounded-lg bg-muted/50 text-sm text-muted-foreground hover:text-foreground hover:bg-muted transition-colors duration-150"
+              >
                 {avatarUrl ? (
                   <Image
                     src={avatarUrl}
@@ -165,7 +168,7 @@ export function Navbar() {
                   <User className="h-3.5 w-3.5" />
                 )}
                 <span className="max-w-[100px] sm:max-w-[160px] truncate">{displayName}</span>
-              </div>
+              </Link>
               <Button
                 variant="ghost"
                 size="sm"
@@ -253,7 +256,11 @@ export function Navbar() {
               <hr className="my-2 border-border" />
               {user ? (
                 <>
-                  <div className="flex items-center gap-3 px-4 py-3 rounded-xl text-sm text-muted-foreground">
+                  <Link
+                    href="/profile"
+                    onClick={() => setMobileOpen(false)}
+                    className="flex items-center gap-3 px-4 py-3 rounded-xl text-sm text-muted-foreground hover:text-foreground hover:bg-muted/50 transition-colors cursor-pointer border-none bg-transparent w-full text-left"
+                  >
                     {avatarUrl ? (
                       <Image
                         src={avatarUrl}
@@ -266,7 +273,7 @@ export function Navbar() {
                       <User className="h-4 w-4 shrink-0" />
                     )}
                     <span className="truncate">{displayName}</span>
-                  </div>
+                  </Link>
                   <button
                     onClick={() => {
                       setMobileOpen(false);
