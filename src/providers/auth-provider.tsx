@@ -12,6 +12,7 @@ import type { User } from "@supabase/supabase-js";
 import { useRouter } from "next/navigation";
 import { supabase } from "@/lib/supabase";
 import { createProfile } from "@/lib/services/profile";
+import { generateUniqueUsername } from "@/lib/username";
 import { logger } from "@/lib/logger";
 
 interface AuthContextValue {
@@ -47,6 +48,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const ensureProfile = useCallback(async (currentUser: User) => {
     if (profileCreated.current === currentUser.id) return;
     try {
+      const emailPrefix = currentUser.email?.split("@")[0] ?? "user";
+      const username = await generateUniqueUsername(emailPrefix);
       await createProfile(
         currentUser.id,
         currentUser.user_metadata?.name ??
@@ -54,6 +57,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           currentUser.email?.split("@")[0] ??
           "User",
         currentUser.email ?? "",
+        username,
       );
       profileCreated.current = currentUser.id;
     } catch (err) {

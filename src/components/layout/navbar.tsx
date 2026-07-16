@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useCallback, useEffect, useRef, useSyncExternalStore } from "react";
+import React, { useCallback, useEffect, useRef, useState, useSyncExternalStore } from "react";
 import { useTheme } from "next-themes";
 import Link from "next/link";
 import Image from "next/image";
@@ -24,6 +24,7 @@ import {
 import { Logo } from "@/components/common/logo";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/providers/auth-provider";
+import { getProfile } from "@/lib/services/profile";
 
 const navLinks = [
   { href: "/problemset", label: "Problem Set", icon: ListChecks },
@@ -45,6 +46,24 @@ export function Navbar() {
     () => true,
     () => false,
   );
+  const [profileUsername, setProfileUsername] = useState<string | null>(null);
+  const prevUserIdRef = useRef<string | null>(null);
+
+  useEffect(() => {
+    const userId = user?.id ?? null;
+    if (userId === prevUserIdRef.current) return;
+    prevUserIdRef.current = userId;
+    let cancelled = false;
+    (async () => {
+      if (!userId) {
+        if (!cancelled) setProfileUsername(null);
+        return;
+      }
+      const p = await getProfile(userId);
+      if (!cancelled) setProfileUsername(p?.username ?? null);
+    })();
+    return () => { cancelled = true; };
+  }, [user]);
 
   // Body scroll lock + focus trap for mobile nav
   useEffect(() => {
@@ -153,7 +172,7 @@ export function Navbar() {
           (user ? (
             <>
               <Link
-                href="/profile"
+                href={profileUsername ? `/profile/${profileUsername}` : "/profile"}
                 className="hidden sm:flex items-center gap-2 px-3 py-1.5 rounded-lg bg-muted/50 text-sm text-muted-foreground hover:text-foreground hover:bg-muted transition-colors duration-150"
               >
                 {avatarUrl ? (
@@ -257,7 +276,7 @@ export function Navbar() {
               {user ? (
                 <>
                   <Link
-                    href="/profile"
+                    href={profileUsername ? `/profile/${profileUsername}` : "/profile"}
                     onClick={() => setMobileOpen(false)}
                     className="flex items-center gap-3 px-4 py-3 rounded-xl text-sm text-muted-foreground hover:text-foreground hover:bg-muted/50 transition-colors cursor-pointer border-none bg-transparent w-full text-left"
                   >

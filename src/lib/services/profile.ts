@@ -18,12 +18,14 @@ export async function createProfile(
   userId: string,
   name: string,
   email: string,
+  username?: string,
 ) {
   const { error } = await supabase.from("profiles").upsert(
     {
       id: userId,
       name,
       email,
+      ...(username ? { username } : {}),
     },
     { onConflict: "id" },
   );
@@ -36,6 +38,19 @@ export async function getProfile(userId: string): Promise<Profile | null> {
     .from("profiles")
     .select("*")
     .eq("id", userId)
+    .single();
+
+  if (error) return null;
+  return data as Profile;
+}
+
+export async function getProfileByUsername(
+  username: string,
+): Promise<Profile | null> {
+  const { data, error } = await supabase
+    .from("profiles")
+    .select("*")
+    .eq("username", username)
     .single();
 
   if (error) return null;
