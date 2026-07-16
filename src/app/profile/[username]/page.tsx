@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState, useCallback } from "react";
+import { useEffect, useState, useCallback, useRef } from "react";
 import { User, Pencil, Check, X, Loader2, Camera } from "lucide-react";
 import Image from "next/image";
 import { useAuth } from "@/providers/auth-provider";
@@ -14,6 +14,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { DatePicker } from "@/components/ui/date-picker";
 import { LocationInput } from "@/components/ui/location-input";
+import { CropModal } from "@/components/common/crop-modal";
 
 function EditableField({
   label,
@@ -83,6 +84,8 @@ export default function ProfileUsernamePage({
   const [saving, setSaving] = useState(false);
   const [editing, setEditing] = useState<Record<string, boolean>>({});
   const [form, setForm] = useState<Record<string, string>>({});
+  const [cropImageSrc, setCropImageSrc] = useState<string | null>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   const startEdit = useCallback(
     (key: string, currentValue: string | null) => {
@@ -96,6 +99,34 @@ export default function ProfileUsernamePage({
     setEditing((prev) => ({ ...prev, [key]: false }));
     setForm((prev) => ({ ...prev, [key]: "" }));
   }, []);
+
+  const handleAvatarFileChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = () => setCropImageSrc(reader.result as string);
+    reader.readAsDataURL(file);
+    e.target.value = "";
+  }, []);
+
+  const handleCropSave = useCallback(
+    async (dataUrl: string) => {
+      if (!user || !profile || user.id !== profile.id) return;
+      setCropImageSrc(null);
+      setSaving(true);
+      try {
+        const updated = await updateProfile(user.id, { avatar_url: dataUrl });
+        setProfile(updated);
+        toast("Profile picture updated", "success");
+        window.dispatchEvent(new Event("profile-updated"));
+      } catch {
+        toast("Failed to update profile picture", "error");
+      } finally {
+        setSaving(false);
+      }
+    },
+    [user, profile, toast],
+  );
 
   const saveField = useCallback(
     async (key: string, value: string) => {
@@ -180,7 +211,11 @@ export default function ProfileUsernamePage({
       {/* Avatar */}
       <div className="rounded-2xl border border-border bg-card p-6 shadow-sm">
         <div className="flex items-center gap-4">
-          <div className="relative size-20 rounded-full bg-muted flex items-center justify-center overflow-hidden shrink-0">
+          <button
+            type="button"
+            onClick={() => isOwn && fileInputRef.current?.click()}
+            className={`relative size-20 rounded-full bg-muted flex items-center justify-center overflow-hidden shrink-0 ${isOwn ? "cursor-pointer hover:ring-2 hover:ring-primary/50 transition-all" : ""}`}
+          >
             {avatarUrl ? (
               <Image
                 src={avatarUrl}
@@ -192,12 +227,19 @@ export default function ProfileUsernamePage({
             ) : (
               <User className="h-8 w-8 text-muted-foreground" />
             )}
-            {editing.avatar_url && (
-              <div className="absolute inset-0 bg-black/40 flex items-center justify-center">
-                <Camera className="h-5 w-5 text-white" />
+            {isOwn && (
+              <div className="absolute inset-0 bg-black/0 hover:bg-black/40 flex items-center justify-center transition-colors group">
+                <Camera className="h-5 w-5 text-white opacity-0 group-hover:opacity-100 transition-opacity" />
               </div>
             )}
-          </div>
+          </button>
+          <input
+            ref={fileInputRef}
+            type="file"
+            accept="image/*"
+            className="hidden"
+            onChange={handleAvatarFileChange}
+          />
           <div className="flex-1 min-w-0">
             <h2 className="font-heading text-lg font-semibold truncate">
               {displayName}
@@ -208,65 +250,16 @@ export default function ProfileUsernamePage({
               </p>
             )}
           </div>
-          {isOwn && !editing.avatar_url && (
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={() =>
-                startEdit("avatar_url", profile?.avatar_url ?? null)
-              }
-              className="text-muted-foreground hover:text-foreground cursor-pointer shrink-0 gap-1"
-            >
-              <Pencil className="h-3.5 w-3.5" />
-              Edit
-            </Button>
-          )}
-          {isOwn && editing.avatar_url && (
-            <div className="flex gap-2 shrink-0">
-              <Button
-                size="sm"
-                disabled={saving}
-                onClick={() => saveField("avatar_url", form.avatar_url)}
-                className="bg-primary hover:bg-primary/90 text-white cursor-pointer gap-1"
-              >
-                {saving ? (
-                  <Loader2 className="h-3.5 w-3.5 animate-spin" />
-                ) : (
-                  <Check className="h-3.5 w-3.5" />
-                )}
-                Save
-              </Button>
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={() => cancelEdit("avatar_url")}
-                className="text-muted-foreground hover:text-foreground cursor-pointer gap-1"
-              >
-                <X className="h-3.5 w-3.5" />
-                Cancel
-              </Button>
-            </div>
-          )}
         </div>
-        {editing.avatar_url && (
-          <div className="mt-4">
-            <Input
-              placeholder="Paste image URL..."
-              value={form.avatar_url}
-              onChange={(e) =>
-                setForm((prev) => ({
-                  ...prev,
-                  avatar_url: e.target.value,
-                }))
-              }
-              className="text-sm"
-            />
-            <p className="text-xs text-muted-foreground mt-1">
-              Paste a direct link to your profile picture
-            </p>
-          </div>
-        )}
       </div>
+
+      {cropImageSrc && (
+        <CropModal
+          imageSrc={cropImageSrc}
+          onCrop={handleCropSave}
+          onCancel={() => setCropImageSrc(null)}
+        />
+      )}
 
       {/* Profile Info */}
       <div className="rounded-2xl border border-border bg-card p-6 shadow-sm">

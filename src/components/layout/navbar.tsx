@@ -207,6 +207,7 @@ export function Navbar() {
                     alt={displayName}
                     width={20}
                     height={20}
+                    unoptimized
                     className="size-5 rounded-full object-cover"
                   />
                 ) : (
@@ -312,6 +313,7 @@ export function Navbar() {
                         alt={displayName}
                         width={20}
                         height={20}
+                        unoptimized
                         className="size-5 rounded-full object-cover shrink-0"
                       />
                     ) : (
