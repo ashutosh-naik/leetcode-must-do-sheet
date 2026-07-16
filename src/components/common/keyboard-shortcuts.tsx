@@ -110,7 +110,7 @@ export function KeyboardShortcutsModal({ open, onClose }: KeyboardShortcutsModal
             <Command className="h-5 w-5 text-muted-foreground" />
           </div>
           <div>
-            <h2 className="text-lg font-semibold tracking-tight">Keyboard Shortcuts</h2>
+            <h2 className="font-heading text-lg font-semibold tracking-tight">Keyboard Shortcuts</h2>
             <p className="text-sm text-muted-foreground">Press ? or {mod}+/ to open this panel</p>
           </div>
         </div>
@@ -118,7 +118,7 @@ export function KeyboardShortcutsModal({ open, onClose }: KeyboardShortcutsModal
         <div className="space-y-6">
           {groups.map((group) => (
             <div key={group.label}>
-              <h3 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-2">
+              <h3 className="font-heading text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-2">
                 {group.label}
               </h3>
               <div className="space-y-1.5">

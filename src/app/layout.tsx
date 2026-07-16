@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Outfit } from "next/font/google";
+import { Space_Grotesk, Figtree } from "next/font/google";
 import "./globals.css";
 
 import { cn } from "@/lib/utils";
@@ -7,9 +7,16 @@ import { ThemeProvider } from "@/providers/theme-provider";
 import { AppLayout } from "@/components/layout/app-layout";
 import { ErrorBoundary } from "@/components/common/error-boundary";
 
-const outfit = Outfit({
+const spaceGrotesk = Space_Grotesk({
+  subsets: ["latin"],
+  variable: "--font-heading",
+  weight: ["300", "400", "500", "600", "700"],
+});
+
+const figtree = Figtree({
   subsets: ["latin"],
   variable: "--font-sans",
+  weight: ["300", "400", "500", "600", "700"],
 });
 
 export const metadata: Metadata = {
@@ -29,7 +36,7 @@ export default function RootLayout({
     <html
       lang="en"
       suppressHydrationWarning
-      className={cn(outfit.variable, "h-full")}
+      className={cn(figtree.variable, spaceGrotesk.variable, "h-full")}
     >
       <body className="min-h-screen font-sans antialiased" suppressHydrationWarning>
         <ThemeProvider>

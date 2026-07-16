@@ -37,7 +37,7 @@ export class ErrorBoundary extends React.Component<
             <div className="rounded-full bg-destructive/10 p-4">
               <span className="text-destructive text-2xl">!</span>
             </div>
-            <h2 className="text-xl font-semibold tracking-tight">
+            <h2 className="font-heading text-xl font-semibold tracking-tight">
               Something went wrong
             </h2>
             <p className="text-sm text-muted-foreground text-center max-w-md">

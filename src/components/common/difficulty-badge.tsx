@@ -23,7 +23,7 @@ export function DifficultyBadge({ difficulty }: { difficulty: "Easy" | "Medium" 
   return (
     <span
       className={cn(
-        "inline-flex items-center px-2 py-0.5 rounded-md text-xs font-semibold transition-all duration-200 hover:scale-105 active:scale-95",
+        "inline-flex items-center px-2 py-0.5 rounded-md text-xs font-heading font-semibold transition-all duration-200 hover:scale-105 active:scale-95",
         c.bg,
         c.text,
       )}

@@ -78,7 +78,7 @@ export default function DashboardPage() {
     <div className="max-w-4xl mx-auto px-4 py-8 space-y-8">
       <div className="flex items-center gap-3 animate-fade-in-down">
         <BarChart3 className="h-6 w-6 text-primary" />
-        <h1 className="text-2xl font-bold tracking-tight">Dashboard</h1>
+        <h1 className="font-heading text-2xl font-bold tracking-tight">Dashboard</h1>
       </div>
 
       {user && (
@@ -115,7 +115,7 @@ export default function DashboardPage() {
             ) : (
               <>
                 <span
-                  className="text-5xl font-bold text-primary tabular-nums"
+                  className="font-heading text-5xl font-bold text-primary tabular-nums"
                   style={{
                     opacity: 0,
                     animation: "scale-in 0.5s ease-out 400ms forwards",

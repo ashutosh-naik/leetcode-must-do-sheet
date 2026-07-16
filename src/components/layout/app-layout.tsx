@@ -109,7 +109,7 @@ function ResetHandler() {
       >
         <div className="flex items-center gap-2 mb-3">
           <AlertCircle className="h-5 w-5 text-[#EF4743] shrink-0" />
-          <h2 className="text-lg font-semibold text-foreground tracking-tight">
+            <h2 className="font-heading text-lg font-semibold text-foreground tracking-tight">
             Reset progress
           </h2>
         </div>

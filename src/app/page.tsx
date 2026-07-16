@@ -69,7 +69,7 @@ export default function Home() {
               <span className="size-2 rounded-full bg-primary animate-pulse" />
               Master DSA Patterns — One Problem at a Time
             </div>
-            <h1 className="text-4xl sm:text-5xl lg:text-6xl font-extrabold tracking-tight leading-tight">
+            <h1 className="font-heading text-4xl sm:text-5xl lg:text-6xl font-extrabold tracking-tight leading-tight">
               LeetCode{" "}
               <span className="text-primary">Must-Do</span>{" "}
               <br className="sm:hidden" />
@@ -111,7 +111,7 @@ export default function Home() {
                 className="animate-scale-in"
                 style={{ animationDelay: `${i * 100}ms`, animationFillMode: "backwards" }}
               >
-                <div className="text-3xl sm:text-4xl font-extrabold text-primary tabular-nums">
+                <div className="font-heading text-3xl sm:text-4xl font-extrabold text-primary tabular-nums">
                   {stat.value}
                 </div>
                 <div className="mt-1.5 text-sm text-muted-foreground">
@@ -126,7 +126,7 @@ export default function Home() {
       {/* Features Section */}
       <section className="mx-auto max-w-6xl px-4 sm:px-6 lg:px-8 py-16 sm:py-24">
         <div className="text-center mb-12 sm:mb-16 animate-fade-in-up">
-          <h2 className="text-2xl sm:text-3xl lg:text-4xl font-bold tracking-tight">
+          <h2 className="font-heading text-2xl sm:text-3xl lg:text-4xl font-bold tracking-tight">
             Everything You Need to{" "}
             <span className="text-primary">Crack DSA</span>
           </h2>
@@ -148,7 +148,7 @@ export default function Home() {
               <div className="flex size-12 items-center justify-center rounded-xl bg-primary/10 text-primary mb-5 group-hover:bg-primary/15 group-hover:scale-110 transition-all duration-300">
                 <feature.icon className="h-6 w-6" />
               </div>
-              <h3 className="text-lg font-semibold mb-2">{feature.title}</h3>
+              <h3 className="font-heading text-lg font-semibold mb-2">{feature.title}</h3>
               <p className="text-sm text-muted-foreground leading-relaxed">
                 {feature.description}
               </p>
@@ -161,7 +161,7 @@ export default function Home() {
       <section className="border-y border-border bg-muted/30">
         <div className="mx-auto max-w-5xl px-4 sm:px-6 lg:px-8 py-16 sm:py-24">
           <div className="text-center mb-12 sm:mb-16 animate-fade-in-up">
-            <h2 className="text-2xl sm:text-3xl lg:text-4xl font-bold tracking-tight">
+            <h2 className="font-heading text-2xl sm:text-3xl lg:text-4xl font-bold tracking-tight">
               How It <span className="text-primary">Works</span>
             </h2>
             <p className="mt-4 text-muted-foreground max-w-2xl mx-auto">
@@ -194,10 +194,10 @@ export default function Home() {
                 className="text-center animate-fade-in-up"
                 style={{ animationDelay: `${i * 150}ms`, animationFillMode: "backwards" }}
               >
-                <div className="inline-flex items-center justify-center size-14 rounded-full bg-primary/10 text-primary text-xl font-bold mb-5 transition-transform duration-300 hover:scale-110">
+                <div className="font-heading inline-flex items-center justify-center size-14 rounded-full bg-primary/10 text-primary text-xl font-bold mb-5 transition-transform duration-300 hover:scale-110">
                   {item.step}
                 </div>
-                <h3 className="text-lg font-semibold mb-2">{item.title}</h3>
+                <h3 className="font-heading text-lg font-semibold mb-2">{item.title}</h3>
                 <p className="text-sm text-muted-foreground leading-relaxed">
                   {item.description}
                 </p>
@@ -210,7 +210,7 @@ export default function Home() {
       {/* CTA Section */}
       <section className="mx-auto max-w-4xl px-4 sm:px-6 lg:px-8 py-16 sm:py-24 text-center">
         <div className="animate-fade-in-up" style={{ animationDelay: "100ms", animationFillMode: "backwards" }}>
-          <h2 className="text-2xl sm:text-3xl lg:text-4xl font-bold tracking-tight">
+          <h2 className="font-heading text-2xl sm:text-3xl lg:text-4xl font-bold tracking-tight">
             Ready to Master LeetCode?
           </h2>
           <p className="mt-4 text-muted-foreground max-w-xl mx-auto">

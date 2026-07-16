@@ -40,13 +40,13 @@ function CircularGauge({ value, total }: { value: number; total: number }) {
         />
       </svg>
       <div className="absolute inset-0 flex flex-col items-center justify-center">
-        <span className="text-2xl sm:text-3xl font-bold tracking-tight text-foreground">
+        <span className="font-heading text-2xl sm:text-3xl font-bold tracking-tight text-foreground">
           {value}
         </span>
         <span className="text-xs font-medium text-muted-foreground">
           / {total}
         </span>
-        <span className="text-xs font-semibold text-primary mt-0.5">
+        <span className="font-heading text-xs font-semibold text-primary mt-0.5">
           {pct.toFixed(1)}%
         </span>
       </div>
@@ -96,10 +96,10 @@ function DifficultyCard({
       </div>
       <div className="flex-1 min-w-0">
         <div className="flex items-center justify-between mb-1">
-          <span className={cn("text-sm font-semibold", cfg.text)}>
+          <span className={cn("font-heading text-sm font-semibold", cfg.text)}>
             {difficulty}
           </span>
-          <span className="text-sm font-medium tabular-nums text-muted-foreground">
+          <span className="font-heading text-sm font-medium tabular-nums text-muted-foreground">
             {solved}/{total}
           </span>
         </div>

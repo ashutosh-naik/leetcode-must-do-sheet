@@ -462,7 +462,7 @@ export function ProblemsetContent({ defaultFilter = "" }: { defaultFilter?: stri
           )}
         >
           <div className="border-l-2 border-primary pl-4">
-            <h2 className="text-base sm:text-lg font-bold tracking-tight">
+            <h2 className="font-heading text-base sm:text-lg font-bold tracking-tight">
               Learning Order by DSA Pattern
             </h2>
             <p className="text-xs sm:text-sm text-muted-foreground">

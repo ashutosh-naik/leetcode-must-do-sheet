@@ -20,7 +20,7 @@ export default function ErrorPage({
         <div className="rounded-full bg-destructive/10 p-4">
           <span className="text-destructive text-2xl font-bold">!</span>
         </div>
-        <h1 className="text-xl font-semibold tracking-tight">
+          <h1 className="font-heading text-xl font-semibold tracking-tight">
           Something went wrong
         </h1>
         <p className="text-sm text-muted-foreground max-w-md">

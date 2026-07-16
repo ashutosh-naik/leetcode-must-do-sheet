@@ -87,7 +87,7 @@ function LoginForm() {
         </div>
 
         <div className="rounded-2xl border border-border bg-card p-6 sm:p-8 shadow-sm">
-          <h1 className="mb-2 text-center text-xl font-bold tracking-tight">
+            <h1 className="mb-2 text-center font-heading text-xl font-bold tracking-tight">
             Sign In
           </h1>
 
