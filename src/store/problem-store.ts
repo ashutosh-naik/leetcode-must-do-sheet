@@ -41,10 +41,7 @@ export const useProblemStore = create<ProblemState>()(
 
       setSolvedProblemIds: (ids) => set({ solvedProblemIds: ids }),
 
-      setSolvedProblemDates: (dates) =>
-        set((state) => ({
-          solvedProblemDates: { ...state.solvedProblemDates, ...dates },
-        })),
+      setSolvedProblemDates: (dates) => set({ solvedProblemDates: dates }),
 
       resetProgress: () => set({ solvedProblemIds: [], solvedProblemDates: {} }),
 

@@ -59,7 +59,6 @@ export default function DashboardPage() {
         .catch((err) => {
           if (!cancelled) {
             logger.error("Error syncing problems:", err);
-            synced.current = true;
           }
         });
       return () => { cancelled = true; };

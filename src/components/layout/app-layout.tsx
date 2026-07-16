@@ -17,8 +17,9 @@ interface AppLayoutProps {
 
 function ResetHandler() {
   const { user } = useAuth();
-  const { showResetConfirm, setShowResetConfirm, resetProgress } =
-    useProblemStore();
+  const showResetConfirm = useProblemStore((s) => s.showResetConfirm);
+  const setShowResetConfirm = useProblemStore((s) => s.setShowResetConfirm);
+  const resetProgress = useProblemStore((s) => s.resetProgress);
   const { toast } = useToast();
   const dialogRef = useRef<HTMLDivElement>(null);
   const previousFocusRef = useRef<HTMLElement | null>(null);
@@ -150,7 +151,7 @@ export function AppLayout({ children }: AppLayoutProps) {
   const year = useSyncExternalStore(
     () => () => {},
     () => new Date().getFullYear(),
-    () => new Date().getFullYear(),
+    () => 2026,
   );
 
   const closeShortcuts = useCallback(() => setShowShortcuts(false), []);
@@ -180,7 +181,10 @@ export function AppLayout({ children }: AppLayoutProps) {
 
       if (e.key === "Escape") return;
 
-      if (isInput) return;
+      if (isInput) {
+        goKeyRef.current = false;
+        return;
+      }
 
       if (goKeyRef.current && e.key === "g") {
         goKeyRef.current = false;

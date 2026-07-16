@@ -21,6 +21,8 @@ export function KeyboardShortcutsModal({ open, onClose }: KeyboardShortcutsModal
   );
   const mod = isMac ? "\u2318" : "Ctrl";
 
+  if (!open) return null;
+
   const groups: ShortcutGroup[] = [
     {
       label: "Navigation",
@@ -52,8 +54,6 @@ export function KeyboardShortcutsModal({ open, onClose }: KeyboardShortcutsModal
       ],
     },
   ];
-
-  if (!open) return null;
 
   return (
     <div

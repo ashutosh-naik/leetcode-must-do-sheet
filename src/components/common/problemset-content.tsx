@@ -264,7 +264,6 @@ export function ProblemsetContent({ defaultFilter = "" }: { defaultFilter?: stri
         .catch((err) => {
           if (!cancelled) {
             logger.error("Error syncing problems:", err);
-            synced.current = true;
           }
         });
       return () => { cancelled = true; };
@@ -289,10 +288,9 @@ export function ProblemsetContent({ defaultFilter = "" }: { defaultFilter?: stri
         }
       } catch (err) {
         toggleProblemSolved(id);
-        toast("Failed to sync progress", "error");
         const e = err as { message?: string; code?: string; details?: string; hint?: string };
-        logger.error("Error updating problem progress:", JSON.stringify(err));
         logger.error({ message: e?.message, code: e?.code, details: e?.details, hint: e?.hint });
+        toast("Failed to sync progress", "error");
       } finally {
         pendingToggle.current.delete(id);
       }
