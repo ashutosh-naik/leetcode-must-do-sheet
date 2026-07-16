@@ -131,6 +131,8 @@ function useFilteredProblems(defaultFilter = "") {
     return counts;
   }, []);
 
+  const solvedProblemDates = useProblemStore((s) => s.solvedProblemDates);
+
   const filtered = useMemo(() => {
     let list = [...PROBLEMS];
 
@@ -174,10 +176,24 @@ function useFilteredProblems(defaultFilter = "") {
             return mul * (a.id - b.id);
         }
       });
+    } else if (filter === "solved") {
+      // Default sort for solved page: newest solved at top, oldest at bottom
+      list.sort((a, b) => {
+        const dateA = solvedProblemDates[a.id];
+        const dateB = solvedProblemDates[b.id];
+        if (dateA && dateB) {
+          const [dA, mA, yA] = dateA.split("/").map(Number);
+          const [dB, mB, yB] = dateB.split("/").map(Number);
+          return (yB - yA) || (mB - mA) || (dB - dA);
+        }
+        if (dateA) return -1;
+        if (dateB) return 1;
+        return a.id - b.id;
+      });
     }
 
     return { list, uniquePatterns };
-  }, [q, difficulty, pattern, important, sort, dir, uniquePatterns]);
+  }, [q, difficulty, pattern, important, sort, dir, filter, uniquePatterns, solvedProblemDates]);
 
   return { ...filtered, q, difficulty, pattern, important, filter, sort, dir, difficultyCounts, patternCounts };
 }
