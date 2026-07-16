@@ -12,6 +12,7 @@ import {
 import { useToast } from "@/components/ui/toast";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { DatePicker } from "@/components/ui/date-picker";
 
 function EditableField({
   label,
@@ -106,6 +107,7 @@ export default function ProfileUsernamePage({
         setProfile(updated);
         setEditing((prev) => ({ ...prev, [key]: false }));
         toast("Profile updated", "success");
+        window.dispatchEvent(new Event("profile-updated"));
 
         if (key === "username" && updated.username) {
           window.history.replaceState(
@@ -441,18 +443,15 @@ export default function ProfileUsernamePage({
           }
           onCancel={() => cancelEdit("birthday")}
         >
-          <div className="flex gap-2">
-            <Input
-              type="date"
-              value={form.birthday}
-              onChange={(e) =>
-                setForm((prev) => ({
-                  ...prev,
-                  birthday: e.target.value,
-                }))
-              }
-              className="text-sm"
-            />
+          <div className="flex gap-2 items-start">
+            <div className="flex-1">
+              <DatePicker
+                value={form.birthday || null}
+                onChange={(val) =>
+                  setForm((prev) => ({ ...prev, birthday: val ?? "" }))
+                }
+              />
+            </div>
             <Button
               size="sm"
               disabled={saving}

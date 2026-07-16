@@ -47,6 +47,7 @@ export function Navbar() {
     () => false,
   );
   const [profileUsername, setProfileUsername] = useState<string | null>(null);
+  const [profileDisplayName, setProfileDisplayName] = useState<string | null>(null);
   const prevUserIdRef = useRef<string | null>(null);
 
   useEffect(() => {
@@ -56,13 +57,33 @@ export function Navbar() {
     let cancelled = false;
     (async () => {
       if (!userId) {
-        if (!cancelled) setProfileUsername(null);
+        if (!cancelled) {
+          setProfileUsername(null);
+          setProfileDisplayName(null);
+        }
         return;
       }
       const p = await getProfile(userId);
-      if (!cancelled) setProfileUsername(p?.username ?? null);
+      if (!cancelled) {
+        setProfileUsername(p?.username ?? null);
+        setProfileDisplayName(p?.display_name ?? null);
+      }
     })();
     return () => { cancelled = true; };
+  }, [user]);
+
+  // Re-fetch profile when it's updated elsewhere (e.g. profile page)
+  useEffect(() => {
+    const userId = user?.id;
+    if (!userId) return;
+    function handleProfileUpdated() {
+      getProfile(userId!).then((p) => {
+        setProfileUsername(p?.username ?? null);
+        setProfileDisplayName(p?.display_name ?? null);
+      });
+    }
+    window.addEventListener("profile-updated", handleProfileUpdated);
+    return () => window.removeEventListener("profile-updated", handleProfileUpdated);
   }, [user]);
 
   // Body scroll lock + focus trap for mobile nav
@@ -112,6 +133,7 @@ export function Navbar() {
 
   const avatarUrl = user?.user_metadata?.avatar_url;
   const displayName =
+    profileDisplayName ??
     user?.user_metadata?.name ??
     user?.user_metadata?.username ??
     user?.email?.split("@")[0] ??
