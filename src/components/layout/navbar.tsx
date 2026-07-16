@@ -48,6 +48,7 @@ export function Navbar() {
   );
   const [profileUsername, setProfileUsername] = useState<string | null>(null);
   const [profileDisplayName, setProfileDisplayName] = useState<string | null>(null);
+  const [profileAvatarUrl, setProfileAvatarUrl] = useState<string | null>(null);
   const prevUserIdRef = useRef<string | null>(null);
 
   useEffect(() => {
@@ -60,6 +61,7 @@ export function Navbar() {
         if (!cancelled) {
           setProfileUsername(null);
           setProfileDisplayName(null);
+          setProfileAvatarUrl(null);
         }
         return;
       }
@@ -67,6 +69,7 @@ export function Navbar() {
       if (!cancelled) {
         setProfileUsername(p?.username ?? null);
         setProfileDisplayName(p?.display_name ?? null);
+        setProfileAvatarUrl(p?.avatar_url ?? null);
       }
     })();
     return () => { cancelled = true; };
@@ -80,6 +83,7 @@ export function Navbar() {
       getProfile(userId!).then((p) => {
         setProfileUsername(p?.username ?? null);
         setProfileDisplayName(p?.display_name ?? null);
+        setProfileAvatarUrl(p?.avatar_url ?? null);
       });
     }
     window.addEventListener("profile-updated", handleProfileUpdated);
@@ -131,7 +135,7 @@ export function Navbar() {
     await logout();
   }
 
-  const avatarUrl = user?.user_metadata?.avatar_url;
+  const avatarUrl = profileAvatarUrl ?? user?.user_metadata?.avatar_url;
   const displayName =
     profileDisplayName ??
     user?.user_metadata?.name ??

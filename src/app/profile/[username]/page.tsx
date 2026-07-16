@@ -13,6 +13,7 @@ import { useToast } from "@/components/ui/toast";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { DatePicker } from "@/components/ui/date-picker";
+import { LocationInput } from "@/components/ui/location-input";
 
 function EditableField({
   label,
@@ -395,18 +396,15 @@ export default function ProfileUsernamePage({
           }
           onCancel={() => cancelEdit("location")}
         >
-          <div className="flex gap-2">
-            <Input
-              placeholder="City, Country"
-              value={form.location}
-              onChange={(e) =>
-                setForm((prev) => ({
-                  ...prev,
-                  location: e.target.value,
-                }))
-              }
-              className="text-sm"
-            />
+          <div className="flex gap-2 items-start">
+            <div className="flex-1">
+              <LocationInput
+                value={form.location || null}
+                onChange={(val) =>
+                  setForm((prev) => ({ ...prev, location: val ?? "" }))
+                }
+              />
+            </div>
             <Button
               size="sm"
               disabled={saving}
