@@ -11,6 +11,7 @@ import { useRouter } from "next/navigation";
 import { useTheme } from "next-themes";
 import { KeyboardShortcutsModal } from "@/components/common/keyboard-shortcuts";
 import { markGoKeyHandled } from "@/lib/keyboard-state";
+import { Button } from "@/components/ui/button";
 
 interface AppLayoutProps {
   children: React.ReactNode;
@@ -120,18 +121,20 @@ function ResetHandler() {
           This action cannot be undone.
         </p>
         <div className="flex justify-end gap-3">
-          <button
+          <Button
+            variant="outline"
             onClick={handleCancelReset}
-            className="cursor-pointer rounded-lg bg-muted hover:bg-muted/80 px-5 py-2 text-sm font-semibold text-foreground transition-colors duration-150 border-none outline-none"
+            className="cursor-pointer"
           >
             Cancel
-          </button>
-          <button
+          </Button>
+          <Button
+            variant="destructive"
             onClick={handleConfirmReset}
-            className="cursor-pointer rounded-lg bg-destructive px-5 py-2 text-sm font-semibold text-white hover:bg-destructive/90 transition-colors duration-150 border-none outline-none"
+            className="cursor-pointer"
           >
             Reset
-          </button>
+          </Button>
         </div>
       </div>
     </div>
