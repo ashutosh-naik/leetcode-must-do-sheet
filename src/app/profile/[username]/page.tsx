@@ -24,6 +24,8 @@ function EditableField({
   isEditing,
   onStartEdit,
   onCancel,
+  onSave,
+  saving,
   children,
 }: {
   label: string;
@@ -31,6 +33,8 @@ function EditableField({
   isEditing: boolean;
   onStartEdit: () => void;
   onCancel: () => void;
+  onSave: () => void;
+  saving: boolean;
   children: React.ReactNode;
 }) {
   return (
@@ -50,27 +54,43 @@ function EditableField({
             </span>
           )}
         </div>
-        {!isEditing ? (
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={onStartEdit}
-            className="text-muted-foreground hover:text-foreground cursor-pointer shrink-0 gap-1"
-          >
-            <Pencil className="h-3.5 w-3.5" />
-            Edit
-          </Button>
-        ) : (
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={onCancel}
-            className="text-muted-foreground hover:text-foreground cursor-pointer shrink-0 gap-1"
-          >
-            <X className="h-3.5 w-3.5" />
-            Cancel
-          </Button>
-        )}
+        <div className="flex items-center gap-1 shrink-0">
+          {!isEditing ? (
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={onStartEdit}
+              className="text-muted-foreground hover:text-foreground cursor-pointer gap-1"
+            >
+              <Pencil className="h-3.5 w-3.5" />
+              Edit
+            </Button>
+          ) : (
+            <>
+              <Button
+                size="sm"
+                disabled={saving}
+                onClick={onSave}
+                className="bg-primary hover:bg-primary/90 text-white cursor-pointer"
+              >
+                {saving ? (
+                  <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                ) : (
+                  <Check className="h-3.5 w-3.5" />
+                )}
+              </Button>
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={onCancel}
+                className="text-muted-foreground hover:text-foreground cursor-pointer gap-1"
+              >
+                <X className="h-3.5 w-3.5" />
+                Cancel
+              </Button>
+            </>
+          )}
+        </div>
       </div>
     </div>
   );
@@ -299,32 +319,20 @@ export default function ProfileUsernamePage({
             startEdit("display_name", profile.display_name ?? null)
           }
           onCancel={() => cancelEdit("display_name")}
+          onSave={() => saveField("display_name", form.display_name)}
+          saving={saving}
         >
-          <div className="flex gap-2">
-            <Input
-              placeholder="Your display name"
-              value={form.display_name}
-              onChange={(e) =>
-                setForm((prev) => ({
-                  ...prev,
-                  display_name: e.target.value,
-                }))
-              }
-              className="text-sm"
-            />
-            <Button
-              size="sm"
-              disabled={saving}
-              onClick={() => saveField("display_name", form.display_name)}
-              className="bg-primary hover:bg-primary/90 text-white cursor-pointer shrink-0"
-            >
-              {saving ? (
-                <Loader2 className="h-3.5 w-3.5 animate-spin" />
-              ) : (
-                <Check className="h-3.5 w-3.5" />
-              )}
-            </Button>
-          </div>
+          <Input
+            placeholder="Your display name"
+            value={form.display_name}
+            onChange={(e) =>
+              setForm((prev) => ({
+                ...prev,
+                display_name: e.target.value,
+              }))
+            }
+            className="text-sm flex-1"
+          />
         </EditableField>
 
         <EditableField
@@ -335,32 +343,20 @@ export default function ProfileUsernamePage({
             startEdit("username", profile.username ?? null)
           }
           onCancel={() => cancelEdit("username")}
+          onSave={() => saveField("username", form.username)}
+          saving={saving}
         >
-          <div className="flex gap-2">
-            <Input
-              placeholder="Choose a username"
-              value={form.username}
-              onChange={(e) =>
-                setForm((prev) => ({
-                  ...prev,
-                  username: e.target.value,
-                }))
-              }
-              className="text-sm"
-            />
-            <Button
-              size="sm"
-              disabled={saving}
-              onClick={() => saveField("username", form.username)}
-              className="bg-primary hover:bg-primary/90 text-white cursor-pointer shrink-0"
-            >
-              {saving ? (
-                <Loader2 className="h-3.5 w-3.5 animate-spin" />
-              ) : (
-                <Check className="h-3.5 w-3.5" />
-              )}
-            </Button>
-          </div>
+          <Input
+            placeholder="Choose a username"
+            value={form.username}
+            onChange={(e) =>
+              setForm((prev) => ({
+                ...prev,
+                username: e.target.value,
+              }))
+            }
+            className="text-sm flex-1"
+          />
         </EditableField>
       </div>
 
@@ -376,36 +372,24 @@ export default function ProfileUsernamePage({
           isEditing={!!editing.gender}
           onStartEdit={() => startEdit("gender", profile.gender ?? null)}
           onCancel={() => cancelEdit("gender")}
+          onSave={() => saveField("gender", form.gender)}
+          saving={saving}
         >
-          <div className="flex gap-2">
-            <Select
-              value={form.gender || "none"}
-              onValueChange={(v) =>
-                setForm((prev) => ({ ...prev, gender: v === "none" ? "" : v }))
-              }
-            >
-              <SelectTrigger className="flex-1 h-9 cursor-pointer">
-                <SelectValue placeholder="Prefer not to say" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="none">Prefer not to say</SelectItem>
-                <SelectItem value="male">Male</SelectItem>
-                <SelectItem value="female">Female</SelectItem>
-              </SelectContent>
-            </Select>
-            <Button
-              size="sm"
-              disabled={saving}
-              onClick={() => saveField("gender", form.gender)}
-              className="bg-primary hover:bg-primary/90 text-white cursor-pointer shrink-0"
-            >
-              {saving ? (
-                <Loader2 className="h-3.5 w-3.5 animate-spin" />
-              ) : (
-                <Check className="h-3.5 w-3.5" />
-              )}
-            </Button>
-          </div>
+          <Select
+            value={form.gender || "none"}
+            onValueChange={(v) =>
+              setForm((prev) => ({ ...prev, gender: v === "none" ? "" : v }))
+            }
+          >
+            <SelectTrigger className="flex-1 h-9 cursor-pointer">
+              <SelectValue placeholder="Prefer not to say" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="none">Prefer not to say</SelectItem>
+              <SelectItem value="male">Male</SelectItem>
+              <SelectItem value="female">Female</SelectItem>
+            </SelectContent>
+          </Select>
         </EditableField>
 
         <EditableField
@@ -416,29 +400,15 @@ export default function ProfileUsernamePage({
             startEdit("location", profile.location ?? null)
           }
           onCancel={() => cancelEdit("location")}
+          onSave={() => saveField("location", form.location)}
+          saving={saving}
         >
-          <div className="flex gap-2 items-start">
-            <div className="flex-1">
-              <LocationInput
-                value={form.location || null}
-                onChange={(val) =>
-                  setForm((prev) => ({ ...prev, location: val ?? "" }))
-                }
-              />
-            </div>
-            <Button
-              size="sm"
-              disabled={saving}
-              onClick={() => saveField("location", form.location)}
-              className="bg-primary hover:bg-primary/90 text-white cursor-pointer shrink-0"
-            >
-              {saving ? (
-                <Loader2 className="h-3.5 w-3.5 animate-spin" />
-              ) : (
-                <Check className="h-3.5 w-3.5" />
-              )}
-            </Button>
-          </div>
+          <LocationInput
+            value={form.location || null}
+            onChange={(val) =>
+              setForm((prev) => ({ ...prev, location: val ?? "" }))
+            }
+          />
         </EditableField>
 
         <EditableField
@@ -461,29 +431,15 @@ export default function ProfileUsernamePage({
             startEdit("birthday", profile.birthday ?? null)
           }
           onCancel={() => cancelEdit("birthday")}
+          onSave={() => saveField("birthday", form.birthday)}
+          saving={saving}
         >
-          <div className="flex gap-2 items-start">
-            <div className="flex-1">
-              <DatePicker
-                value={form.birthday || null}
-                onChange={(val) =>
-                  setForm((prev) => ({ ...prev, birthday: val ?? "" }))
-                }
-              />
-            </div>
-            <Button
-              size="sm"
-              disabled={saving}
-              onClick={() => saveField("birthday", form.birthday)}
-              className="bg-primary hover:bg-primary/90 text-white cursor-pointer shrink-0"
-            >
-              {saving ? (
-                <Loader2 className="h-3.5 w-3.5 animate-spin" />
-              ) : (
-                <Check className="h-3.5 w-3.5" />
-              )}
-            </Button>
-          </div>
+          <DatePicker
+            value={form.birthday || null}
+            onChange={(val) =>
+              setForm((prev) => ({ ...prev, birthday: val ?? "" }))
+            }
+          />
         </EditableField>
       </div>
 
@@ -501,32 +457,20 @@ export default function ProfileUsernamePage({
             startEdit("github_url", profile.github_url ?? null)
           }
           onCancel={() => cancelEdit("github_url")}
+          onSave={() => saveField("github_url", form.github_url)}
+          saving={saving}
         >
-          <div className="flex gap-2">
-            <Input
-              placeholder="https://github.com/username"
-              value={form.github_url}
-              onChange={(e) =>
-                setForm((prev) => ({
-                  ...prev,
-                  github_url: e.target.value,
-                }))
-              }
-              className="text-sm"
-            />
-            <Button
-              size="sm"
-              disabled={saving}
-              onClick={() => saveField("github_url", form.github_url)}
-              className="bg-primary hover:bg-primary/90 text-white cursor-pointer shrink-0"
-            >
-              {saving ? (
-                <Loader2 className="h-3.5 w-3.5 animate-spin" />
-              ) : (
-                <Check className="h-3.5 w-3.5" />
-              )}
-            </Button>
-          </div>
+          <Input
+            placeholder="https://github.com/username"
+            value={form.github_url}
+            onChange={(e) =>
+              setForm((prev) => ({
+                ...prev,
+                github_url: e.target.value,
+              }))
+            }
+            className="text-sm flex-1"
+          />
         </EditableField>
 
         <EditableField
@@ -537,32 +481,20 @@ export default function ProfileUsernamePage({
             startEdit("linkedin_url", profile.linkedin_url ?? null)
           }
           onCancel={() => cancelEdit("linkedin_url")}
+          onSave={() => saveField("linkedin_url", form.linkedin_url)}
+          saving={saving}
         >
-          <div className="flex gap-2">
-            <Input
-              placeholder="https://linkedin.com/in/username"
-              value={form.linkedin_url}
-              onChange={(e) =>
-                setForm((prev) => ({
-                  ...prev,
-                  linkedin_url: e.target.value,
-                }))
-              }
-              className="text-sm"
-            />
-            <Button
-              size="sm"
-              disabled={saving}
-              onClick={() => saveField("linkedin_url", form.linkedin_url)}
-              className="bg-primary hover:bg-primary/90 text-white cursor-pointer shrink-0"
-            >
-              {saving ? (
-                <Loader2 className="h-3.5 w-3.5 animate-spin" />
-              ) : (
-                <Check className="h-3.5 w-3.5" />
-              )}
-            </Button>
-          </div>
+          <Input
+            placeholder="https://linkedin.com/in/username"
+            value={form.linkedin_url}
+            onChange={(e) =>
+              setForm((prev) => ({
+                ...prev,
+                linkedin_url: e.target.value,
+              }))
+            }
+            className="text-sm flex-1"
+          />
         </EditableField>
       </div>
     </div>
