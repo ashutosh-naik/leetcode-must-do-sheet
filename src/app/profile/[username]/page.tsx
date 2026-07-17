@@ -10,6 +10,7 @@ import {
   updateProfile,
   type Profile,
 } from "@/lib/services/profile";
+import { supabase } from "@/lib/supabase";
 import { useToast } from "@/components/ui/toast";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -17,6 +18,7 @@ import { DatePicker } from "@/components/ui/date-picker";
 import { LocationInput } from "@/components/ui/location-input";
 import { CropModal } from "@/components/common/crop-modal";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { validateUsername, validateProfileField } from "@/lib/username";
 
 function EditableField({
   label,
@@ -128,11 +130,16 @@ export default function ProfileUsernamePage({
   const handleAvatarFileChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
+    if (file.size > 2 * 1024 * 1024) {
+      toast("Image must be under 2MB", "error");
+      e.target.value = "";
+      return;
+    }
     const reader = new FileReader();
     reader.onload = () => setCropImageSrc(reader.result as string);
     reader.readAsDataURL(file);
     e.target.value = "";
-  }, []);
+  }, [toast]);
 
   const handleCropSave = useCallback(
     async (dataUrl: string) => {
@@ -140,7 +147,23 @@ export default function ProfileUsernamePage({
       setCropImageSrc(null);
       setSaving(true);
       try {
-        const updated = await updateProfile(user.id, { avatar_url: dataUrl });
+        // Convert base64 data URL to blob for Supabase Storage
+        const res = await fetch(dataUrl);
+        const blob = await res.blob();
+        const filePath = `${user.id}/avatar.jpg`;
+
+        const { error: uploadError } = await supabase.storage
+          .from("avatars")
+          .upload(filePath, blob, { upsert: true, contentType: "image/jpeg" });
+
+        if (uploadError) throw uploadError;
+
+        const { data: urlData } = supabase.storage
+          .from("avatars")
+          .getPublicUrl(filePath);
+
+        const publicUrl = urlData.publicUrl;
+        const updated = await updateProfile(user.id, { avatar_url: publicUrl });
         setProfile(updated);
         toast("Profile picture updated", "success");
         window.dispatchEvent(new Event("profile-updated"));
@@ -156,6 +179,14 @@ export default function ProfileUsernamePage({
   const saveField = useCallback(
     async (key: string, value: string) => {
       if (!user || !profile || user.id !== profile.id) return;
+      // Validate before saving
+      if (key === "username") {
+        const err = validateUsername(value);
+        if (err) { toast(err, "error"); return; }
+      } else {
+        const err = validateProfileField(key, value);
+        if (err) { toast(err, "error"); return; }
+      }
       setSaving(true);
       try {
         const updated = await updateProfile(user.id, {

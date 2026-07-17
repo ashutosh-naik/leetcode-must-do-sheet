@@ -203,14 +203,10 @@ export function ProblemsetContent({ defaultFilter = "" }: { defaultFilter?: stri
   const { list, uniquePatterns, q, difficulty, pattern, important, filter, sort, dir, difficultyCounts, patternCounts } =
     useFilteredProblems(defaultFilter);
   const searchRef = useRef<HTMLInputElement>(null);
-  const solvedProblemIds = useProblemStore((s) => s.solvedProblemIds);
   const toggleProblemSolved = useProblemStore((s) => s.toggleProblemSolved);
   const { user, loading: authLoading } = useAuth();
   useSyncProgress();
-  const solvedSet = useMemo(
-    () => new Set(solvedProblemIds),
-    [solvedProblemIds],
-  );
+  const solvedSet = useProblemStore((s) => s._solvedSet);
   const [searchInput, setSearchInput] = useState(q);
   const debouncedSearch = useDebounce(searchInput, 300);
   const [showProgress, setShowProgress] = useState(false);
@@ -295,6 +291,9 @@ export function ProblemsetContent({ defaultFilter = "" }: { defaultFilter?: stri
   // Problemset page keyboard shortcuts
   useEffect(() => {
     function handleKeyDown(e: KeyboardEvent) {
+      // Skip if shortcuts modal is open
+      if (document.querySelector('[aria-label="Keyboard shortcuts"]')) return;
+
       const tag = (e.target as HTMLElement).tagName;
       const isInput = tag === "INPUT" || tag === "TEXTAREA" || tag === "SELECT";
       const isMod = e.metaKey || e.ctrlKey;
@@ -451,7 +450,7 @@ export function ProblemsetContent({ defaultFilter = "" }: { defaultFilter?: stri
                   setParam("q", "");
                 }}
                 aria-label="Clear search"
-                className="absolute right-1 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground hover:scale-110 active:scale-90 transition-all duration-200 cursor-pointer size-7"
+                className="absolute right-1 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground hover:scale-110 active:scale-90 transition-all duration-200 cursor-pointer size-9"
               >
                 <X className="h-4 w-4" />
               </Button>

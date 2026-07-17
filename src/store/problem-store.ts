@@ -10,6 +10,8 @@ interface ProblemState {
   resetProgress: () => void;
   showResetConfirm: boolean;
   setShowResetConfirm: (show: boolean) => void;
+  // Derived Set for O(1) lookups
+  _solvedSet: Set<number>;
 }
 
 export const useProblemStore = create<ProblemState>()(
@@ -18,6 +20,7 @@ export const useProblemStore = create<ProblemState>()(
       solvedProblemIds: [],
       solvedProblemDates: {},
       showResetConfirm: false,
+      _solvedSet: new Set<number>(),
 
       toggleProblemSolved: (id) =>
         set((state) => {
@@ -31,14 +34,14 @@ export const useProblemStore = create<ProblemState>()(
           } else {
             newDates[id] = new Date().toISOString();
           }
-          return { solvedProblemIds: newSolved, solvedProblemDates: newDates };
+          return { solvedProblemIds: newSolved, solvedProblemDates: newDates, _solvedSet: new Set(newSolved) };
         }),
 
-      setSolvedProblemIds: (ids) => set({ solvedProblemIds: ids }),
+      setSolvedProblemIds: (ids) => set({ solvedProblemIds: ids, _solvedSet: new Set(ids) }),
 
       setSolvedProblemDates: (dates) => set({ solvedProblemDates: dates }),
 
-      resetProgress: () => set({ solvedProblemIds: [], solvedProblemDates: {} }),
+      resetProgress: () => set({ solvedProblemIds: [], solvedProblemDates: {}, _solvedSet: new Set() }),
 
       setShowResetConfirm: (show) => set({ showResetConfirm: show }),
     }),
@@ -48,6 +51,11 @@ export const useProblemStore = create<ProblemState>()(
         solvedProblemIds: state.solvedProblemIds,
         solvedProblemDates: state.solvedProblemDates,
       }),
+      onRehydrateStorage: () => (state) => {
+        if (state) {
+          state._solvedSet = new Set(state.solvedProblemIds);
+        }
+      },
     },
   ),
 );

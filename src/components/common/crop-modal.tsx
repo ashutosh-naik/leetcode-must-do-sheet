@@ -113,9 +113,16 @@ export function CropModal({ imageSrc, onCrop, onCancel }: CropModalProps) {
 
     const cw = container.clientWidth;
     const ch = 250;
-    const sx = (pos.x / cw) * img.width;
-    const sy = (pos.y / ch) * img.height;
-    const ss = (cropSize / cw) * img.width;
+    // Account for object-contain letterboxing
+    const scale = Math.min(cw / img.width, ch / img.height, 1);
+    const dw = img.width * scale;
+    const dh = img.height * scale;
+    const offsetX = (cw - dw) / 2;
+    const offsetY = (ch - dh) / 2;
+
+    const sx = ((pos.x - offsetX) / dw) * img.width;
+    const sy = ((pos.y - offsetY) / dh) * img.height;
+    const ss = (cropSize / dw) * img.width;
 
     canvas.width = 400;
     canvas.height = 400;
@@ -192,6 +199,7 @@ export function CropModal({ imageSrc, onCrop, onCancel }: CropModalProps) {
                 max={maxSize}
                 value={cropSize}
                 onChange={(e) => handleZoomChange(Number(e.target.value))}
+                aria-label="Zoom level"
                 className="flex-1 h-1.5 rounded-full appearance-none bg-muted cursor-pointer accent-primary"
               />
               <ZoomIn className="h-3.5 w-3.5 text-muted-foreground shrink-0" />

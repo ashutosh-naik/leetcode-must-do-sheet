@@ -8,6 +8,7 @@ import { Logo } from "@/components/common/logo";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useAuth } from "@/providers/auth-provider";
+import { validateUsername } from "@/lib/username";
 
 export default function RegisterPage() {
   const router = useRouter();
@@ -37,6 +38,13 @@ export default function RegisterPage() {
 
     if (!username || !email || !password || !confirmPassword) {
       setError("Please fill all fields");
+      setLoading(false);
+      return;
+    }
+
+    const usernameError = validateUsername(username);
+    if (usernameError) {
+      setError(usernameError);
       setLoading(false);
       return;
     }

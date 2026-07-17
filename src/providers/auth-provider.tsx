@@ -7,6 +7,7 @@ import {
   useState,
   useCallback,
   useRef,
+  useMemo,
 } from "react";
 import type { User } from "@supabase/supabase-js";
 import { useRouter } from "next/navigation";
@@ -15,9 +16,12 @@ import { createProfile, getProfile, updateProfile } from "@/lib/services/profile
 import { generateUniqueUsername } from "@/lib/username";
 import { logger } from "@/lib/logger";
 
-interface AuthContextValue {
+interface AuthState {
   user: User | null;
   loading: boolean;
+}
+
+interface AuthActions {
   login: (email: string, password: string) => Promise<string | null>;
   register: (
     email: string,
@@ -29,9 +33,12 @@ interface AuthContextValue {
   logout: () => Promise<void>;
 }
 
-const AuthContext = createContext<AuthContextValue>({
+const AuthStateContext = createContext<AuthState>({
   user: null,
   loading: true,
+});
+
+const AuthActionsContext = createContext<AuthActions>({
   login: async () => null,
   register: async () => null,
   googleLogin: async () => {},
@@ -47,6 +54,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const ensureProfile = useCallback(async (currentUser: User) => {
     if (profileCreated.current === currentUser.id) return;
+    profileCreated.current = currentUser.id;
     try {
       const name =
         currentUser.user_metadata?.name ??
@@ -68,8 +76,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         const username = await generateUniqueUsername(emailPrefix);
         await createProfile(currentUser.id, name, email, username);
       }
-
-      profileCreated.current = currentUser.id;
     } catch (err) {
       profileCreated.current = null;
       logger.error("Profile creation error:", err);
@@ -167,21 +173,20 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     router.push("/login");
   }, [router]);
 
+  const stateValue = useMemo(() => ({ user, loading }), [user, loading]);
+  const actionsValue = useMemo(() => ({ login, register, googleLogin, githubLogin, logout }), [login, register, googleLogin, githubLogin, logout]);
+
   return (
-    <AuthContext.Provider
-      value={{
-        user,
-        loading,
-        login,
-        register,
-        googleLogin,
-        githubLogin,
-        logout,
-      }}
-    >
-      {children}
-    </AuthContext.Provider>
+    <AuthStateContext.Provider value={stateValue}>
+      <AuthActionsContext.Provider value={actionsValue}>
+        {children}
+      </AuthActionsContext.Provider>
+    </AuthStateContext.Provider>
   );
 }
 
-export const useAuth = () => useContext(AuthContext);
+export function useAuth() {
+  const state = useContext(AuthStateContext);
+  const actions = useContext(AuthActionsContext);
+  return { ...state, ...actions };
+}

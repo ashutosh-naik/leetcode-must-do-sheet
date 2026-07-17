@@ -8,9 +8,7 @@ import {
   Filter,
   HeartHandshake,
 } from "lucide-react";
-import { PROBLEMS } from "@/constants/problems";
-
-const PROBLEM_COUNT = PROBLEMS.length;
+import { PROBLEM_COUNT } from "@/constants/problems";
 
 const features = [
   {

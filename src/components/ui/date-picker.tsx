@@ -92,7 +92,7 @@ function DropdownSelect({
         }}
         aria-label={ariaLabel}
         className={cn(
-          "flex items-center gap-1 text-sm font-semibold text-foreground cursor-pointer px-2 py-0.5 rounded-lg transition-all duration-150",
+          "flex items-center gap-1 text-sm font-semibold text-foreground cursor-pointer px-2.5 py-1.5 rounded-lg transition-all duration-150",
           "hover:bg-muted focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/30",
           open && "bg-muted",
           width,
@@ -158,8 +158,15 @@ export function DatePicker({ value, onChange, placeholder = "Select date" }: Dat
         setOpen(false);
       }
     }
+    function handleKeyDown(e: KeyboardEvent) {
+      if (e.key === "Escape") setOpen(false);
+    }
     document.addEventListener("mousedown", handleClickOutside);
-    return () => document.removeEventListener("mousedown", handleClickOutside);
+    document.addEventListener("keydown", handleKeyDown);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+      document.removeEventListener("keydown", handleKeyDown);
+    };
   }, [open]);
 
   const selectDate = useCallback((day: number) => {
@@ -239,7 +246,8 @@ export function DatePicker({ value, onChange, placeholder = "Select date" }: Dat
             <button
               type="button"
               onClick={() => { if (viewMonth === 0) { setViewMonth(11); setViewYear((y) => y - 1); } else { setViewMonth((m) => m - 1); } }}
-              className="size-7 flex items-center justify-center rounded-lg hover:bg-muted transition-colors cursor-pointer text-muted-foreground hover:text-foreground"
+              aria-label="Previous month"
+              className="size-8 flex items-center justify-center rounded-lg hover:bg-muted transition-colors cursor-pointer text-muted-foreground hover:text-foreground"
             >
               <ChevronLeft className="h-4 w-4" />
             </button>
@@ -264,7 +272,8 @@ export function DatePicker({ value, onChange, placeholder = "Select date" }: Dat
             <button
               type="button"
               onClick={() => { if (viewMonth === 11) { setViewMonth(0); setViewYear((y) => y + 1); } else { setViewMonth((m) => m + 1); } }}
-              className="size-7 flex items-center justify-center rounded-lg hover:bg-muted transition-colors cursor-pointer text-muted-foreground hover:text-foreground"
+              aria-label="Next month"
+              className="size-8 flex items-center justify-center rounded-lg hover:bg-muted transition-colors cursor-pointer text-muted-foreground hover:text-foreground"
             >
               <ChevronRight className="h-4 w-4" />
             </button>
@@ -289,7 +298,7 @@ export function DatePicker({ value, onChange, placeholder = "Select date" }: Dat
                 aria-label={`${MONTHS[viewMonth]} ${cell.day}, ${viewYear}`}
                 onClick={() => cell.currentMonth && selectDate(cell.day)}
                 className={cn(
-                  "relative h-8 w-full flex items-center justify-center text-sm rounded-lg transition-all duration-150 cursor-pointer",
+                  "relative h-10 w-full flex items-center justify-center text-sm rounded-lg transition-all duration-150 cursor-pointer",
                   !cell.currentMonth && "text-muted-foreground/30 cursor-default",
                   cell.currentMonth && !cell.isSelected && "text-foreground hover:bg-muted",
                   cell.isToday && !cell.isSelected && "font-bold text-primary",

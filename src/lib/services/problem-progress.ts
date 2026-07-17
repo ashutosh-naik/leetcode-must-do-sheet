@@ -104,12 +104,13 @@ export async function syncSolvedProblems(
   localIds: number[],
   localDates?: Record<number, string>,
 ): Promise<{ ids: number[]; dates: Record<number, string> }> {
-  let remoteRows: { slug: string; lastSolvedAt: string | null }[];
+  let remoteRows: { slug: string; lastSolvedAt: string | null }[] | null;
   try {
     remoteRows = await getSolvedProblemSlugs(userId);
   } catch (err) {
     logSupabaseError("syncSolvedProblems-fetch", err);
-    remoteRows = [];
+    // null = fetch failed — skip upload to avoid overwriting server data
+    return { ids: localIds, dates: localDates ?? {} };
   }
 
   // Use module-level slugToId map (built once at import time)

@@ -143,6 +143,7 @@ export function KeyboardShortcutsModal({ open, onClose }: KeyboardShortcutsModal
 
         <button
           onClick={onClose}
+          aria-label="Close keyboard shortcuts"
           className="mt-6 w-full cursor-pointer rounded-lg bg-muted/50 hover:bg-muted/80 transition-colors px-5 py-2.5 text-sm font-semibold text-foreground border-none outline-none"
         >
           Close

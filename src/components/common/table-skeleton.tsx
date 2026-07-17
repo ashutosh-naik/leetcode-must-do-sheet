@@ -12,7 +12,7 @@ function Pulse({ className }: { className?: string }) {
 
 export function TableSkeletonDesktop() {
   return (
-    <div className="rounded-2xl border border-border overflow-x-auto bg-card shadow-sm animate-in fade-in duration-300">
+    <div className="rounded-2xl border border-border overflow-x-auto bg-card shadow-sm animate-in fade-in duration-300" role="status" aria-label="Loading problems">
       <Table>
         <TableHeader className="sticky top-0 z-10">
           <TableRow className="bg-muted/30">
@@ -52,7 +52,7 @@ export function TableSkeletonDesktop() {
 
 export function TableSkeletonMobile() {
   return (
-    <div className="md:hidden space-y-2">
+    <div className="md:hidden space-y-2" role="status" aria-label="Loading problems">
       {Array.from({ length: 5 }).map((_, i) => (
         <div key={i} className="rounded-2xl border border-border bg-card p-4 space-y-2">
           <div className="flex items-center gap-3">

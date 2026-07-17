@@ -118,10 +118,9 @@ function DifficultyCard({
 }
 
 export function ProgressPanel() {
-  const solvedProblemIds = useProblemStore((s) => s.solvedProblemIds);
+  const solvedSet = useProblemStore((s) => s._solvedSet);
   const setShowResetConfirm = useProblemStore((s) => s.setShowResetConfirm);
 
-  const solvedSet = useMemo(() => new Set(solvedProblemIds), [solvedProblemIds]);
   const total = PROBLEMS.length;
   const totalSolved = solvedSet.size;
 

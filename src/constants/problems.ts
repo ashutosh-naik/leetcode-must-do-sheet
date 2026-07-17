@@ -7,6 +7,9 @@ export interface Problem {
   frequency: string;
 }
 
+// Total problem count — update this when adding/removing problems
+export const PROBLEM_COUNT = 550;
+
 export const PROBLEMS: Problem[] = [
   { id: 1, name: 'Two Sum', link: 'https://leetcode.com/problems/two-sum/', difficulty: 'Easy', patterns: ["Arrays & Hashing"], frequency: '95%' },
   { id: 217, name: 'Contains Duplicate', link: 'https://leetcode.com/problems/contains-duplicate/', difficulty: 'Easy', patterns: ["Arrays & Hashing"], frequency: '90%' },
