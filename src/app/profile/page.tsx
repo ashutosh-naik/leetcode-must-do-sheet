@@ -11,15 +11,23 @@ export default function ProfileRedirectPage() {
   const router = useRouter();
 
   useEffect(() => {
-    if (authLoading || !user) return;
+    if (authLoading) return;
+    if (!user) {
+      router.replace("/login");
+      return;
+    }
     let cancelled = false;
     (async () => {
-      const profile = await getProfile(user.id);
-      if (cancelled) return;
-      if (profile?.username) {
-        router.replace(`/profile/${profile.username}`);
-      } else {
-        router.replace("/");
+      try {
+        const profile = await getProfile(user.id);
+        if (cancelled) return;
+        if (profile?.username) {
+          router.replace(`/profile/${profile.username}`);
+        } else {
+          router.replace("/");
+        }
+      } catch {
+        if (!cancelled) router.replace("/");
       }
     })();
     return () => {

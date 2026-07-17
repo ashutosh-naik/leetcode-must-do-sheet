@@ -8,7 +8,10 @@ export async function createSupabaseServerClient() {
   const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
 
   if (!supabaseUrl || !supabaseAnonKey) {
-    throw new Error("Missing NEXT_PUBLIC_SUPABASE_URL or NEXT_PUBLIC_SUPABASE_ANON_KEY");
+    throw new Error(
+      "Missing NEXT_PUBLIC_SUPABASE_URL or NEXT_PUBLIC_SUPABASE_ANON_KEY. " +
+        "Add them to Vercel Dashboard → Settings → Environment Variables."
+    );
   }
 
   return createServerClient(supabaseUrl, supabaseAnonKey, {

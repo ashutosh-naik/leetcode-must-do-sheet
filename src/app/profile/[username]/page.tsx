@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState, useCallback, useRef } from "react";
+import { useRouter } from "next/navigation";
 import { User, Pencil, Check, X, Loader2, Camera } from "lucide-react";
 import Image from "next/image";
 import { useAuth } from "@/providers/auth-provider";
@@ -78,6 +79,7 @@ export default function ProfileUsernamePage({
   params: Promise<{ username: string }>;
 }) {
   const { user } = useAuth();
+  const router = useRouter();
   const { toast } = useToast();
   const [profile, setProfile] = useState<Profile | null>(null);
   const [loading, setLoading] = useState(true);
@@ -142,11 +144,7 @@ export default function ProfileUsernamePage({
         window.dispatchEvent(new Event("profile-updated"));
 
         if (key === "username" && updated.username) {
-          window.history.replaceState(
-            null,
-            "",
-            `/profile/${updated.username}`,
-          );
+          router.replace(`/profile/${updated.username}`);
         }
       } catch {
         toast("Failed to update profile", "error");
@@ -154,17 +152,24 @@ export default function ProfileUsernamePage({
         setSaving(false);
       }
     },
-    [user, profile, toast],
+    [user, profile, toast, router],
   );
 
   useEffect(() => {
     let cancelled = false;
     (async () => {
-      const { username } = await params;
-      const p = await getProfileByUsername(username);
-      if (!cancelled) {
-        setProfile(p);
-        setLoading(false);
+      try {
+        const { username } = await params;
+        const p = await getProfileByUsername(username);
+        if (!cancelled) {
+          setProfile(p);
+          setLoading(false);
+        }
+      } catch {
+        if (!cancelled) {
+          setProfile(null);
+          setLoading(false);
+        }
       }
     })();
     return () => {
@@ -211,28 +216,43 @@ export default function ProfileUsernamePage({
       {/* Avatar */}
       <div className="rounded-2xl border border-border bg-card p-6 shadow-sm">
         <div className="flex items-center gap-4">
-          <button
-            type="button"
-            onClick={() => isOwn && fileInputRef.current?.click()}
-            className={`relative size-20 rounded-full bg-muted flex items-center justify-center overflow-hidden shrink-0 ${isOwn ? "cursor-pointer hover:ring-2 hover:ring-primary/50 transition-all" : ""}`}
-          >
-            {avatarUrl ? (
-              <Image
-                src={avatarUrl}
-                alt={displayName}
-                fill
-                className="object-cover"
-                unoptimized
-              />
-            ) : (
-              <User className="h-8 w-8 text-muted-foreground" />
-            )}
-            {isOwn && (
+          {isOwn ? (
+            <button
+              type="button"
+              onClick={() => fileInputRef.current?.click()}
+              aria-label="Change profile picture"
+              className="relative size-20 rounded-full bg-muted flex items-center justify-center overflow-hidden shrink-0 cursor-pointer hover:ring-2 hover:ring-primary/50 transition-all group"
+            >
+              {avatarUrl ? (
+                <Image
+                  src={avatarUrl}
+                  alt={displayName}
+                  fill
+                  className="object-cover"
+                  unoptimized
+                />
+              ) : (
+                <User className="h-8 w-8 text-muted-foreground" />
+              )}
               <div className="absolute inset-0 bg-black/0 hover:bg-black/40 flex items-center justify-center transition-colors group">
                 <Camera className="h-5 w-5 text-white opacity-0 group-hover:opacity-100 transition-opacity" />
               </div>
-            )}
-          </button>
+            </button>
+          ) : (
+            <div className="relative size-20 rounded-full bg-muted flex items-center justify-center overflow-hidden shrink-0">
+              {avatarUrl ? (
+                <Image
+                  src={avatarUrl}
+                  alt={displayName}
+                  fill
+                  className="object-cover"
+                  unoptimized
+                />
+              ) : (
+                <User className="h-8 w-8 text-muted-foreground" />
+              )}
+            </div>
+          )}
           <input
             ref={fileInputRef}
             type="file"
@@ -355,6 +375,7 @@ export default function ProfileUsernamePage({
         >
           <div className="flex gap-2">
             <select
+              id="gender"
               value={form.gender}
               onChange={(e) =>
                 setForm((prev) => ({ ...prev, gender: e.target.value }))

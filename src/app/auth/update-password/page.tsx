@@ -2,7 +2,6 @@
 
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Logo } from "@/components/common/logo";
@@ -23,6 +22,12 @@ export default function UpdatePasswordPage() {
 
     if (!password || !confirmPassword) {
       setError("Please fill all fields");
+      setLoading(false);
+      return;
+    }
+
+    if (password.length < 6) {
+      setError("Password must be at least 6 characters");
       setLoading(false);
       return;
     }
@@ -60,9 +65,7 @@ export default function UpdatePasswordPage() {
     <main className="flex min-h-screen items-center justify-center bg-background px-4 py-8">
       <div className="w-full max-w-md space-y-6">
         <div className="flex justify-center">
-          <Link href="/">
-            <Logo />
-          </Link>
+          <Logo />
         </div>
         <div className="rounded-2xl border border-border bg-card p-6 sm:p-8 shadow-sm">
             <h1 className="mb-2 text-center font-heading text-xl font-bold tracking-tight">

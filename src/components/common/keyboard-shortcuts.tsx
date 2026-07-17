@@ -16,7 +16,10 @@ interface KeyboardShortcutsModalProps {
 export function KeyboardShortcutsModal({ open, onClose }: KeyboardShortcutsModalProps) {
   const isMac = useSyncExternalStore(
     () => () => {},
-    () => typeof navigator !== "undefined" && navigator.platform.toLowerCase().includes("mac"),
+    () =>
+      typeof navigator !== "undefined" &&
+      ((navigator as { userAgentData?: { platform?: string } }).userAgentData?.platform?.toLowerCase().includes("mac") ??
+        navigator.userAgent.toLowerCase().includes("mac")),
     () => false,
   );
   const mod = isMac ? "\u2318" : "Ctrl";

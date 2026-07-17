@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { Space_Grotesk, Figtree } from "next/font/google";
 import "./globals.css";
 
@@ -27,6 +27,15 @@ export const metadata: Metadata = {
   },
 };
 
+export const viewport: Viewport = {
+  width: "device-width",
+  initialScale: 1,
+  themeColor: [
+    { media: "(prefers-color-scheme: light)", color: "#ffffff" },
+    { media: "(prefers-color-scheme: dark)", color: "#0a0a0a" },
+  ],
+};
+
 export default function RootLayout({
   children,
 }: {
@@ -38,7 +47,7 @@ export default function RootLayout({
       suppressHydrationWarning
       className={cn(figtree.variable, spaceGrotesk.variable, "h-full")}
     >
-      <body className="min-h-screen font-sans antialiased" suppressHydrationWarning>
+      <body className="min-h-screen font-sans antialiased">
         <ThemeProvider>
           <ErrorBoundary>
             <AppLayout>{children}</AppLayout>

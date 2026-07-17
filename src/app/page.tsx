@@ -60,7 +60,7 @@ const stats = [
 
 export default function Home() {
   return (
-    <>
+    <main>
       {/* Hero Section */}
       <section className="relative overflow-hidden">
         <div className="mx-auto max-w-6xl px-4 sm:px-6 lg:px-8 pt-16 sm:pt-24 lg:pt-32 pb-16 sm:pb-20 lg:pb-24">
@@ -236,6 +236,6 @@ export default function Home() {
         </div>
       </section>
 
-    </>
+    </main>
   );
 }

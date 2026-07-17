@@ -1,6 +1,7 @@
 import { type NextRequest, NextResponse } from "next/server";
 import { createServerClient } from "@supabase/ssr";
 import { isSafePath } from "@/lib/utils";
+import { logger } from "@/lib/logger";
 
 const VALID_OTP_TYPES = ["email", "signup", "recovery", "invite"] as const;
 type OtpType = (typeof VALID_OTP_TYPES)[number];
@@ -39,12 +40,17 @@ export async function GET(request: NextRequest) {
       },
     });
 
-    const { error } = await supabase.auth.verifyOtp({
-      type: rawType,
-      token_hash,
-    });
+    try {
+      const { error } = await supabase.auth.verifyOtp({
+        type: rawType,
+        token_hash,
+      });
 
-    if (!error) return response;
+      if (!error) return response;
+      logger.error("Auth confirm OTP verification failed:", error.message);
+    } catch (err) {
+      logger.error("Auth confirm OTP verification threw:", err);
+    }
   }
 
   return NextResponse.redirect(`${origin}/login?error=confirmation_error`);

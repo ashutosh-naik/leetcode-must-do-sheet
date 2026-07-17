@@ -1,4 +1,5 @@
 import { supabase } from "@/lib/supabase";
+import { logger } from "@/lib/logger";
 
 export interface Profile {
   id: string;
@@ -40,7 +41,10 @@ export async function getProfile(userId: string): Promise<Profile | null> {
     .eq("id", userId)
     .single();
 
-  if (error) return null;
+  if (error) {
+    logger.error("getProfile error:", error.message);
+    return null;
+  }
   return data as Profile;
 }
 
@@ -53,7 +57,10 @@ export async function getProfileByUsername(
     .eq("username", username)
     .single();
 
-  if (error) return null;
+  if (error) {
+    logger.error("getProfileByUsername error:", error.message);
+    return null;
+  }
   return data as Profile;
 }
 

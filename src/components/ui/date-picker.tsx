@@ -17,6 +17,11 @@ function getFirstDayOfMonth(year: number, month: number) {
   return new Date(year, month, 1).getDay();
 }
 
+function formatToday() {
+  const t = new Date();
+  return `${t.getFullYear()}-${String(t.getMonth() + 1).padStart(2, "0")}-${String(t.getDate()).padStart(2, "0")}`;
+}
+
 interface DatePickerProps {
   value: string | null;
   onChange: (date: string | null) => void;
@@ -25,11 +30,10 @@ interface DatePickerProps {
 
 export function DatePicker({ value, onChange, placeholder = "Select date" }: DatePickerProps) {
   const [open, setOpen] = useState(false);
-  const today = useMemo(() => new Date(), []);
   const parsed = useMemo(() => value ? new Date(value + "T00:00:00Z") : null, [value]);
 
-  const [viewYear, setViewYear] = useState(parsed?.getFullYear() ?? today.getFullYear());
-  const [viewMonth, setViewMonth] = useState(parsed?.getMonth() ?? today.getMonth());
+  const [viewYear, setViewYear] = useState(parsed?.getFullYear() ?? new Date().getFullYear());
+  const [viewMonth, setViewMonth] = useState(parsed?.getMonth() ?? new Date().getMonth());
 
   const containerRef = useRef<HTMLDivElement>(null);
 
@@ -50,15 +54,10 @@ export function DatePicker({ value, onChange, placeholder = "Select date" }: Dat
     setOpen(false);
   }, [viewYear, viewMonth, onChange]);
 
-  const goToToday = useCallback(() => {
-    const t = new Date();
-    setViewYear(t.getFullYear());
-    setViewMonth(t.getMonth());
-  }, []);
-
   const daysInMonth = getDaysInMonth(viewYear, viewMonth);
   const firstDay = getFirstDayOfMonth(viewYear, viewMonth);
   const prevMonthDays = getDaysInMonth(viewYear, viewMonth - 1);
+  const today = useMemo(() => new Date(), []);
 
   const cells: { day: number; currentMonth: boolean; isToday: boolean; isSelected: boolean }[] = [];
 
@@ -86,7 +85,14 @@ export function DatePicker({ value, onChange, placeholder = "Select date" }: Dat
     <div ref={containerRef} className="relative inline-block w-full">
       <button
         type="button"
-        onClick={() => { setOpen((o) => !o); if (!open) goToToday(); }}
+        onClick={() => {
+          setOpen((o) => !o);
+          if (!open) {
+            const now = new Date();
+            setViewYear(now.getFullYear());
+            setViewMonth(now.getMonth());
+          }
+        }}
         className="flex h-9 w-full items-center justify-between rounded-md border border-input bg-transparent px-3 py-1 text-sm shadow-sm transition-colors placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring cursor-pointer hover:bg-accent/50"
       >
         <span className={displayText ? "text-foreground" : "text-muted-foreground"}>
@@ -96,7 +102,12 @@ export function DatePicker({ value, onChange, placeholder = "Select date" }: Dat
       </button>
 
       {open && (
-        <div className="absolute z-50 mt-1.5 w-[300px] rounded-xl border border-border bg-popover p-3 shadow-xl animate-in fade-in slide-in-from-top-2 duration-200">
+        <div
+          className="absolute z-50 mt-1.5 w-[300px] rounded-xl border border-border bg-popover p-3 shadow-xl animate-in fade-in slide-in-from-top-2 duration-200"
+          role="dialog"
+          aria-modal="true"
+          aria-label="Choose date"
+        >
           {/* Month / Year nav */}
           <div className="flex items-center justify-between mb-3">
             <button
@@ -182,7 +193,14 @@ export function DatePicker({ value, onChange, placeholder = "Select date" }: Dat
             )}
             <button
               type="button"
-              onClick={() => { const t = new Date(); setViewYear(t.getFullYear()); setViewMonth(t.getMonth()); selectDate(t.getDate()); }}
+              onClick={() => {
+                const now = new Date();
+                const todayStr = formatToday();
+                setViewYear(now.getFullYear());
+                setViewMonth(now.getMonth());
+                onChange(todayStr);
+                setOpen(false);
+              }}
               className="text-xs font-medium text-primary hover:text-primary/80 transition-colors cursor-pointer px-2 py-1 rounded hover:bg-primary/10"
             >
               Today

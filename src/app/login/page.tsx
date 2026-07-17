@@ -1,6 +1,6 @@
 "use client";
 
-import { Suspense, useState, useEffect } from "react";
+import { Suspense, useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { useRouter, useSearchParams } from "next/navigation";
@@ -11,7 +11,7 @@ import { useAuth } from "@/providers/auth-provider";
 import { isSafePath } from "@/lib/utils";
 
 function LoginForm() {
-  const { login, googleLogin, githubLogin, user, loading: authLoading } = useAuth();
+  const { login, googleLogin, githubLogin } = useAuth();
   const router = useRouter();
   const searchParams = useSearchParams();
   const [email, setEmail] = useState("");
@@ -25,12 +25,6 @@ function LoginForm() {
       return "";
     }
   });
-
-  useEffect(() => {
-    if (!authLoading && user) {
-      router.push("/");
-    }
-  }, [user, authLoading, router]);
 
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();

@@ -1,69 +1,17 @@
 "use client";
 
-import { useEffect, useMemo, useRef } from "react";
+import { useMemo } from "react";
 import { PROBLEMS } from "@/constants/problems";
 import { useProblemStore } from "@/store/problem-store";
 import { useAuth } from "@/providers/auth-provider";
 import { ProgressPanel } from "@/components/dashboard/progress-panel";
 import { BarChart3 } from "lucide-react";
-import { syncSolvedProblems } from "@/lib/services/problem-progress";
-import { logger } from "@/lib/logger";
+import { useSyncProgress } from "@/hooks/use-sync-progress";
 
 export default function DashboardPage() {
   const { user } = useAuth();
   const solvedProblemIds = useProblemStore((s) => s.solvedProblemIds);
-  const setSolvedProblemIds = useProblemStore((s) => s.setSolvedProblemIds);
-  const setSolvedProblemDates = useProblemStore((s) => s.setSolvedProblemDates);
-  const synced = useRef(false);
-  const prevUserId = useRef<string | undefined>(undefined);
-  const wasEverSynced = useRef(false);
-
-  useEffect(() => {
-    const currentUserId = user?.id;
-    const previousUserId = prevUserId.current;
-    prevUserId.current = currentUserId;
-
-    if (!user) {
-      synced.current = false;
-      return;
-    }
-
-    if (currentUserId !== previousUserId) {
-      synced.current = false;
-    }
-
-    if (!synced.current) {
-      let cancelled = false;
-      const localIds = useProblemStore.getState().solvedProblemIds;
-      const localDates = useProblemStore.getState().solvedProblemDates;
-
-      if (currentUserId !== previousUserId) {
-        setSolvedProblemIds([]);
-        setSolvedProblemDates({});
-      }
-
-      const isGuestTransition = !wasEverSynced.current;
-      syncSolvedProblems(
-        user.id,
-        isGuestTransition ? localIds : [],
-        isGuestTransition ? localDates : {},
-      )
-        .then(({ ids, dates }) => {
-          if (!cancelled) {
-            wasEverSynced.current = true;
-            synced.current = true;
-            setSolvedProblemIds(ids);
-            setSolvedProblemDates(dates);
-          }
-        })
-        .catch((err) => {
-          if (!cancelled) {
-            logger.error("Error syncing problems:", err);
-          }
-        });
-      return () => { cancelled = true; };
-    }
-  }, [user, setSolvedProblemIds, setSolvedProblemDates]);
+  useSyncProgress();
 
   const solvedSet = useMemo(
     () => (user ? new Set(solvedProblemIds) : new Set()),

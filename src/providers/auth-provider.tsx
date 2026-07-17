@@ -71,6 +71,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
       profileCreated.current = currentUser.id;
     } catch (err) {
+      profileCreated.current = null;
       logger.error("Profile creation error:", err);
     }
   }, []);
@@ -78,9 +79,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   useEffect(() => {
     let cancelled = false;
 
-    supabase.auth.getSession().then(({ data: { session } }) => {
+    supabase.auth.getUser().then(({ data: { user: u } }) => {
       if (cancelled) return;
-      const u = session?.user ?? null;
       setUser(u);
       setLoading(false);
       if (u) {

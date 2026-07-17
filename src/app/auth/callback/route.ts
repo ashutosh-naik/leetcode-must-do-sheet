@@ -1,6 +1,7 @@
 import { type NextRequest, NextResponse } from "next/server";
 import { createServerClient } from "@supabase/ssr";
 import { isSafePath } from "@/lib/utils";
+import { logger } from "@/lib/logger";
 
 export async function GET(request: NextRequest) {
   const { searchParams, origin } = new URL(request.url);
@@ -31,8 +32,13 @@ export async function GET(request: NextRequest) {
       },
     });
 
-    const { error } = await supabase.auth.exchangeCodeForSession(code);
-    if (!error) return response;
+    try {
+      const { error } = await supabase.auth.exchangeCodeForSession(code);
+      if (!error) return response;
+      logger.error("Auth callback code exchange failed:", error.message);
+    } catch (err) {
+      logger.error("Auth callback code exchange threw:", err);
+    }
   }
 
   return NextResponse.redirect(`${origin}/login?error=auth_callback_error`);

@@ -52,13 +52,14 @@ import { useProblemStore } from "@/store/problem-store";
 import { cn } from "@/lib/utils";
 import { useAuth } from "@/providers/auth-provider";
 import { useDebounce } from "@/hooks/use-debounce";
+import { useSyncProgress } from "@/hooks/use-sync-progress";
+import { isGoKeyHandled } from "@/lib/keyboard-state";
 import { DifficultyBadge } from "@/components/common/difficulty-badge";
 import { useToast } from "@/components/ui/toast";
 import { logger } from "@/lib/logger";
 import { IMPORTANT_IDS } from "@/constants/important-problems";
 import {
   upsertProblemProgress,
-  syncSolvedProblems,
   extractSlug,
 } from "@/lib/services/problem-progress";
 import type { Problem } from "@/constants/problems";
@@ -206,12 +207,8 @@ export function ProblemsetContent({ defaultFilter = "" }: { defaultFilter?: stri
   const searchRef = useRef<HTMLInputElement>(null);
   const solvedProblemIds = useProblemStore((s) => s.solvedProblemIds);
   const toggleProblemSolved = useProblemStore((s) => s.toggleProblemSolved);
-  const setSolvedProblemIds = useProblemStore((s) => s.setSolvedProblemIds);
-  const setSolvedProblemDates = useProblemStore((s) => s.setSolvedProblemDates);
   const { user, loading: authLoading } = useAuth();
-  const synced = useRef(false);
-  const prevUserId = useRef<string | undefined>(undefined);
-  const wasEverSynced = useRef(false);
+  useSyncProgress();
   const solvedSet = useMemo(
     () => new Set(solvedProblemIds),
     [solvedProblemIds],
@@ -229,6 +226,7 @@ export function ProblemsetContent({ defaultFilter = "" }: { defaultFilter?: stri
       prevQ.current = q;
     }
   }, [q]);
+
   const pendingToggle = useRef(new Set<number>());
   const { toast } = useToast();
   const userRef = useRef(user);
@@ -237,75 +235,26 @@ export function ProblemsetContent({ defaultFilter = "" }: { defaultFilter?: stri
     userRef.current = user;
   }, [user]);
 
-  useEffect(() => {
-    const currentUserId = user?.id;
-    const previousUserId = prevUserId.current;
-    prevUserId.current = currentUserId;
-
-    if (!user) {
-      synced.current = false;
-      return;
-    }
-
-    if (currentUserId !== previousUserId) {
-      synced.current = false;
-    }
-
-    if (!synced.current) {
-      let cancelled = false;
-      const localIds = useProblemStore.getState().solvedProblemIds;
-      const localDates = useProblemStore.getState().solvedProblemDates;
-
-      if (currentUserId !== previousUserId) {
-        setSolvedProblemIds([]);
-        setSolvedProblemDates({});
-      }
-
-      // Only carry local data on guest→user (never synced before)
-      // On user→user switch, start fresh from server
-      const isGuestTransition = !wasEverSynced.current;
-      syncSolvedProblems(
-        user.id,
-        isGuestTransition ? localIds : [],
-        isGuestTransition ? localDates : {},
-      )
-        .then(({ ids, dates }) => {
-          if (!cancelled) {
-            wasEverSynced.current = true;
-            synced.current = true;
-            setSolvedProblemIds(ids);
-            setSolvedProblemDates(dates);
-          }
-        })
-        .catch((err) => {
-          if (!cancelled) {
-            logger.error("Error syncing problems:", err);
-          }
-        });
-      return () => { cancelled = true; };
-    }
-  }, [user, setSolvedProblemIds, setSolvedProblemDates]);
-
   const toggleSolved = useCallback(
     async (id: number) => {
       if (pendingToggle.current.has(id)) return;
+      const currentUser = userRef.current;
+      if (!currentUser) return;
       pendingToggle.current.add(id);
       try {
         toggleProblemSolved(id);
-        const currentUser = userRef.current;
-        if (currentUser) {
-          const problem = PROBLEMS.find((p) => p.id === id);
-          if (problem) {
-            const store = useProblemStore.getState();
-            const isSolved = store.solvedProblemIds.includes(id);
-            const slug = extractSlug(problem.link);
-            await upsertProblemProgress(currentUser.id, slug, isSolved);
-          }
+        const problem = PROBLEMS.find((p) => p.id === id);
+        if (problem) {
+          const store = useProblemStore.getState();
+          const isSolved = store.solvedProblemIds.includes(id);
+          const slug = extractSlug(problem.link);
+          await upsertProblemProgress(currentUser.id, slug, isSolved);
         }
       } catch (err) {
         toggleProblemSolved(id);
-        const e = err as { message?: string; code?: string; details?: string; hint?: string };
-        logger.error({ message: e?.message, code: e?.code, details: e?.details, hint: e?.hint });
+        if (err instanceof Error) {
+          logger.error({ message: err.message });
+        }
         toast("Failed to sync progress", "error");
       } finally {
         pendingToggle.current.delete(id);
@@ -362,7 +311,7 @@ export function ProblemsetContent({ defaultFilter = "" }: { defaultFilter?: stri
       if (isInput) return;
 
       // Skip if handled by global nav shortcuts (g→d, g→p, etc.)
-      if ((window as unknown as Record<string, unknown>).__goKeyHandled) return;
+      if (isGoKeyHandled()) return;
 
       if (e.key === "i") {
         e.preventDefault();

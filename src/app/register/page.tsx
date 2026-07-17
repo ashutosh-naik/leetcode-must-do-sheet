@@ -11,13 +11,7 @@ import { useAuth } from "@/providers/auth-provider";
 
 export default function RegisterPage() {
   const router = useRouter();
-  const { register, googleLogin, githubLogin, user, loading: authLoading } = useAuth();
-
-  useEffect(() => {
-    if (!authLoading && user) {
-      router.push("/");
-    }
-  }, [user, authLoading, router]);
+  const { register, googleLogin, githubLogin } = useAuth();
 
   const [username, setUsername] = useState("");
   const [email, setEmail] = useState("");
@@ -43,6 +37,12 @@ export default function RegisterPage() {
 
     if (!username || !email || !password || !confirmPassword) {
       setError("Please fill all fields");
+      setLoading(false);
+      return;
+    }
+
+    if (password.length < 6) {
+      setError("Password must be at least 6 characters");
       setLoading(false);
       return;
     }

@@ -84,7 +84,7 @@ export default function ForgotPasswordPage() {
                   />
                 </div>
                 {error && (
-                  <p className="text-sm text-red-500">{error}</p>
+                  <div className="p-3 rounded-lg bg-destructive/10 text-destructive text-sm">{error}</div>
                 )}
                 <Button
                   type="submit"

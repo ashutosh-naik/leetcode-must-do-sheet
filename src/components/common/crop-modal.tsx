@@ -23,9 +23,15 @@ export function CropModal({ imageSrc, onCrop, onCancel }: CropModalProps) {
   const dragStart = useRef({ x: 0, y: 0, startX: 0, startY: 0 });
 
   useEffect(() => {
+    let cancelled = false;
     const img = new Image();
     img.crossOrigin = "anonymous";
+    img.onerror = () => {
+      if (cancelled) return;
+      onCancel();
+    };
     img.onload = () => {
+      if (cancelled) return;
       imgRef.current = img;
       const container = containerRef.current;
       if (!container) return;
@@ -43,6 +49,8 @@ export function CropModal({ imageSrc, onCrop, onCancel }: CropModalProps) {
       setReady(true);
     };
     img.src = imageSrc;
+    return () => { cancelled = true; };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [imageSrc]);
 
   const clampPosition = useCallback((nx: number, ny: number, size: number) => {
@@ -111,11 +119,16 @@ export function CropModal({ imageSrc, onCrop, onCancel }: CropModalProps) {
   }, [pos, cropSize, onCrop]);
 
   return (
-    <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/60 backdrop-blur-sm animate-in fade-in duration-200">
+    <div
+      className="fixed inset-0 z-[100] flex items-center justify-center bg-black/60 backdrop-blur-sm animate-in fade-in duration-200"
+      role="dialog"
+      aria-modal="true"
+      aria-label="Crop photo"
+    >
       <div className="bg-card border border-border rounded-2xl shadow-2xl w-full max-w-[360px] mx-4 overflow-hidden">
         <div className="flex items-center justify-between px-5 pt-4 pb-2">
           <h3 className="font-heading text-base font-semibold">Crop Photo</h3>
-          <button onClick={onCancel} className="text-muted-foreground hover:text-foreground transition-colors cursor-pointer">
+          <button onClick={onCancel} aria-label="Close" className="text-muted-foreground hover:text-foreground transition-colors cursor-pointer">
             <X className="h-4 w-4" />
           </button>
         </div>

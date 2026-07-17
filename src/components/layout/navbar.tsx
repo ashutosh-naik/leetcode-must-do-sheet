@@ -84,7 +84,7 @@ export function Navbar() {
         setProfileUsername(p?.username ?? null);
         setProfileDisplayName(p?.display_name ?? null);
         setProfileAvatarUrl(p?.avatar_url ?? null);
-      });
+      }).catch(() => {});
     }
     window.addEventListener("profile-updated", handleProfileUpdated);
     return () => window.removeEventListener("profile-updated", handleProfileUpdated);

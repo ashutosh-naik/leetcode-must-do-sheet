@@ -10,6 +10,7 @@ import { AlertCircle } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useTheme } from "next-themes";
 import { KeyboardShortcutsModal } from "@/components/common/keyboard-shortcuts";
+import { markGoKeyHandled } from "@/lib/keyboard-state";
 
 interface AppLayoutProps {
   children: React.ReactNode;
@@ -34,6 +35,7 @@ function ResetHandler() {
         await deleteAllProblemProgress(user.id);
       } catch {
         toast("Failed to sync reset to cloud", "error");
+        return;
       }
     }
     resetProgress();
@@ -120,13 +122,13 @@ function ResetHandler() {
         <div className="flex justify-end gap-3">
           <button
             onClick={handleCancelReset}
-            className="cursor-pointer rounded-lg bg-[#F0F0F0] dark:bg-[#252525] px-5 py-2 text-sm font-semibold text-foreground hover:bg-[#E5E5E5] dark:hover:bg-[#353535] transition duration-150 border-none outline-none"
+            className="cursor-pointer rounded-lg bg-muted hover:bg-muted/80 px-5 py-2 text-sm font-semibold text-foreground transition-colors duration-150 border-none outline-none"
           >
             Cancel
           </button>
           <button
             onClick={handleConfirmReset}
-            className="cursor-pointer rounded-lg bg-[#EF4743] px-5 py-2 text-sm font-semibold text-white hover:bg-[#EF4743]/90 transition duration-150 border-none outline-none"
+            className="cursor-pointer rounded-lg bg-destructive px-5 py-2 text-sm font-semibold text-white hover:bg-destructive/90 transition-colors duration-150 border-none outline-none"
           >
             Reset
           </button>
@@ -203,8 +205,7 @@ export function AppLayout({ children }: AppLayoutProps) {
 
       // Mark event as handled by global nav shortcuts
       // so problemset-content.tsx doesn't also process 'd' as difficulty cycle
-      (window as unknown as Record<string, unknown>).__goKeyHandled = true;
-      queueMicrotask(() => { (window as unknown as Record<string, unknown>).__goKeyHandled = false; });
+      markGoKeyHandled();
 
       switch (e.key) {
         case "p":
