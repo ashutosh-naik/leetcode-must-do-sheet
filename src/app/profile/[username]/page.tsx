@@ -16,6 +16,7 @@ import { Input } from "@/components/ui/input";
 import { DatePicker } from "@/components/ui/date-picker";
 import { LocationInput } from "@/components/ui/location-input";
 import { CropModal } from "@/components/common/crop-modal";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
 function EditableField({
   label,
@@ -374,18 +375,21 @@ export default function ProfileUsernamePage({
           onCancel={() => cancelEdit("gender")}
         >
           <div className="flex gap-2">
-            <select
-              id="gender"
-              value={form.gender}
-              onChange={(e) =>
-                setForm((prev) => ({ ...prev, gender: e.target.value }))
+            <Select
+              value={form.gender || "none"}
+              onValueChange={(v) =>
+                setForm((prev) => ({ ...prev, gender: v === "none" ? "" : v }))
               }
-              className="flex h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-sm shadow-sm transition-colors placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
             >
-              <option value="">Prefer not to say</option>
-              <option value="male">Male</option>
-              <option value="female">Female</option>
-            </select>
+              <SelectTrigger className="flex-1 h-9 cursor-pointer">
+                <SelectValue placeholder="Prefer not to say" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="none">Prefer not to say</SelectItem>
+                <SelectItem value="male">Male</SelectItem>
+                <SelectItem value="female">Female</SelectItem>
+              </SelectContent>
+            </Select>
             <Button
               size="sm"
               disabled={saving}
