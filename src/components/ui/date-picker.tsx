@@ -74,17 +74,22 @@ function DropdownSelect({
     }
   }, [highlightedIndex]);
 
-  useEffect(() => {
-    if (!open) return;
+  const openDropdown = useCallback(() => {
     setHighlightedIndex(selectedIdx >= 0 ? selectedIdx : 0);
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [open]);
+    setOpen(true);
+  }, [selectedIdx]);
 
   return (
     <div ref={ref} className="relative">
       <button
         type="button"
-        onClick={() => setOpen((o) => !o)}
+        onClick={() => {
+          if (open) {
+            setOpen(false);
+          } else {
+            openDropdown();
+          }
+        }}
         aria-label={ariaLabel}
         className={cn(
           "flex items-center gap-1 text-sm font-semibold text-foreground cursor-pointer px-2 py-0.5 rounded-lg transition-all duration-150",
@@ -192,7 +197,7 @@ export function DatePicker({ value, onChange, placeholder = "Select date" }: Dat
     ? parsed.toLocaleDateString("en-GB", { day: "2-digit", month: "short", year: "numeric", timeZone: "UTC" })
     : null;
 
-  const yearOptions = useMemo(() => Array.from({ length: 150 }, (_, i) => today.getFullYear() - i), []);
+  const yearOptions = useMemo(() => Array.from({ length: 150 }, (_, i) => todayYear - i), [todayYear]);
   const yearLabels = useMemo(() => yearOptions.map(String), [yearOptions]);
   const monthOptions = useMemo(() => MONTHS.map((_, i) => i), []);
   const monthLabels = useMemo(() => [...MONTHS], []);
