@@ -183,9 +183,7 @@ function useFilteredProblems(defaultFilter = "") {
         const dateA = solvedProblemDates[a.id];
         const dateB = solvedProblemDates[b.id];
         if (dateA && dateB) {
-          const [dA, mA, yA] = dateA.split("/").map(Number);
-          const [dB, mB, yB] = dateB.split("/").map(Number);
-          return (yB - yA) || (mB - mA) || (dB - dA);
+          return new Date(dateB).getTime() - new Date(dateA).getTime();
         }
         if (dateA) return -1;
         if (dateB) return 1;
@@ -762,7 +760,7 @@ const ProblemRow = memo(function ProblemRow({
       <TableCell className="py-3 hidden sm:table-cell">
         {date && (
           <span className="text-[10px] text-green-600 dark:text-green-400 tabular-nums whitespace-nowrap">
-            ✓ {date}
+            ✓ {new Date(date).toLocaleDateString("en-GB", { day: "2-digit", month: "2-digit", year: "numeric", timeZone: "UTC" })}
           </span>
         )}
       </TableCell>

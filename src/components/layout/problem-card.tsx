@@ -86,7 +86,7 @@ export const ProblemCard = memo(function ProblemCard({
               )}
               {date && (
                 <span className="text-[10px] text-green-600 dark:text-green-400 ml-2 tabular-nums">
-                  ✓ Solved {date}
+                  ✓ Solved {new Date(date).toLocaleDateString("en-GB", { day: "2-digit", month: "2-digit", year: "numeric", timeZone: "UTC" })}
                 </span>
               )}
             </div>
