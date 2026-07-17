@@ -29,12 +29,7 @@ export const useProblemStore = create<ProblemState>()(
           if (isSolved) {
             delete newDates[id];
           } else {
-            newDates[id] = new Date().toLocaleDateString("en-GB", {
-              day: "2-digit",
-              month: "2-digit",
-              year: "numeric",
-              timeZone: "UTC",
-            });
+            newDates[id] = new Date().toISOString();
           }
           return { solvedProblemIds: newSolved, solvedProblemDates: newDates };
         }),

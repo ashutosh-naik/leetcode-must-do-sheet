@@ -123,13 +123,7 @@ export async function syncSolvedProblems(
   for (const row of remoteRows) {
     const id = slugToId.get(row.slug);
     if (id != null && row.lastSolvedAt) {
-      const d = new Date(row.lastSolvedAt);
-      dates[id] = d.toLocaleDateString("en-GB", {
-        day: "2-digit",
-        month: "2-digit",
-        year: "numeric",
-        timeZone: "UTC",
-      });
+      dates[id] = row.lastSolvedAt;
     }
   }
 
@@ -151,16 +145,20 @@ export async function syncSolvedProblems(
 
   if (toUpload.length > 0) {
     const rows = toUpload.map((id) => {
-      // Use local date if available, otherwise use now
       const localDate = localDates?.[id];
       let lastSolvedAt: string;
       if (localDate) {
-        const parts = localDate.split("/");
-        if (parts.length === 3) {
-          const [day, month, year] = parts;
-          lastSolvedAt = new Date(`${year}-${month}-${day}T00:00:00Z`).toISOString();
+        // Accept both ISO strings and legacy DD/MM/YYYY format
+        if (localDate.includes("T")) {
+          lastSolvedAt = localDate;
         } else {
-          lastSolvedAt = new Date().toISOString();
+          const parts = localDate.split("/");
+          if (parts.length === 3) {
+            const [day, month, year] = parts;
+            lastSolvedAt = new Date(`${year}-${month}-${day}T00:00:00Z`).toISOString();
+          } else {
+            lastSolvedAt = new Date().toISOString();
+          }
         }
       } else {
         lastSolvedAt = new Date().toISOString();
