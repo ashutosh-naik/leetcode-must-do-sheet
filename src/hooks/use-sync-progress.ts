@@ -59,5 +59,6 @@ export function useSyncProgress() {
         });
       return () => { cancelled = true; };
     }
-  }, [user, setSolvedProblemIds, setSolvedProblemDates]);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [user?.id, setSolvedProblemIds, setSolvedProblemDates]);
 }

@@ -217,6 +217,11 @@ export function ProblemsetContent({ defaultFilter = "" }: { defaultFilter?: stri
   const debouncedSearch = useDebounce(searchInput, 300);
   const [showProgress, setShowProgress] = useState(false);
   const prevQ = useRef(q);
+  const difficultyRef = useRef(difficulty);
+  const importantRef = useRef(important);
+
+  useEffect(() => { difficultyRef.current = difficulty; }, [difficulty]);
+  useEffect(() => { importantRef.current = important; }, [important]);
 
   useEffect(() => {
     if (prevQ.current !== q) {
@@ -315,14 +320,14 @@ export function ProblemsetContent({ defaultFilter = "" }: { defaultFilter?: stri
 
       if (e.key === "i") {
         e.preventDefault();
-        setParam("important", important ? "" : "1");
+        setParam("important", importantRef.current ? "" : "1");
         return;
       }
 
       if (e.key === "d") {
         e.preventDefault();
         const cycle = ["", "Easy", "Medium", "Hard"];
-        const idx = cycle.indexOf(difficulty);
+        const idx = cycle.indexOf(difficultyRef.current);
         const next = cycle[(idx + 1) % cycle.length];
         setParam("difficulty", next);
         return;
@@ -338,7 +343,7 @@ export function ProblemsetContent({ defaultFilter = "" }: { defaultFilter?: stri
 
     document.addEventListener("keydown", handleKeyDown);
     return () => document.removeEventListener("keydown", handleKeyDown);
-  }, [difficulty, important, router, setParam, setSearchInput]);
+  }, [router, setParam, setSearchInput]);
 
   const toggleSortDir = useCallback(() => {
     const params = new URLSearchParams(window.location.search);

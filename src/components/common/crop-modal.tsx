@@ -62,23 +62,36 @@ export function CropModal({ imageSrc, onCrop, onCancel }: CropModalProps) {
     };
   }, []);
 
-  const handleMouseDown = useCallback((e: React.MouseEvent) => {
+  const handlePointerDown = useCallback((e: React.MouseEvent | React.TouchEvent) => {
     e.preventDefault();
     dragging.current = true;
-    dragStart.current = { x: e.clientX, y: e.clientY, startX: pos.x, startY: pos.y };
+    const clientX = "touches" in e ? e.touches[0].clientX : e.clientX;
+    const clientY = "touches" in e ? e.touches[0].clientY : e.clientY;
+    dragStart.current = { x: clientX, y: clientY, startX: pos.x, startY: pos.y };
   }, [pos]);
 
-  const handleMouseMove = useCallback((e: React.MouseEvent) => {
+  const handlePointerMove = useCallback((e: React.MouseEvent | React.TouchEvent) => {
     if (!dragging.current) return;
-    const dx = e.clientX - dragStart.current.x;
-    const dy = e.clientY - dragStart.current.y;
+    const clientX = "touches" in e ? e.touches[0].clientX : e.clientX;
+    const clientY = "touches" in e ? e.touches[0].clientY : e.clientY;
+    const dx = clientX - dragStart.current.x;
+    const dy = clientY - dragStart.current.y;
     const next = clampPosition(dragStart.current.startX + dx, dragStart.current.startY + dy, cropSize);
     setPos(next);
   }, [cropSize, clampPosition]);
 
-  const handleMouseUp = useCallback(() => {
+  const handlePointerUp = useCallback(() => {
     dragging.current = false;
   }, []);
+
+  useEffect(() => {
+    if (!ready) return;
+    function handleKeyDown(e: KeyboardEvent) {
+      if (e.key === "Escape") onCancel();
+    }
+    document.addEventListener("keydown", handleKeyDown);
+    return () => document.removeEventListener("keydown", handleKeyDown);
+  }, [ready, onCancel]);
 
   const handleZoomChange = useCallback((newSize: number) => {
     const container = containerRef.current;
@@ -138,9 +151,11 @@ export function CropModal({ imageSrc, onCrop, onCancel }: CropModalProps) {
             ref={containerRef}
             className="relative bg-black rounded-xl overflow-hidden select-none"
             style={{ height: 250 }}
-            onMouseMove={handleMouseMove}
-            onMouseUp={handleMouseUp}
-            onMouseLeave={handleMouseUp}
+            onMouseMove={handlePointerMove}
+            onMouseUp={handlePointerUp}
+            onMouseLeave={handlePointerUp}
+            onTouchMove={handlePointerMove}
+            onTouchEnd={handlePointerUp}
           >
             {ready && (
               <>
@@ -154,7 +169,8 @@ export function CropModal({ imageSrc, onCrop, onCancel }: CropModalProps) {
                 <div
                   className="absolute border-2 border-white rounded-full cursor-move shadow-[0_0_0_9999px_rgba(0,0,0,0.5)]"
                   style={{ width: cropSize, height: cropSize, left: pos.x, top: pos.y }}
-                  onMouseDown={handleMouseDown}
+                  onMouseDown={handlePointerDown}
+                  onTouchStart={handlePointerDown}
                 >
                   <div className="absolute inset-0 border border-white/30 rounded-full pointer-events-none" />
                   <div className="absolute top-1/3 left-0 right-0 h-px bg-white/30 pointer-events-none" />
@@ -184,7 +200,7 @@ export function CropModal({ imageSrc, onCrop, onCancel }: CropModalProps) {
 
           <p className="text-xs text-muted-foreground text-center mt-1.5">Drag to position &middot; Slider to resize</p>
 
-          <canvas ref={canvasRef} className="hidden" />
+          <canvas ref={canvasRef} className="hidden" aria-hidden="true" />
 
           <div className="flex gap-2 mt-3">
             <Button variant="outline" size="sm" onClick={onCancel} className="flex-1 cursor-pointer">

@@ -540,6 +540,7 @@ export function LocationInput({ value, onChange }: LocationInputProps) {
           onFocus={() => setOpen(true)}
           onKeyDown={handleKeyDown}
           placeholder="Search for a city..."
+          aria-label="Search for a city"
           role="combobox"
           aria-expanded={open}
           aria-autocomplete="list"

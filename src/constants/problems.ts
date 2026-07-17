@@ -615,3 +615,8 @@ export const PROBLEMS: Problem[] = [
   { id: 828, name: 'Count Unique Characters of All Substrings of a Given String', link: 'https://leetcode.com/problems/count-unique-characters-of-all-substrings-of-a-given-string/', difficulty: 'Hard', patterns: ["Dynamic Programming"], frequency: '30%' },
   { id: 1463, name: 'Cherry Pickup II', link: 'https://leetcode.com/problems/cherry-pickup-ii/', difficulty: 'Hard', patterns: ["Dynamic Programming"], frequency: '30%' },
 ];
+
+Object.freeze(PROBLEMS);
+for (const p of PROBLEMS) {
+  Object.freeze(p);
+}

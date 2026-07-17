@@ -38,7 +38,7 @@ export function Navbar() {
   const pathname = usePathname();
   const { theme, setTheme } = useTheme();
   const { user, loading, logout } = useAuth();
-  const [mobileOpen, setMobileOpen] = React.useState(false);
+  const [mobileOpen, setMobileOpen] = useState(false);
   const mobileNavRef = useRef<HTMLDivElement>(null);
   const menuButtonRef = useRef<HTMLButtonElement>(null);
   const mounted = useSyncExternalStore(
@@ -73,7 +73,7 @@ export function Navbar() {
       }
     })();
     return () => { cancelled = true; };
-  }, [user]);
+  }, [user?.id]);
 
   // Re-fetch profile when it's updated elsewhere (e.g. profile page)
   useEffect(() => {
@@ -88,7 +88,7 @@ export function Navbar() {
     }
     window.addEventListener("profile-updated", handleProfileUpdated);
     return () => window.removeEventListener("profile-updated", handleProfileUpdated);
-  }, [user]);
+  }, [user?.id]);
 
   // Body scroll lock + focus trap for mobile nav
   useEffect(() => {
@@ -270,6 +270,7 @@ export function Navbar() {
         <>
           <div
             className="fixed inset-0 top-14 sm:top-16 z-40 bg-black/20 backdrop-blur-sm md:hidden"
+            aria-hidden="true"
             onClick={() => setMobileOpen(false)}
             onKeyDown={(e) => e.key === "Escape" && setMobileOpen(false)}
           />

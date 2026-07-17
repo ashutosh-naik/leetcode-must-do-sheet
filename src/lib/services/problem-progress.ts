@@ -3,8 +3,14 @@ import { PROBLEMS } from "@/constants/problems";
 import { logger } from "@/lib/logger";
 
 export function extractSlug(link: string): string {
-  const parts = link.replace(/\/$/, "").split("/");
-  return parts[parts.length - 1] ?? "";
+  try {
+    const pathname = new URL(link).pathname.replace(/\/$/, "");
+    const parts = pathname.split("/");
+    return parts[parts.length - 1] ?? "";
+  } catch {
+    const parts = link.replace(/\/$/, "").split("/");
+    return parts[parts.length - 1] ?? "";
+  }
 }
 
 const slugCache = new Map<number, string>();
@@ -59,9 +65,13 @@ export async function upsertProblemProgress(
       .delete()
       .eq("user_id", userId)
       .eq("problem_slug", slug);
-    if (error && error.code !== "PGRST116") {
-      logSupabaseError("deleteProblemProgress", error);
-      throw error;
+    if (error) {
+      if (error.code === "PGRST116") {
+        logger.info("[deleteProblemProgress] Row not found (may be RLS deny):", slug);
+      } else {
+        logSupabaseError("deleteProblemProgress", error);
+        throw error;
+      }
     }
   }
 }
@@ -83,6 +93,12 @@ export async function getSolvedProblemSlugs(userId: string): Promise<{ slug: str
   }));
 }
 
+// Build slug→id map once at module level for O(n) lookups
+const slugToId = new Map<string, number>();
+for (const p of PROBLEMS) {
+  slugToId.set(extractSlug(p.link), p.id);
+}
+
 export async function syncSolvedProblems(
   userId: string,
   localIds: number[],
@@ -96,12 +112,7 @@ export async function syncSolvedProblems(
     remoteRows = [];
   }
 
-  // Build slug→id map once for O(n) lookups instead of O(n²)
-  const slugToId = new Map<string, number>();
-  for (const p of PROBLEMS) {
-    slugToId.set(extractSlug(p.link), p.id);
-  }
-
+  // Use module-level slugToId map (built once at import time)
   const remoteIds = remoteRows
     .map((r) => slugToId.get(r.slug))
     .filter((id): id is number => id != null);
@@ -162,6 +173,8 @@ export async function syncSolvedProblems(
       };
     });
 
+    // ignoreDuplicates: true — if another tab synced first, remote wins.
+    // Local unsynced changes are silently dropped (by design: remote is source of truth).
     const { error } = await supabase.from("problem_progress").upsert(rows, {
       onConflict: "user_id,problem_slug",
       ignoreDuplicates: true,
@@ -180,8 +193,12 @@ export async function deleteAllProblemProgress(userId: string) {
     .delete()
     .eq("user_id", userId);
 
-  if (error && error.code !== "PGRST116") {
-    logSupabaseError("deleteAllProblemProgress", error);
-    throw error;
+  if (error) {
+    if (error.code === "PGRST116") {
+      logger.info("[deleteAllProblemProgress] No rows found to delete");
+    } else {
+      logSupabaseError("deleteAllProblemProgress", error);
+      throw error;
+    }
   }
 }

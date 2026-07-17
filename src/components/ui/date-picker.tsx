@@ -88,9 +88,14 @@ export function DatePicker({ value, onChange, placeholder = "Select date" }: Dat
         onClick={() => {
           setOpen((o) => !o);
           if (!open) {
-            const now = new Date();
-            setViewYear(now.getFullYear());
-            setViewMonth(now.getMonth());
+            if (parsed) {
+              setViewYear(parsed.getFullYear());
+              setViewMonth(parsed.getMonth());
+            } else {
+              const now = new Date();
+              setViewYear(now.getFullYear());
+              setViewMonth(now.getMonth());
+            }
           }
         }}
         className="flex h-9 w-full items-center justify-between rounded-md border border-input bg-transparent px-3 py-1 text-sm shadow-sm transition-colors placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring cursor-pointer hover:bg-accent/50"
@@ -120,6 +125,7 @@ export function DatePicker({ value, onChange, placeholder = "Select date" }: Dat
 
             <div className="flex items-center gap-1.5">
               <select
+                aria-label="Month"
                 value={viewMonth}
                 onChange={(e) => setViewMonth(Number(e.target.value))}
                 className="bg-transparent text-sm font-semibold text-foreground cursor-pointer focus:outline-none appearance-none px-1 py-0.5 rounded hover:bg-muted transition-colors"
@@ -129,6 +135,7 @@ export function DatePicker({ value, onChange, placeholder = "Select date" }: Dat
                 ))}
               </select>
               <select
+                aria-label="Year"
                 value={viewYear}
                 onChange={(e) => setViewYear(Number(e.target.value))}
                 className="bg-transparent text-sm font-semibold text-foreground cursor-pointer focus:outline-none appearance-none px-1 py-0.5 rounded hover:bg-muted transition-colors"
@@ -164,6 +171,7 @@ export function DatePicker({ value, onChange, placeholder = "Select date" }: Dat
                 key={i}
                 type="button"
                 disabled={!cell.currentMonth}
+                aria-label={`${MONTHS[viewMonth]} ${cell.day}, ${viewYear}`}
                 onClick={() => cell.currentMonth && selectDate(cell.day)}
                 className={`
                   relative h-8 w-full flex items-center justify-center text-sm rounded-lg transition-all duration-150 cursor-pointer

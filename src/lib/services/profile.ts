@@ -21,6 +21,7 @@ export async function createProfile(
   email: string,
   username?: string,
 ) {
+  // Only set name/email if profile doesn't already exist (avoid overwriting OAuth user's custom name)
   const { error } = await supabase.from("profiles").upsert(
     {
       id: userId,
@@ -34,6 +35,12 @@ export async function createProfile(
   if (error) throw error;
 }
 
+function isProfile(data: unknown): data is Profile {
+  if (!data || typeof data !== "object") return false;
+  const obj = data as Record<string, unknown>;
+  return typeof obj.id === "string" && typeof obj.name === "string" && typeof obj.email === "string";
+}
+
 export async function getProfile(userId: string): Promise<Profile | null> {
   const { data, error } = await supabase
     .from("profiles")
@@ -45,7 +52,11 @@ export async function getProfile(userId: string): Promise<Profile | null> {
     logger.error("getProfile error:", error.message);
     return null;
   }
-  return data as Profile;
+  if (!isProfile(data)) {
+    logger.error("getProfile: invalid profile shape", data);
+    return null;
+  }
+  return data;
 }
 
 export async function getProfileByUsername(
@@ -61,7 +72,11 @@ export async function getProfileByUsername(
     logger.error("getProfileByUsername error:", error.message);
     return null;
   }
-  return data as Profile;
+  if (!isProfile(data)) {
+    logger.error("getProfileByUsername: invalid profile shape", data);
+    return null;
+  }
+  return data;
 }
 
 export async function updateProfile(
@@ -76,5 +91,6 @@ export async function updateProfile(
     .single();
 
   if (error) throw error;
-  return data as Profile;
+  if (!isProfile(data)) throw new Error("Invalid profile shape returned from update");
+  return data;
 }
