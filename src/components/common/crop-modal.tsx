@@ -141,7 +141,7 @@ export function CropModal({ imageSrc, onCrop, onCancel }: CropModalProps) {
       <div className="bg-card border border-border rounded-2xl shadow-2xl w-full max-w-[360px] mx-4 overflow-hidden">
         <div className="flex items-center justify-between px-5 pt-4 pb-2">
           <h3 className="font-heading text-base font-semibold">Crop Photo</h3>
-          <button onClick={onCancel} aria-label="Close" className="text-muted-foreground hover:text-foreground transition-colors cursor-pointer">
+          <button onClick={onCancel} aria-label="Close" className="size-8 inline-flex items-center justify-center rounded-lg text-muted-foreground hover:text-foreground hover:bg-muted transition-colors cursor-pointer border-none bg-transparent">
             <X className="h-4 w-4" />
           </button>
         </div>

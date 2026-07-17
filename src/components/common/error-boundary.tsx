@@ -2,6 +2,7 @@
 
 import React from "react";
 import { logger } from "@/lib/logger";
+import { Button } from "@/components/ui/button";
 
 interface ErrorBoundaryProps {
   children: React.ReactNode;
@@ -43,12 +44,12 @@ export class ErrorBoundary extends React.Component<
             <p className="text-sm text-muted-foreground text-center max-w-md">
               An unexpected error occurred. Please try refreshing the page.
             </p>
-            <button
+            <Button
               onClick={() => this.setState({ hasError: false })}
-              className="inline-flex items-center gap-2 rounded-xl bg-primary px-5 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-brand-hover transition-colors cursor-pointer border-none"
+              className="cursor-pointer"
             >
               Try Again
-            </button>
+            </Button>
           </div>
         )
       );

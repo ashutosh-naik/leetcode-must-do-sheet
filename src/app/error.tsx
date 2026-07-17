@@ -2,6 +2,7 @@
 
 import { useEffect } from "react";
 import { logger } from "@/lib/logger";
+import { Button } from "@/components/ui/button";
 
 export default function ErrorPage({
   error,
@@ -26,12 +27,12 @@ export default function ErrorPage({
         <p className="text-sm text-muted-foreground max-w-md">
           An unexpected error occurred. Please try again.
         </p>
-        <button
+        <Button
           onClick={reset}
-          className="inline-flex items-center gap-2 rounded-xl bg-primary px-5 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-brand-hover transition-colors cursor-pointer border-none"
+          className="cursor-pointer"
         >
           Try Again
-        </button>
+        </Button>
       </div>
     </main>
   );

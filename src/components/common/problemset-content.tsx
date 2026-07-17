@@ -443,16 +443,18 @@ export function ProblemsetContent({ defaultFilter = "" }: { defaultFilter?: stri
               className="h-9 sm:h-10 rounded-2xl border-border bg-background pl-9 pr-9 focus-visible:border-primary focus-visible:ring-primary placeholder:text-muted-foreground/60"
             />
             {searchInput && (
-              <button
+              <Button
+                variant="ghost"
+                size="icon"
                 onClick={() => {
                   setSearchInput("");
                   setParam("q", "");
                 }}
                 aria-label="Clear search"
-                className="absolute right-2 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground hover:scale-110 active:scale-90 transition-all duration-200 cursor-pointer bg-transparent border-none p-0"
+                className="absolute right-1 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground hover:scale-110 active:scale-90 transition-all duration-200 cursor-pointer size-7"
               >
                 <X className="h-4 w-4" />
-              </button>
+              </Button>
             )}
           </div>
 
@@ -533,8 +535,10 @@ export function ProblemsetContent({ defaultFilter = "" }: { defaultFilter?: stri
                   ["frequency", "Freq"],
                 ] as const
               ).map(([key, label]) => (
-                <button
+                <Button
                   key={key}
+                  variant="ghost"
+                  size="sm"
                   onClick={() => {
                     if (sort === key) {
                       toggleSortDir();
@@ -544,7 +548,7 @@ export function ProblemsetContent({ defaultFilter = "" }: { defaultFilter?: stri
                   }}
                   aria-label={`Sort by ${label}${sort === key ? ` ${dir === "asc" ? "ascending" : "descending"}` : ""}`}
                   className={cn(
-                    "flex items-center gap-1 sm:gap-1.5 px-2 sm:px-3 py-1.5 rounded-lg text-[11px] sm:text-xs font-medium transition-all duration-200 cursor-pointer border-none bg-transparent whitespace-nowrap active:scale-95",
+                    "gap-1 sm:gap-1.5 px-2 sm:px-3 py-1.5 rounded-lg text-[11px] sm:text-xs font-medium transition-all duration-200 cursor-pointer whitespace-nowrap active:scale-95 h-auto",
                     sort === key
                       ? "bg-background text-foreground shadow-sm"
                       : "text-muted-foreground hover:text-foreground hover:bg-muted/40",
@@ -556,7 +560,7 @@ export function ProblemsetContent({ defaultFilter = "" }: { defaultFilter?: stri
                   ) : (
                     <ArrowUpDown className="h-3 w-3 opacity-50" />
                   )}
-                </button>
+                </Button>
               ))}
             </div>
 

@@ -322,16 +322,17 @@ export function Navbar() {
                     )}
                     <span className="truncate">{displayName}</span>
                   </Link>
-                  <button
+                  <Button
+                    variant="ghost"
                     onClick={() => {
                       setMobileOpen(false);
                       handleSignOut();
                     }}
-                    className="flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium text-muted-foreground hover:text-foreground hover:bg-muted/50 transition-colors cursor-pointer border-none bg-transparent w-full text-left"
+                    className="flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium text-muted-foreground hover:text-foreground hover:bg-muted/50 transition-colors cursor-pointer border-none bg-transparent w-full justify-start"
                   >
                     <LogOut className="h-4 w-4 shrink-0" />
                     <span>Sign Out</span>
-                  </button>
+                  </Button>
                 </>
               ) : (
                 <>

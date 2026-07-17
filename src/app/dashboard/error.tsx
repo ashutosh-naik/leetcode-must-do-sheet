@@ -2,6 +2,7 @@
 
 import { useEffect } from "react";
 import { logger } from "@/lib/logger";
+import { Button } from "@/components/ui/button";
 
 export default function DashboardError({
   error,
@@ -18,12 +19,12 @@ export default function DashboardError({
     <div className="max-w-4xl mx-auto px-4 py-8 text-center space-y-4">
       <h2 className="font-heading text-xl font-bold">Something went wrong</h2>
       <p className="text-sm text-muted-foreground">{error.message}</p>
-      <button
+      <Button
         onClick={reset}
-        className="cursor-pointer rounded-lg bg-primary px-5 py-2 text-sm font-semibold text-white hover:bg-primary/90 transition-colors border-none"
+        className="cursor-pointer"
       >
         Try again
-      </button>
+      </Button>
     </div>
   );
 }

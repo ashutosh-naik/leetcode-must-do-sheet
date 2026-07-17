@@ -218,11 +218,12 @@ export default function ProfileUsernamePage({
       <div className="rounded-2xl border border-border bg-card p-6 shadow-sm">
         <div className="flex items-center gap-4">
           {isOwn ? (
-            <button
-              type="button"
+            <Button
+              variant="ghost"
+              size="icon"
               onClick={() => fileInputRef.current?.click()}
               aria-label="Change profile picture"
-              className="relative size-20 rounded-full bg-muted flex items-center justify-center overflow-hidden shrink-0 cursor-pointer hover:ring-2 hover:ring-primary/50 transition-all group"
+              className="relative size-20 rounded-full bg-muted hover:bg-muted hover:ring-2 hover:ring-primary/50 transition-all group shrink-0 p-0 overflow-hidden"
             >
               {avatarUrl ? (
                 <Image
@@ -235,10 +236,10 @@ export default function ProfileUsernamePage({
               ) : (
                 <User className="h-8 w-8 text-muted-foreground" />
               )}
-              <div className="absolute inset-0 bg-black/0 hover:bg-black/40 flex items-center justify-center transition-colors group">
+              <div className="absolute inset-0 bg-black/0 hover:bg-black/40 flex items-center justify-center transition-colors group pointer-events-none">
                 <Camera className="h-5 w-5 text-white opacity-0 group-hover:opacity-100 transition-opacity" />
               </div>
-            </button>
+            </Button>
           ) : (
             <div className="relative size-20 rounded-full bg-muted flex items-center justify-center overflow-hidden shrink-0">
               {avatarUrl ? (
