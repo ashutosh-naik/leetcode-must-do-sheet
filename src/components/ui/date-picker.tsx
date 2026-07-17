@@ -131,7 +131,7 @@ export function DatePicker({ value, onChange, placeholder = "Select date" }: Dat
                 className="bg-transparent text-sm font-semibold text-foreground cursor-pointer focus:outline-none appearance-none px-1 py-0.5 rounded hover:bg-muted transition-colors"
               >
                 {MONTHS.map((m, i) => (
-                  <option key={i} value={i}>{m}</option>
+                  <option key={i} value={i} className="bg-popover text-popover-foreground">{m}</option>
                 ))}
               </select>
               <select
@@ -141,7 +141,7 @@ export function DatePicker({ value, onChange, placeholder = "Select date" }: Dat
                 className="bg-transparent text-sm font-semibold text-foreground cursor-pointer focus:outline-none appearance-none px-1 py-0.5 rounded hover:bg-muted transition-colors"
               >
                 {Array.from({ length: 150 }, (_, i) => today.getFullYear() - i).map((y) => (
-                  <option key={y} value={y}>{y}</option>
+                  <option key={y} value={y} className="bg-popover text-popover-foreground">{y}</option>
                 ))}
               </select>
             </div>

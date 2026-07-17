@@ -208,4 +208,8 @@
     );
     background-size: 200% 100%;
   }
+  .dark select option {
+    background-color: var(--popover);
+    color: var(--popover-foreground);
+  }
 }

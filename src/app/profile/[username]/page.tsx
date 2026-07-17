@@ -370,7 +370,7 @@ export default function ProfileUsernamePage({
 
         <EditableField
           label="Gender"
-          value={profile.gender ?? null}
+          value={profile.gender ? profile.gender.charAt(0).toUpperCase() + profile.gender.slice(1) : null}
           isEditing={!!editing.gender}
           onStartEdit={() => startEdit("gender", profile.gender ?? null)}
           onCancel={() => cancelEdit("gender")}
