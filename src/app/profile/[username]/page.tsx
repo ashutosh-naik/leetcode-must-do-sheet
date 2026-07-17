@@ -34,42 +34,44 @@ function EditableField({
   children: React.ReactNode;
 }) {
   return (
-    <div className="flex items-center justify-between gap-4 py-3 border-b border-border last:border-b-0 min-h-[48px]">
-      <div className="flex-1 min-w-0">
-        <span className="text-xs text-muted-foreground uppercase tracking-wide font-medium block mb-1">
-          {label}
-        </span>
-        {isEditing ? (
-          <div>{children}</div>
+    <div className="py-3 border-b border-border last:border-b-0 min-h-[48px]">
+      <span className="text-xs text-muted-foreground uppercase tracking-wide font-medium block mb-1">
+        {label}
+      </span>
+      <div className="flex items-center justify-between gap-4">
+        <div className="flex-1 min-w-0">
+          {isEditing ? (
+            <div className="flex items-center">{children}</div>
+          ) : (
+            <span className="text-sm text-foreground break-all">
+              {value || (
+                <span className="italic text-muted-foreground">Not set</span>
+              )}
+            </span>
+          )}
+        </div>
+        {!isEditing ? (
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={onStartEdit}
+            className="text-muted-foreground hover:text-foreground cursor-pointer shrink-0 gap-1"
+          >
+            <Pencil className="h-3.5 w-3.5" />
+            Edit
+          </Button>
         ) : (
-          <span className="text-sm text-foreground break-all">
-            {value || (
-              <span className="italic text-muted-foreground">Not set</span>
-            )}
-          </span>
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={onCancel}
+            className="text-muted-foreground hover:text-foreground cursor-pointer shrink-0 gap-1"
+          >
+            <X className="h-3.5 w-3.5" />
+            Cancel
+          </Button>
         )}
       </div>
-      {!isEditing ? (
-        <Button
-          variant="ghost"
-          size="sm"
-          onClick={onStartEdit}
-          className="text-muted-foreground hover:text-foreground cursor-pointer shrink-0 gap-1"
-        >
-          <Pencil className="h-3.5 w-3.5" />
-          Edit
-        </Button>
-      ) : (
-        <Button
-          variant="ghost"
-          size="sm"
-          onClick={onCancel}
-          className="text-muted-foreground hover:text-foreground cursor-pointer shrink-0 gap-1"
-        >
-          <X className="h-3.5 w-3.5" />
-          Cancel
-        </Button>
-      )}
     </div>
   );
 }
