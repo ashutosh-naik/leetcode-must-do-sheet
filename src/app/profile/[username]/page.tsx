@@ -40,7 +40,7 @@ function EditableField({
           {label}
         </span>
         {isEditing ? (
-          <div>{children}</div>
+          <div className="flex items-center">{children}</div>
         ) : (
           <span className="text-sm text-foreground break-all">
             {value || (
