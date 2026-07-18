@@ -76,6 +76,7 @@ export default function RegisterPage() {
     }
 
     setSuccess("Account created! Check your email for a confirmation link.");
+    if (redirectTimer.current) clearTimeout(redirectTimer.current);
     redirectTimer.current = setTimeout(() => {
       router.push("/login");
     }, 2000);
@@ -86,9 +87,8 @@ export default function RegisterPage() {
     try {
       await googleLogin();
     } catch (err) {
-      setError(err instanceof Error ? err.message : "An error occurred");
-    } finally {
       setSocialLoading(null);
+      setError(err instanceof Error ? err.message : "An error occurred");
     }
   };
 
@@ -97,9 +97,8 @@ export default function RegisterPage() {
     try {
       await githubLogin();
     } catch (err) {
-      setError(err instanceof Error ? err.message : "An error occurred");
-    } finally {
       setSocialLoading(null);
+      setError(err instanceof Error ? err.message : "An error occurred");
     }
   };
 

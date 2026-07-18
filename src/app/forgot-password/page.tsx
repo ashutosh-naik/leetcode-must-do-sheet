@@ -29,13 +29,13 @@ export default function ForgotPasswordPage() {
         redirectTo: `${window.location.origin}/auth/update-password`,
       });
 
-      setLoading(false);
-
       if (err) {
+        setLoading(false);
         setError(err.message);
         return;
       }
 
+      setLoading(false);
       setSent(true);
     } catch {
       setLoading(false);

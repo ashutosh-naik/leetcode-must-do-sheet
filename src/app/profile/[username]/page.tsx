@@ -108,7 +108,7 @@ export default function ProfileUsernamePage({
   const { toast } = useToast();
   const [profile, setProfile] = useState<Profile | null>(null);
   const [loading, setLoading] = useState(true);
-  const [saving, setSaving] = useState(false);
+  const [savingFields, setSavingFields] = useState<Set<string>>(new Set());
   const [editing, setEditing] = useState<Record<string, boolean>>({});
   const [form, setForm] = useState<Record<string, string>>({});
   const [cropImageSrc, setCropImageSrc] = useState<string | null>(null);
@@ -135,17 +135,19 @@ export default function ProfileUsernamePage({
       e.target.value = "";
       return;
     }
+    let cancelled = false;
     const reader = new FileReader();
-    reader.onload = () => setCropImageSrc(reader.result as string);
+    reader.onload = () => { if (!cancelled) setCropImageSrc(reader.result as string); };
     reader.readAsDataURL(file);
     e.target.value = "";
+    return () => { cancelled = true; };
   }, [toast]);
 
   const handleCropSave = useCallback(
     async (dataUrl: string) => {
       if (!user || !profile || user.id !== profile.id) return;
       setCropImageSrc(null);
-      setSaving(true);
+      setSavingFields((prev) => new Set(prev).add("avatar"));
       try {
         // Convert base64 data URL to blob for Supabase Storage
         const res = await fetch(dataUrl);
@@ -170,7 +172,7 @@ export default function ProfileUsernamePage({
       } catch {
         toast("Failed to update profile picture", "error");
       } finally {
-        setSaving(false);
+        setSavingFields((prev) => { const next = new Set(prev); next.delete("avatar"); return next; });
       }
     },
     [user, profile, toast],
@@ -191,7 +193,7 @@ export default function ProfileUsernamePage({
         const err = validateProfileField(key, value);
         if (err) { toast(err, "error"); return; }
       }
-      setSaving(true);
+      setSavingFields((prev) => new Set(prev).add(key));
       try {
         const updated = await updateProfile(user.id, {
           [key]: value || null,
@@ -207,7 +209,7 @@ export default function ProfileUsernamePage({
       } catch {
         toast("Failed to update profile", "error");
       } finally {
-        setSaving(false);
+        setSavingFields((prev) => { const next = new Set(prev); next.delete(key); return next; });
       }
     },
     [user, profile, toast, router],
@@ -355,7 +357,7 @@ export default function ProfileUsernamePage({
           }
           onCancel={() => cancelEdit("display_name")}
           onSave={() => saveField("display_name", form.display_name)}
-          saving={saving}
+          saving={savingFields.has("display_name")}
         >
           <Input
             placeholder="Your display name"
@@ -379,7 +381,7 @@ export default function ProfileUsernamePage({
           }
           onCancel={() => cancelEdit("username")}
           onSave={() => saveField("username", form.username)}
-          saving={saving}
+          saving={savingFields.has("username")}
         >
           <Input
             placeholder="Choose a username"
@@ -408,7 +410,7 @@ export default function ProfileUsernamePage({
           onStartEdit={() => startEdit("gender", profile.gender ?? null)}
           onCancel={() => cancelEdit("gender")}
           onSave={() => saveField("gender", form.gender)}
-          saving={saving}
+          saving={savingFields.has("gender")}
         >
           <Select
             value={form.gender || "none"}
@@ -436,7 +438,7 @@ export default function ProfileUsernamePage({
           }
           onCancel={() => cancelEdit("location")}
           onSave={() => saveField("location", form.location)}
-          saving={saving}
+          saving={savingFields.has("location")}
         >
           <LocationInput
             value={form.location || null}
@@ -467,7 +469,7 @@ export default function ProfileUsernamePage({
           }
           onCancel={() => cancelEdit("birthday")}
           onSave={() => saveField("birthday", form.birthday)}
-          saving={saving}
+          saving={savingFields.has("birthday")}
         >
           <DatePicker
             value={form.birthday || null}
@@ -493,7 +495,7 @@ export default function ProfileUsernamePage({
           }
           onCancel={() => cancelEdit("github_url")}
           onSave={() => saveField("github_url", form.github_url)}
-          saving={saving}
+          saving={savingFields.has("github_url")}
         >
           <Input
             placeholder="https://github.com/username"
@@ -517,7 +519,7 @@ export default function ProfileUsernamePage({
           }
           onCancel={() => cancelEdit("linkedin_url")}
           onSave={() => saveField("linkedin_url", form.linkedin_url)}
-          saving={saving}
+          saving={savingFields.has("linkedin_url")}
         >
           <Input
             placeholder="https://linkedin.com/in/username"

@@ -2,6 +2,8 @@
 
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
+import Link from "next/link";
+import { Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Logo } from "@/components/common/logo";
@@ -14,6 +16,16 @@ export default function UpdatePasswordPage() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [success, setSuccess] = useState(false);
+  const [sessionChecked, setSessionChecked] = useState(false);
+
+  useEffect(() => {
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      if (!session) {
+        setError("No active session. Please use the reset link from your email.");
+      }
+      setSessionChecked(true);
+    });
+  }, []);
 
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
@@ -71,7 +83,21 @@ export default function UpdatePasswordPage() {
             <h1 className="mb-2 text-center font-heading text-xl font-bold tracking-tight">
             Update Password
           </h1>
-          {success ? (
+          {!sessionChecked ? (
+            <div className="text-center py-4">
+              <Loader2 className="h-5 w-5 animate-spin text-muted-foreground mx-auto" />
+            </div>
+          ) : error && !success ? (
+            <div className="text-center space-y-4">
+              <p className="text-sm text-destructive">{error}</p>
+              <Link
+                href="/forgot-password"
+                className="block text-sm font-medium text-primary hover:underline"
+              >
+                Request a new reset link
+              </Link>
+            </div>
+          ) : success ? (
             <div className="text-center space-y-4">
               <p className="text-sm text-green-500 font-medium">
                 Password updated successfully!

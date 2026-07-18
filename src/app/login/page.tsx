@@ -55,10 +55,10 @@ function LoginForm() {
     setSocialLoading("google");
     try {
       await googleLogin();
+      // Browser redirects — no state update needed after this
     } catch (err) {
-      setError(err instanceof Error ? err.message : "An error occurred");
-    } finally {
       setSocialLoading(null);
+      setError(err instanceof Error ? err.message : "An error occurred");
     }
   };
 
@@ -66,10 +66,10 @@ function LoginForm() {
     setSocialLoading("github");
     try {
       await githubLogin();
+      // Browser redirects — no state update needed after this
     } catch (err) {
-      setError(err instanceof Error ? err.message : "An error occurred");
-    } finally {
       setSocialLoading(null);
+      setError(err instanceof Error ? err.message : "An error occurred");
     }
   };
 
