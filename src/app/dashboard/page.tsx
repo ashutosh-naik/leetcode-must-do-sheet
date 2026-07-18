@@ -1,6 +1,5 @@
 "use client";
 
-import { useMemo } from "react";
 import { PROBLEMS } from "@/constants/problems";
 import { useProblemStore } from "@/store/problem-store";
 import { useAuth } from "@/providers/auth-provider";
@@ -10,16 +9,11 @@ import { useSyncProgress } from "@/hooks/use-sync-progress";
 
 export default function DashboardPage() {
   const { user } = useAuth();
-  const solvedProblemIds = useProblemStore((s) => s.solvedProblemIds);
+  const solvedSet = useProblemStore((s) => s._solvedSet);
   useSyncProgress();
 
-  const solvedSet = useMemo(
-    () => (user ? new Set(solvedProblemIds) : new Set()),
-    [solvedProblemIds, user],
-  );
-
   const total = PROBLEMS.length;
-  const solved = solvedSet.size;
+  const solved = user ? solvedSet.size : 0;
   const completion = total > 0 ? (solved / total) * 100 : 0;
 
   return (

@@ -24,7 +24,7 @@ export const useProblemStore = create<ProblemState>()(
 
       toggleProblemSolved: (id) =>
         set((state) => {
-          const isSolved = state.solvedProblemIds.includes(id);
+          const isSolved = state._solvedSet.has(id);
           const newSolved = isSolved
             ? state.solvedProblemIds.filter((pId) => pId !== id)
             : [...state.solvedProblemIds, id];

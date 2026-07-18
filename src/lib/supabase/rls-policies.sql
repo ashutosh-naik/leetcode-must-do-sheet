@@ -1,6 +1,7 @@
 -- ===================================================
 -- Supabase Row-Level Security (RLS) Policies
--- Apply these in the Supabase Dashboard > SQL Editor
+-- Canonical source: supabase/migrations/001_initial_schema.sql
+-- This file is a reference copy — do NOT run both.
 -- ===================================================
 
 -- Enable RLS on both tables
@@ -11,7 +12,7 @@ ALTER TABLE problem_progress ENABLE ROW LEVEL SECURITY;
 -- PROFILES table
 -- ===================================================
 
--- Policy: Anyone can view any profile (public profiles for /profile/[username] pages)
+-- Public read: anyone can view any profile (for /profile/[username] pages)
 CREATE POLICY "Public can view profiles"
   ON profiles FOR SELECT
   USING (true);
@@ -24,19 +25,23 @@ CREATE POLICY "Users can insert own profile"
 -- Policy: Users can update their own profile
 CREATE POLICY "Users can update own profile"
   ON profiles FOR UPDATE
-  USING (auth.uid() = id)
-  WITH CHECK (auth.uid() = id);
+  USING (auth.uid() = id);
+
+-- Policy: Users can delete their own profile
+CREATE POLICY "Users can delete own profile"
+  ON profiles FOR DELETE
+  USING (auth.uid() = id);
 
 -- ===================================================
 -- PROBLEM_PROGRESS table
 -- ===================================================
 
 -- Policy: Users can read their own progress
-CREATE POLICY "Users can read own progress"
+CREATE POLICY "Users can view own progress"
   ON problem_progress FOR SELECT
   USING (auth.uid() = user_id);
 
--- Policy: Users can insert/upsert their own progress
+-- Policy: Users can insert their own progress
 CREATE POLICY "Users can insert own progress"
   ON problem_progress FOR INSERT
   WITH CHECK (auth.uid() = user_id);
@@ -44,8 +49,7 @@ CREATE POLICY "Users can insert own progress"
 -- Policy: Users can update their own progress
 CREATE POLICY "Users can update own progress"
   ON problem_progress FOR UPDATE
-  USING (auth.uid() = user_id)
-  WITH CHECK (auth.uid() = user_id);
+  USING (auth.uid() = user_id);
 
 -- Policy: Users can delete their own progress
 CREATE POLICY "Users can delete own progress"
