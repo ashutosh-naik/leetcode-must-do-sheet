@@ -45,6 +45,24 @@ export function validateProfileField(key: string, value: string): string | null 
   return null;
 }
 
+export async function isUsernameTaken(
+  username: string,
+  excludeUserId?: string,
+): Promise<boolean> {
+  let query = supabase
+    .from("profiles")
+    .select("id")
+    .eq("username", username)
+    .limit(1);
+
+  if (excludeUserId) {
+    query = query.neq("id", excludeUserId);
+  }
+
+  const { data } = await query.maybeSingle();
+  return !!data;
+}
+
 export async function generateUniqueUsername(
   base: string,
 ): Promise<string> {

@@ -8,7 +8,7 @@ import { Logo } from "@/components/common/logo";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useAuth } from "@/providers/auth-provider";
-import { validateUsername } from "@/lib/username";
+import { validateUsername, isUsernameTaken } from "@/lib/username";
 
 export default function RegisterPage() {
   const router = useRouter();
@@ -45,6 +45,12 @@ export default function RegisterPage() {
     const usernameError = validateUsername(username);
     if (usernameError) {
       setError(usernameError);
+      setLoading(false);
+      return;
+    }
+
+    if (await isUsernameTaken(username)) {
+      setError("Username already taken, choose a different one");
       setLoading(false);
       return;
     }

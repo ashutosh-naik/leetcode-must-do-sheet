@@ -18,7 +18,7 @@ import { DatePicker } from "@/components/ui/date-picker";
 import { LocationInput } from "@/components/ui/location-input";
 import { CropModal } from "@/components/common/crop-modal";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { validateUsername, validateProfileField } from "@/lib/username";
+import { validateUsername, validateProfileField, isUsernameTaken } from "@/lib/username";
 
 function EditableField({
   label,
@@ -183,6 +183,10 @@ export default function ProfileUsernamePage({
       if (key === "username") {
         const err = validateUsername(value);
         if (err) { toast(err, "error"); return; }
+        if (await isUsernameTaken(value, user.id)) {
+          toast("Username already taken, choose a different one", "error");
+          return;
+        }
       } else {
         const err = validateProfileField(key, value);
         if (err) { toast(err, "error"); return; }
