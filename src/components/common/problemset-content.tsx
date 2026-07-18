@@ -20,6 +20,7 @@ import {
   BarChart3,
   ChevronDown,
   ChevronUp,
+  RotateCcw,
 } from "lucide-react";
 import { PROBLEMS } from "@/constants/problems";
 import { ProgressPanel } from "@/components/dashboard/progress-panel";
@@ -494,6 +495,20 @@ export function ProblemsetContent({ defaultFilter = "" }: { defaultFilter?: stri
                 ))}
               </SelectContent>
             </Select>
+
+            {/* Reset filters */}
+            {(difficulty || pattern || (sort !== "default") || q) && (
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => router.replace("/problemset", { scroll: false })}
+                aria-label="Reset all filters"
+                className="h-9 sm:h-10 px-2 sm:px-3 gap-1.5 text-xs text-muted-foreground hover:text-foreground cursor-pointer"
+              >
+                <RotateCcw className="h-3.5 w-3.5" />
+                <span className="hidden sm:inline">Reset</span>
+              </Button>
+            )}
           </div>
 
           {/* Sort + count row */}
