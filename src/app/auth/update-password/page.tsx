@@ -89,7 +89,7 @@ export default function UpdatePasswordPage() {
             </div>
           ) : error && !success ? (
             <div className="text-center space-y-4">
-              <p className="text-sm text-destructive">{error}</p>
+              <p className="text-sm text-destructive" role="alert">{error}</p>
               <Link
                 href="/forgot-password"
                 className="block text-sm font-medium text-primary hover:underline"
@@ -133,7 +133,7 @@ export default function UpdatePasswordPage() {
                 />
               </div>
               {error && (
-                <p className="text-sm text-red-500">{error}</p>
+                <p className="text-sm text-red-500" role="alert">{error}</p>
               )}
               <Button
                 type="submit"

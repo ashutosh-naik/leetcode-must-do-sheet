@@ -154,6 +154,7 @@ export function Navbar() {
               <Link
                 key={link.href}
                 href={link.href}
+                aria-current={active ? "page" : undefined}
                 className={`relative flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm font-medium transition-colors ${
                   active
                     ? "text-primary"
@@ -181,7 +182,7 @@ export function Navbar() {
             onClick={() =>
               setTheme(theme === "light" ? "dark" : theme === "dark" ? "system" : "light")
             }
-            className="hover:bg-accent focus-visible:ring-0 cursor-pointer size-9 sm:size-10 transition-colors duration-150"
+            className="hover:bg-accent focus-visible:ring-0 cursor-pointer size-11 transition-colors duration-150"
             aria-label={theme === "light" ? "Switch to dark mode" : theme === "dark" ? "Switch to system theme" : "Switch to light mode"}
           >
             {theme === "light" ? (
@@ -254,7 +255,7 @@ export function Navbar() {
           variant="ghost"
           size="icon"
           onClick={() => setMobileOpen(!mobileOpen)}
-          className="md:hidden size-9 sm:size-10 cursor-pointer"
+          className="md:hidden size-11 cursor-pointer"
           aria-label="Toggle menu"
         >
           {mobileOpen ? (
@@ -289,6 +290,7 @@ export function Navbar() {
                     key={link.href}
                     href={link.href}
                     onClick={() => setMobileOpen(false)}
+                    aria-current={active ? "page" : undefined}
                     className={`flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium transition-colors ${
                       active
                         ? "text-primary bg-primary/10"

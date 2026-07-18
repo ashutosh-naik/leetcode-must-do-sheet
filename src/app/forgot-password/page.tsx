@@ -84,7 +84,7 @@ export default function ForgotPasswordPage() {
                   />
                 </div>
                 {error && (
-                  <div className="p-3 rounded-lg bg-destructive/10 text-destructive text-sm">{error}</div>
+                  <div className="p-3 rounded-lg bg-destructive/10 text-destructive text-sm" role="alert">{error}</div>
                 )}
                 <Button
                   type="submit"

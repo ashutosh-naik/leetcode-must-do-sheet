@@ -364,7 +364,7 @@ export default function ProfileUsernamePage({
         <div className="flex items-center gap-6">
           {/* Circular gauge */}
           <div className="relative flex items-center justify-center size-[120px] shrink-0">
-            <svg className="size-[110px] -rotate-90" viewBox="0 0 150 150">
+            <svg className="size-[110px] -rotate-90" viewBox="0 0 150 150" role="img" aria-label={`Progress: ${effectiveProgress.total} of ${PROBLEMS.length} solved`}>
               <circle cx="75" cy="75" r="60" fill="none" stroke="currentColor" strokeWidth="8" className="text-muted-foreground/15" />
               <circle
                 cx="75" cy="75" r="60" fill="none" stroke="currentColor" strokeWidth="8"
@@ -396,7 +396,7 @@ export default function ProfileUsernamePage({
                       <span className={`text-sm font-semibold ${colors.split(" ")[0]}`}>{d}</span>
                       <span className="text-sm font-medium tabular-nums text-muted-foreground">{solved}/{total}</span>
                     </div>
-                    <div className="h-1.5 rounded-full bg-muted-foreground/15 overflow-hidden">
+                    <div className="h-1.5 rounded-full bg-muted-foreground/15 overflow-hidden" role="progressbar" aria-valuenow={pct} aria-valuemin={0} aria-valuemax={100} aria-label={`${d} progress: ${solved} of ${total}`}>
                       <div className={`h-full rounded-full transition-all duration-500 ${barColor}`} style={{ width: `${pct}%` }} />
                     </div>
                   </div>

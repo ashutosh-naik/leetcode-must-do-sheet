@@ -14,6 +14,8 @@ export function CropModal({ imageSrc, onCrop, onCancel }: CropModalProps) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const imgRef = useRef<HTMLImageElement | null>(null);
   const containerRef = useRef<HTMLDivElement>(null);
+  const dialogRef = useRef<HTMLDivElement>(null);
+  const previousFocusRef = useRef<HTMLElement | null>(null);
   const [ready, setReady] = useState(false);
   const [cropSize, setCropSize] = useState(200);
   const [minSize, setMinSize] = useState(80);
@@ -84,13 +86,47 @@ export function CropModal({ imageSrc, onCrop, onCancel }: CropModalProps) {
     dragging.current = false;
   }, []);
 
+  // Body scroll lock, focus trap, and focus restore
   useEffect(() => {
     if (!ready) return;
+
+    // Save previously focused element and lock body scroll
+    previousFocusRef.current = document.activeElement as HTMLElement;
+    const prevOverflow = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+
+    // Focus the dialog
+    dialogRef.current?.focus();
+
     function handleKeyDown(e: KeyboardEvent) {
-      if (e.key === "Escape") onCancel();
+      if (e.key === "Escape") {
+        onCancel();
+        return;
+      }
+      if (e.key !== "Tab") return;
+      const dialog = dialogRef.current;
+      if (!dialog) return;
+      const focusable = dialog.querySelectorAll<HTMLElement>(
+        "button:not([disabled]), input:not([disabled]), [tabindex]:not([tabindex='-1'])",
+      );
+      if (focusable.length === 0) return;
+      const first = focusable[0];
+      const last = focusable[focusable.length - 1];
+      if (e.shiftKey && document.activeElement === first) {
+        e.preventDefault();
+        last.focus();
+      } else if (!e.shiftKey && document.activeElement === last) {
+        e.preventDefault();
+        first.focus();
+      }
     }
     document.addEventListener("keydown", handleKeyDown);
-    return () => document.removeEventListener("keydown", handleKeyDown);
+
+    return () => {
+      document.removeEventListener("keydown", handleKeyDown);
+      document.body.style.overflow = prevOverflow;
+      previousFocusRef.current?.focus();
+    };
   }, [ready, onCancel]);
 
   const handleZoomChange = useCallback((newSize: number) => {
@@ -144,8 +180,14 @@ export function CropModal({ imageSrc, onCrop, onCancel }: CropModalProps) {
       role="dialog"
       aria-modal="true"
       aria-label="Crop photo"
+      onClick={onCancel}
     >
-      <div className="bg-card border border-border rounded-2xl shadow-2xl w-full max-w-[360px] mx-4 overflow-hidden">
+      <div
+        ref={dialogRef}
+        tabIndex={-1}
+        className="bg-card border border-border rounded-2xl shadow-2xl w-full max-w-[360px] mx-4 overflow-hidden outline-none"
+        onClick={(e) => e.stopPropagation()}
+      >
         <div className="flex items-center justify-between px-5 pt-4 pb-2">
           <h3 className="font-heading text-base font-semibold">Crop Photo</h3>
           <button onClick={onCancel} aria-label="Close" className="size-8 inline-flex items-center justify-center rounded-lg text-muted-foreground hover:text-foreground hover:bg-muted transition-colors cursor-pointer border-none bg-transparent">
