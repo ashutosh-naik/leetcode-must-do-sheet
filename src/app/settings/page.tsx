@@ -3,9 +3,21 @@
 import { Settings, AlertTriangle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useProblemStore } from "@/store/problem-store";
+import { useAuth } from "@/providers/auth-provider";
 
 export default function SettingsPage() {
   const setShowResetConfirm = useProblemStore((s) => s.setShowResetConfirm);
+  const { user } = useAuth();
+
+  if (!user) {
+    return (
+      <div className="max-w-2xl mx-auto px-4 py-8 text-center space-y-4">
+        <Settings className="h-6 w-6 text-primary mx-auto" />
+        <h1 className="font-heading text-2xl font-bold tracking-tight">Settings</h1>
+        <p className="text-sm text-muted-foreground">Please sign in to access settings.</p>
+      </div>
+    );
+  }
 
   return (
     <div className="max-w-2xl mx-auto px-4 py-8 space-y-6">

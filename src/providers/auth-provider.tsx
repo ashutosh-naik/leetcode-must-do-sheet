@@ -52,7 +52,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const router = useRouter();
   const profileCreated = useRef<string | null>(null);
 
-  const ensureProfile = useCallback(async (currentUser: User) => {
+  const ensureProfile = useCallback(async (currentUser: User, isCancelled?: () => boolean) => {
     if (profileCreated.current === currentUser.id) return;
     profileCreated.current = currentUser.id;
     try {
@@ -64,16 +64,19 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       const email = currentUser.email ?? "";
 
       const existing = await getProfile(currentUser.id);
+      if (isCancelled?.()) return;
 
       if (existing) {
         if (!existing.username) {
           const emailPrefix = currentUser.email?.split("@")[0] ?? "user";
           const username = await generateUniqueUsername(emailPrefix);
+          if (isCancelled?.()) return;
           await updateProfile(currentUser.id, { username });
         }
       } else {
         const emailPrefix = currentUser.email?.split("@")[0] ?? "user";
         const username = await generateUniqueUsername(emailPrefix);
+        if (isCancelled?.()) return;
         await createProfile(currentUser.id, name, email, username);
       }
     } catch (err) {
@@ -90,7 +93,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       setUser(u);
       setLoading(false);
       if (u) {
-        ensureProfile(u).catch((err) => {
+        ensureProfile(u, () => cancelled).catch((err) => {
           logger.error("Error ensuring profile:", err);
         });
       }
@@ -104,7 +107,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       setUser(u);
       setLoading(false);
       if (u) {
-        ensureProfile(u).catch((err) => {
+        ensureProfile(u, () => cancelled).catch((err) => {
           logger.error("Error ensuring profile:", err);
         });
       }
