@@ -40,9 +40,12 @@ function DropdownSelect({
 }) {
   const [open, setOpen] = useState(false);
   const [highlightedIndex, setHighlightedIndex] = useState(-1);
+  const highlightedRef = useRef(highlightedIndex);
   const ref = useRef<HTMLDivElement>(null);
   const listRef = useRef<HTMLDivElement>(null);
   const selectedIdx = options.indexOf(value);
+
+  useEffect(() => { highlightedRef.current = highlightedIndex; }, [highlightedIndex]);
 
   useEffect(() => {
     if (!open) return;
@@ -61,11 +64,11 @@ function DropdownSelect({
       if (e.key === "Escape") { setOpen(false); return; }
       if (e.key === "ArrowDown") { e.preventDefault(); setHighlightedIndex((i) => Math.min(i + 1, options.length - 1)); }
       if (e.key === "ArrowUp") { e.preventDefault(); setHighlightedIndex((i) => Math.max(i - 1, 0)); }
-      if (e.key === "Enter" && highlightedIndex >= 0) { e.preventDefault(); onChange(options[highlightedIndex]); setOpen(false); }
+      if (e.key === "Enter" && highlightedRef.current >= 0) { e.preventDefault(); onChange(options[highlightedRef.current]); setOpen(false); }
     }
     document.addEventListener("keydown", handleKeyDown);
     return () => document.removeEventListener("keydown", handleKeyDown);
-  }, [open, highlightedIndex, options, onChange]);
+  }, [open, options, onChange]);
 
   useEffect(() => {
     if (highlightedIndex >= 0 && listRef.current) {

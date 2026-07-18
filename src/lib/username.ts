@@ -59,7 +59,8 @@ export async function isUsernameTaken(
     query = query.neq("id", excludeUserId);
   }
 
-  const { data } = await query.maybeSingle();
+  const { data, error } = await query.maybeSingle();
+  if (error) throw error;
   return !!data;
 }
 
