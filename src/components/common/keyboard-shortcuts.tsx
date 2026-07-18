@@ -79,7 +79,6 @@ export function KeyboardShortcutsModal({ open, onClose }: KeyboardShortcutsModal
       shortcuts: [
         { keys: "/", description: "Focus search" },
         { keys: `${mod}+K`, description: "Focus search" },
-        { keys: "i", description: "Toggle Important filter" },
         { keys: "d", description: "Cycle difficulty filter" },
         { keys: "r", description: "Reset all filters" },
       ],

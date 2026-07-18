@@ -57,7 +57,6 @@ import { isGoKeyHandled } from "@/lib/keyboard-state";
 import { DifficultyBadge } from "@/components/common/difficulty-badge";
 import { useToast } from "@/components/ui/toast";
 import { logger } from "@/lib/logger";
-import { IMPORTANT_IDS } from "@/constants/important-problems";
 import {
   upsertProblemProgress,
   extractSlug,
@@ -97,7 +96,6 @@ function useFilteredProblems(defaultFilter = "") {
   const q = searchParams.get("q") ?? "";
   const difficulty = searchParams.get("difficulty") ?? "";
   const pattern = searchParams.get("pattern") ?? "";
-  const important = searchParams.get("important") === "1";
   const filter = searchParams.get("filter") ?? defaultFilter;
   const sort = (searchParams.get("sort") ?? "default") as
     "default" | "id" | "difficulty" | "frequency";
@@ -157,9 +155,6 @@ function useFilteredProblems(defaultFilter = "") {
         ),
       );
     }
-    if (important) {
-      list = list.filter((p) => IMPORTANT_IDS.has(p.id));
-    }
 
     if (sort !== "default") {
       list.sort((a, b) => {
@@ -193,15 +188,15 @@ function useFilteredProblems(defaultFilter = "") {
     }
 
     return { list, uniquePatterns };
-  }, [q, difficulty, pattern, important, sort, dir, filter, uniquePatterns, solvedProblemDates]);
+  }, [q, difficulty, pattern, sort, dir, filter, uniquePatterns, solvedProblemDates]);
 
-  return { ...filtered, q, difficulty, pattern, important, filter, sort, dir, difficultyCounts, patternCounts };
+  return { ...filtered, q, difficulty, pattern, filter, sort, dir, difficultyCounts, patternCounts };
 }
 
 export function ProblemsetContent({ defaultFilter = "" }: { defaultFilter?: string }) {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const { list, uniquePatterns, q, difficulty, pattern, important, filter, sort, dir, difficultyCounts, patternCounts } =
+  const { list, uniquePatterns, q, difficulty, pattern, filter, sort, dir, difficultyCounts, patternCounts } =
     useFilteredProblems(defaultFilter);
   const searchRef = useRef<HTMLInputElement>(null);
   const toggleProblemSolved = useProblemStore((s) => s.toggleProblemSolved);
@@ -213,10 +208,8 @@ export function ProblemsetContent({ defaultFilter = "" }: { defaultFilter?: stri
   const [showProgress, setShowProgress] = useState(false);
   const prevQ = useRef(q);
   const difficultyRef = useRef(difficulty);
-  const importantRef = useRef(important);
 
   useEffect(() => { difficultyRef.current = difficulty; }, [difficulty]);
-  useEffect(() => { importantRef.current = important; }, [important]);
 
   useEffect(() => {
     if (prevQ.current !== q) {
@@ -315,12 +308,6 @@ export function ProblemsetContent({ defaultFilter = "" }: { defaultFilter?: stri
 
       // Skip if handled by global nav shortcuts (g→d, g→p, etc.)
       if (isGoKeyHandled()) return;
-
-      if (e.key === "i") {
-        e.preventDefault();
-        setParam("important", importantRef.current ? "" : "1");
-        return;
-      }
 
       if (e.key === "d") {
         e.preventDefault();
@@ -507,20 +494,6 @@ export function ProblemsetContent({ defaultFilter = "" }: { defaultFilter?: stri
                 ))}
               </SelectContent>
             </Select>
-
-            {/* Important filter */}
-            <Button
-              variant={important ? "default" : "outline"}
-              size="sm"
-              onClick={() => setParam("important", important ? "" : "1")}
-              aria-label={important ? "Show all problems" : "Filter important problems"}
-              className={cn(
-                "h-9 sm:h-10 gap-1.5 cursor-pointer shrink-0",
-                important && "bg-amber-500 hover:bg-amber-600 text-white border-amber-500",
-              )}
-            >
-              <span className="text-xs font-bold">IMP</span>
-            </Button>
           </div>
 
           {/* Sort + count row */}
@@ -700,7 +673,6 @@ const ProblemRow = memo(function ProblemRow({
 }) {
   const handleToggle = useCallback(() => onToggle(problem.id), [onToggle, problem.id]);
   const date = useProblemStore((s) => s.solvedProblemDates[problem.id]);
-  const isImportant = IMPORTANT_IDS.has(problem.id);
   return (
     <TableRow
       className={cn(
@@ -735,11 +707,6 @@ const ProblemRow = memo(function ProblemRow({
             {problem.name}
             <ExternalLink className="h-3 w-3 text-muted-foreground/40 shrink-0" />
           </Link>
-          {isImportant && (
-            <Badge className="text-[9px] px-1.5 py-0 h-4 font-bold bg-amber-500/15 text-amber-600 dark:text-amber-400 border-amber-500/30 shrink-0">
-              IMP
-            </Badge>
-          )}
         </div>
         <div className="flex flex-wrap gap-1.5 mt-1.5">
           {problem.patterns.slice(0, 2).map((pat) => (

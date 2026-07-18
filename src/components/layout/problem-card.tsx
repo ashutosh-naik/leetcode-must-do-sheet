@@ -9,7 +9,6 @@ import type { Problem } from "@/constants/problems";
 import { cn } from "@/lib/utils";
 import { DifficultyBadge } from "@/components/common/difficulty-badge";
 import { useProblemStore } from "@/store/problem-store";
-import { IMPORTANT_IDS } from "@/constants/important-problems";
 
 interface ProblemCardProps {
   problem: Problem;
@@ -26,7 +25,6 @@ export const ProblemCard = memo(function ProblemCard({
 }: ProblemCardProps) {
   const handleToggle = useCallback(() => onToggle(problem.id), [onToggle, problem.id]);
   const date = useProblemStore((s) => s.solvedProblemDates[problem.id]);
-  const isImportant = IMPORTANT_IDS.has(problem.id);
   return (
     <Card
       className={cn(
@@ -63,11 +61,6 @@ export const ProblemCard = memo(function ProblemCard({
                 {problem.name}
                 <ExternalLink className="h-2.5 w-2.5 sm:h-3 sm:w-3 shrink-0" />
               </a>
-              {isImportant && (
-                <Badge className="text-[9px] px-1.5 py-0 h-4 font-bold bg-amber-500/15 text-amber-600 dark:text-amber-400 border-amber-500/30 shrink-0">
-                  IMP
-                </Badge>
-              )}
             </div>
             <div className="flex items-center gap-1 sm:gap-1.5 flex-wrap">
               <DifficultyBadge difficulty={problem.difficulty} />

@@ -706,3 +706,6 @@ Object.freeze(PROBLEMS);
 for (const p of PROBLEMS) {
   Object.freeze(p);
 }
+
+// Total problem count — derived from array length
+export const PROBLEM_COUNT: number = PROBLEMS.length;
