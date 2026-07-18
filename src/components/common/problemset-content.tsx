@@ -8,7 +8,7 @@ import {
   useState,
   memo,
 } from "react";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useRouter, useSearchParams, usePathname } from "next/navigation";
 import Link from "next/link";
 import {
   ExternalLink,
@@ -196,6 +196,7 @@ function useFilteredProblems(defaultFilter = "") {
 
 export function ProblemsetContent({ defaultFilter = "" }: { defaultFilter?: string }) {
   const router = useRouter();
+  const pathname = usePathname();
   const searchParams = useSearchParams();
   const { list, uniquePatterns, q, difficulty, pattern, filter, sort, dir, difficultyCounts, patternCounts } =
     useFilteredProblems(defaultFilter);
@@ -501,7 +502,7 @@ export function ProblemsetContent({ defaultFilter = "" }: { defaultFilter?: stri
               <Button
                 variant="ghost"
                 size="sm"
-                onClick={() => router.replace("/problemset", { scroll: false })}
+                onClick={() => router.replace(pathname, { scroll: false })}
                 aria-label="Reset all filters"
                 className="h-9 sm:h-10 px-2 sm:px-3 gap-1.5 text-xs text-muted-foreground hover:text-foreground cursor-pointer"
               >
