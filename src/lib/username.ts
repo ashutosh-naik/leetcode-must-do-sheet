@@ -68,17 +68,29 @@ export async function generateUniqueUsername(
 ): Promise<string> {
   const slug = cleanSlug(base) || "user";
 
-  for (let attempt = 0; attempt < 20; attempt++) {
-    const candidate = attempt === 0 ? slug : `${slug}${Math.floor(1000 + Math.random() * 9000)}`;
+  // Check if the base slug is available (1 query)
+  const { data } = await supabase
+    .from("profiles")
+    .select("id")
+    .eq("username", slug)
+    .maybeSingle();
 
-    const { data } = await supabase
-      .from("profiles")
-      .select("id")
-      .eq("username", candidate)
-      .maybeSingle();
+  if (!data) return slug;
 
-    if (!data) return candidate;
+  // Batch: fetch all usernames starting with the slug prefix
+  const { data: taken } = await supabase
+    .from("profiles")
+    .select("username")
+    .like("username", `${slug}%`);
+
+  const takenSet = new Set(taken?.map((r) => r.username) ?? []);
+
+  // Try slug + random number
+  for (let attempt = 0; attempt < 10; attempt++) {
+    const candidate = `${slug}${Math.floor(1000 + Math.random() * 9000)}`;
+    if (!takenSet.has(candidate)) return candidate;
   }
 
+  // Fallback: slug + timestamp
   return `${slug}-${Date.now().toString(36)}`;
 }

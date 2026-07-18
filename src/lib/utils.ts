@@ -9,7 +9,7 @@ export function isSafePath(path: string): boolean {
   try {
     const url = new URL(path, "http://localhost");
     if (url.host !== "localhost") return false;
-    const sanitized = url.pathname + url.search;
+    const sanitized = url.pathname + url.search + url.hash;
     return (
       sanitized.startsWith("/") &&
       !sanitized.startsWith("//") &&

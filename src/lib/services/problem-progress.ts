@@ -66,7 +66,9 @@ export async function upsertProblemProgress(
       .eq("user_id", userId)
       .eq("problem_slug", slug);
     if (error) {
-      if (error.code === "PGRST116") {
+      // PGRST116 = "Row not found" (PostgREST). Also check message for forward-compat.
+      const isNotFound = error.code === "PGRST116" || error.message?.includes("0 rows");
+      if (isNotFound) {
         logger.info("[deleteProblemProgress] Row not found (may be RLS deny):", slug);
       } else {
         logSupabaseError("deleteProblemProgress", error);
