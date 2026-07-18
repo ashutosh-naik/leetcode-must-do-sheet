@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState, useCallback, useRef } from "react";
+import { useEffect, useState, useCallback, useRef, use } from "react";
 import { useRouter } from "next/navigation";
 import { User, Pencil, Check, X, Loader2, Camera } from "lucide-react";
 import Image from "next/image";
@@ -103,6 +103,7 @@ export default function ProfileUsernamePage({
 }: {
   params: Promise<{ username: string }>;
 }) {
+  const { username } = use(params);
   const { user } = useAuth();
   const router = useRouter();
   const { toast } = useToast();
@@ -219,7 +220,6 @@ export default function ProfileUsernamePage({
     let cancelled = false;
     (async () => {
       try {
-        const { username } = await params;
         const p = await getProfileByUsername(username);
         if (!cancelled) {
           setProfile(p);
@@ -235,7 +235,7 @@ export default function ProfileUsernamePage({
     return () => {
       cancelled = true;
     };
-  }, [params, user?.id]);
+  }, [username, user?.id]);
 
   if (loading) {
     return (
@@ -350,7 +350,7 @@ export default function ProfileUsernamePage({
 
         <EditableField
           label="Display Name"
-          value={profile.display_name ?? null}
+          value={profile.display_name ?? profile.name ?? null}
           isEditing={!!editing.display_name}
           onStartEdit={() =>
             startEdit("display_name", profile.display_name ?? null)

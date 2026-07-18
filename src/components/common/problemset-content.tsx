@@ -427,6 +427,7 @@ export function ProblemsetContent({ defaultFilter = "" }: { defaultFilter?: stri
               ref={searchRef}
               type="text"
               placeholder="Search problems..."
+              aria-label="Search problems"
               value={searchInput}
               onChange={(e) => setSearchInput(e.target.value)}
               className="h-9 sm:h-10 rounded-2xl border-border bg-background pl-9 pr-9 focus-visible:border-primary focus-visible:ring-primary placeholder:text-muted-foreground/60"
