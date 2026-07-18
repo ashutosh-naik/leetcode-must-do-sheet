@@ -229,7 +229,7 @@ export default function ProfileUsernamePage({
     return () => {
       cancelled = true;
     };
-  }, [params]);
+  }, [params, user?.id]);
 
   if (loading) {
     return (
