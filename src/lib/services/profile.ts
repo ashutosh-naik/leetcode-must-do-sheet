@@ -38,7 +38,13 @@ export async function createProfile(
 function isProfile(data: unknown): data is Profile {
   if (!data || typeof data !== "object") return false;
   const obj = data as Record<string, unknown>;
-  return typeof obj.id === "string" && typeof obj.name === "string" && typeof obj.email === "string";
+  return typeof obj.id === "string" && typeof obj.name === "string";
+}
+
+function isFullProfile(data: unknown): data is Profile {
+  if (!isProfile(data)) return false;
+  const obj = data as unknown as Record<string, unknown>;
+  return typeof obj.email === "string";
 }
 
 export async function getProfile(userId: string): Promise<Profile | null> {
@@ -52,7 +58,7 @@ export async function getProfile(userId: string): Promise<Profile | null> {
     logger.error("getProfile error:", error.message);
     return null;
   }
-  if (!isProfile(data)) {
+  if (!isFullProfile(data)) {
     logger.error("getProfile: invalid profile shape", data);
     return null;
   }
@@ -91,6 +97,6 @@ export async function updateProfile(
     .single();
 
   if (error) throw error;
-  if (!isProfile(data)) throw new Error("Invalid profile shape returned from update");
+  if (!isFullProfile(data)) throw new Error("Invalid profile shape returned from update");
   return data;
 }
