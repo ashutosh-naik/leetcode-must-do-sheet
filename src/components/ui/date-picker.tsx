@@ -236,7 +236,7 @@ export function DatePicker({ value, onChange, placeholder = "Select date" }: Dat
 
       {open && (
         <div
-          className="absolute z-50 mt-1.5 w-[300px] rounded-2xl border border-border bg-popover p-3 shadow-2xl animate-in fade-in slide-in-from-top-2 duration-200"
+          className="absolute z-50 mt-1.5 w-full max-w-[300px] rounded-2xl border border-border bg-popover p-3 shadow-2xl animate-in fade-in slide-in-from-top-2 duration-200"
           role="dialog"
           aria-modal="true"
           aria-label="Choose date"

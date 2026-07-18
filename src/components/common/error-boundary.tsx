@@ -34,7 +34,7 @@ export class ErrorBoundary extends React.Component<
     if (this.state.hasError) {
       return (
         this.props.fallback ?? (
-          <div className="flex flex-col items-center justify-center min-h-[400px] gap-4 px-4">
+          <div role="alert" className="flex flex-col items-center justify-center min-h-[400px] gap-4 px-4">
             <div className="rounded-full bg-destructive/10 p-4">
               <span className="text-destructive text-2xl">!</span>
             </div>

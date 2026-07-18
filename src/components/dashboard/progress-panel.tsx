@@ -16,7 +16,7 @@ function CircularGauge({ value, total }: { value: number; total: number }) {
 
   return (
     <div className="relative flex items-center justify-center size-[130px] sm:size-[160px] shrink-0">
-      <svg className="size-[120px] sm:size-[150px] -rotate-90" viewBox="0 0 150 150">
+      <svg className="size-[120px] sm:size-[150px] -rotate-90" viewBox="0 0 150 150" role="img" aria-label={`Progress: ${value} of ${total} solved, ${pct.toFixed(1)}%`}>
         <circle
           cx="75"
           cy="75"
@@ -103,7 +103,7 @@ function DifficultyCard({
             {solved}/{total}
           </span>
         </div>
-        <div className="h-1.5 rounded-full bg-muted-foreground/15 overflow-hidden">
+        <div className="h-1.5 rounded-full bg-muted-foreground/15 overflow-hidden" role="progressbar" aria-valuenow={pct} aria-valuemin={0} aria-valuemax={100} aria-label={`${difficulty} progress: ${solved} of ${total}`}>
           <div
             className={cn(
               "h-full rounded-full transition-all duration-500",
