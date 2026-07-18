@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState, useCallback, useRef, use } from "react";
+import { useEffect, useState, useCallback, useRef, use, useMemo } from "react";
 import { useRouter } from "next/navigation";
 import { User, Pencil, Check, X, Loader2, Camera } from "lucide-react";
 import Image from "next/image";
@@ -21,6 +21,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { validateUsername, validateProfileField, isUsernameTaken } from "@/lib/username";
 import { getUserProgressCounts } from "@/lib/services/problem-progress";
 import { PROBLEMS } from "@/constants/problems";
+import { useProblemStore } from "@/store/problem-store";
 
 function EditableField({
   label,
@@ -117,6 +118,20 @@ export default function ProfileUsernamePage({
   const [cropImageSrc, setCropImageSrc] = useState<string | null>(null);
   const [progress, setProgress] = useState<{ total: number; byDifficulty: Record<string, number> }>({ total: 0, byDifficulty: { Easy: 0, Medium: 0, Hard: 0 } });
   const fileInputRef = useRef<HTMLInputElement>(null);
+
+  const isOwn = !!user && !!profile && user.id === profile.id;
+  const solvedSet = useProblemStore((s) => s._solvedSet);
+  const storeProgress = useMemo(() => {
+    if (!isOwn) return null;
+    const byDifficulty: Record<string, number> = { Easy: 0, Medium: 0, Hard: 0 };
+    for (const p of PROBLEMS) {
+      if (solvedSet.has(p.id)) {
+        byDifficulty[p.difficulty] = (byDifficulty[p.difficulty] ?? 0) + 1;
+      }
+    }
+    return { total: solvedSet.size, byDifficulty };
+  }, [isOwn, solvedSet]);
+  const effectiveProgress = storeProgress ?? progress;
 
   const startEdit = useCallback(
     (key: string, currentValue: string | null) => {
@@ -227,7 +242,7 @@ export default function ProfileUsernamePage({
         if (!cancelled) {
           setProfile(p);
           setLoading(false);
-          if (p) {
+          if (p && !(user && user.id === p.id)) {
             getUserProgressCounts(p.id).then((counts) => {
               if (!cancelled) setProgress(counts);
             });
@@ -243,7 +258,7 @@ export default function ProfileUsernamePage({
     return () => {
       cancelled = true;
     };
-  }, [username, user?.id]);
+  }, [username, user]);
 
   if (loading) {
     return (
@@ -266,7 +281,6 @@ export default function ProfileUsernamePage({
     );
   }
 
-  const isOwn = user?.id === profile.id;
   const avatarUrl =
     profile.avatar_url ?? user?.user_metadata?.avatar_url ?? null;
   const displayName =
@@ -355,22 +369,22 @@ export default function ProfileUsernamePage({
               <circle
                 cx="75" cy="75" r="60" fill="none" stroke="currentColor" strokeWidth="8"
                 strokeLinecap="round" strokeDasharray={2 * Math.PI * 60}
-                strokeDashoffset={2 * Math.PI * 60 - (PROBLEMS.length > 0 ? (progress.total / PROBLEMS.length) : 0) * 2 * Math.PI * 60}
+                strokeDashoffset={2 * Math.PI * 60 - (PROBLEMS.length > 0 ? (effectiveProgress.total / PROBLEMS.length) : 0) * 2 * Math.PI * 60}
                 className="text-primary transition-all duration-1000 ease-out"
               />
             </svg>
             <div className="absolute inset-0 flex flex-col items-center justify-center">
-              <span className="font-heading text-2xl font-bold tracking-tight text-foreground">{progress.total}</span>
+              <span className="font-heading text-2xl font-bold tracking-tight text-foreground">{effectiveProgress.total}</span>
               <span className="text-xs text-muted-foreground">/ {PROBLEMS.length}</span>
               <span className="text-xs font-semibold text-primary mt-0.5">
-                {PROBLEMS.length > 0 ? ((progress.total / PROBLEMS.length) * 100).toFixed(1) : "0.0"}%
+                {PROBLEMS.length > 0 ? ((effectiveProgress.total / PROBLEMS.length) * 100).toFixed(1) : "0.0"}%
               </span>
             </div>
           </div>
           {/* Difficulty breakdown */}
           <div className="flex-1 space-y-2">
             {(["Easy", "Medium", "Hard"] as const).map((d) => {
-              const solved = progress.byDifficulty[d] ?? 0;
+              const solved = effectiveProgress.byDifficulty[d] ?? 0;
               const total = PROBLEMS.filter((p) => p.difficulty === d).length;
               const pct = total > 0 ? (solved / total) * 100 : 0;
               const colors = d === "Easy" ? "text-green-600 dark:text-green-400 bg-green-500/10" : d === "Medium" ? "text-amber-600 dark:text-amber-400 bg-amber-500/10" : "text-red-600 dark:text-red-400 bg-red-500/10";
