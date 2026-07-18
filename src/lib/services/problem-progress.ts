@@ -203,3 +203,26 @@ export async function deleteAllProblemProgress(userId: string) {
     }
   }
 }
+
+export async function getUserProgressCounts(userId: string): Promise<{ total: number; byDifficulty: Record<string, number> }> {
+  const { data, error } = await supabase.rpc("get_user_solved_slugs", {
+    target_user_id: userId,
+  });
+
+  if (error) {
+    logger.error("getUserProgressCounts error:", error.message);
+    return { total: 0, byDifficulty: { Easy: 0, Medium: 0, Hard: 0 } };
+  }
+
+  const slugs = (data as { problem_slug: string }[]) ?? [];
+  const byDifficulty: Record<string, number> = { Easy: 0, Medium: 0, Hard: 0 };
+
+  for (const row of slugs) {
+    const problem = PROBLEMS.find((p) => extractSlug(p.link) === row.problem_slug);
+    if (problem) {
+      byDifficulty[problem.difficulty] = (byDifficulty[problem.difficulty] ?? 0) + 1;
+    }
+  }
+
+  return { total: slugs.length, byDifficulty };
+}

@@ -19,6 +19,8 @@ import { LocationInput } from "@/components/ui/location-input";
 import { CropModal } from "@/components/common/crop-modal";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { validateUsername, validateProfileField, isUsernameTaken } from "@/lib/username";
+import { getUserProgressCounts } from "@/lib/services/problem-progress";
+import { PROBLEMS } from "@/constants/problems";
 
 function EditableField({
   label,
@@ -113,6 +115,7 @@ export default function ProfileUsernamePage({
   const [editing, setEditing] = useState<Record<string, boolean>>({});
   const [form, setForm] = useState<Record<string, string>>({});
   const [cropImageSrc, setCropImageSrc] = useState<string | null>(null);
+  const [progress, setProgress] = useState<{ total: number; byDifficulty: Record<string, number> }>({ total: 0, byDifficulty: { Easy: 0, Medium: 0, Hard: 0 } });
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const startEdit = useCallback(
@@ -224,6 +227,11 @@ export default function ProfileUsernamePage({
         if (!cancelled) {
           setProfile(p);
           setLoading(false);
+          if (p) {
+            getUserProgressCounts(p.id).then((counts) => {
+              if (!cancelled) setProgress(counts);
+            });
+          }
         }
       } catch {
         if (!cancelled) {
@@ -330,6 +338,57 @@ export default function ProfileUsernamePage({
                 @{profile.username}
               </p>
             )}
+          </div>
+        </div>
+      </div>
+
+      {/* Progress Panel */}
+      <div className="rounded-2xl border border-border bg-card p-6 shadow-sm">
+        <h3 className="font-heading text-sm font-semibold text-muted-foreground uppercase tracking-wider mb-4">
+          Progress
+        </h3>
+        <div className="flex items-center gap-6">
+          {/* Circular gauge */}
+          <div className="relative flex items-center justify-center size-[120px] shrink-0">
+            <svg className="size-[110px] -rotate-90" viewBox="0 0 150 150">
+              <circle cx="75" cy="75" r="60" fill="none" stroke="currentColor" strokeWidth="8" className="text-muted-foreground/15" />
+              <circle
+                cx="75" cy="75" r="60" fill="none" stroke="currentColor" strokeWidth="8"
+                strokeLinecap="round" strokeDasharray={2 * Math.PI * 60}
+                strokeDashoffset={2 * Math.PI * 60 - (PROBLEMS.length > 0 ? (progress.total / PROBLEMS.length) : 0) * 2 * Math.PI * 60}
+                className="text-primary transition-all duration-1000 ease-out"
+              />
+            </svg>
+            <div className="absolute inset-0 flex flex-col items-center justify-center">
+              <span className="font-heading text-2xl font-bold tracking-tight text-foreground">{progress.total}</span>
+              <span className="text-xs text-muted-foreground">/ {PROBLEMS.length}</span>
+              <span className="text-xs font-semibold text-primary mt-0.5">
+                {PROBLEMS.length > 0 ? ((progress.total / PROBLEMS.length) * 100).toFixed(1) : "0.0"}%
+              </span>
+            </div>
+          </div>
+          {/* Difficulty breakdown */}
+          <div className="flex-1 space-y-2">
+            {(["Easy", "Medium", "Hard"] as const).map((d) => {
+              const solved = progress.byDifficulty[d] ?? 0;
+              const total = PROBLEMS.filter((p) => p.difficulty === d).length;
+              const pct = total > 0 ? (solved / total) * 100 : 0;
+              const colors = d === "Easy" ? "text-green-600 dark:text-green-400 bg-green-500/10" : d === "Medium" ? "text-amber-600 dark:text-amber-400 bg-amber-500/10" : "text-red-600 dark:text-red-400 bg-red-500/10";
+              const barColor = d === "Easy" ? "bg-green-500" : d === "Medium" ? "bg-amber-500" : "bg-red-500";
+              return (
+                <div key={d} className={`flex items-center gap-3 rounded-xl p-3 ${colors.split(" ").slice(1).join(" ")}`}>
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center justify-between mb-1">
+                      <span className={`text-sm font-semibold ${colors.split(" ")[0]}`}>{d}</span>
+                      <span className="text-sm font-medium tabular-nums text-muted-foreground">{solved}/{total}</span>
+                    </div>
+                    <div className="h-1.5 rounded-full bg-muted-foreground/15 overflow-hidden">
+                      <div className={`h-full rounded-full transition-all duration-500 ${barColor}`} style={{ width: `${pct}%` }} />
+                    </div>
+                  </div>
+                </div>
+              );
+            })}
           </div>
         </div>
       </div>

@@ -1,16 +1,24 @@
 "use client";
 
+import { useEffect, useState } from "react";
 import { PROBLEMS } from "@/constants/problems";
 import { useProblemStore } from "@/store/problem-store";
 import { useAuth } from "@/providers/auth-provider";
 import { ProgressPanel } from "@/components/dashboard/progress-panel";
 import { BarChart3 } from "lucide-react";
 import { useSyncProgress } from "@/hooks/use-sync-progress";
+import { getProfile } from "@/lib/services/profile";
 
 export default function DashboardPage() {
   const { user } = useAuth();
   const solvedSet = useProblemStore((s) => s._solvedSet);
   useSyncProgress();
+  const [username, setUsername] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (!user) return;
+    getProfile(user.id).then((p) => setUsername(p?.username ?? null));
+  }, [user]);
 
   const total = PROBLEMS.length;
   const solved = user ? solvedSet.size : 0;
@@ -25,7 +33,7 @@ export default function DashboardPage() {
 
       {user && (
         <p className="text-sm text-muted-foreground -mt-4 animate-fade-in-up-sm" style={{ animationDelay: "100ms", animationFillMode: "backwards" }}>
-          Signed in as {user.email}
+          Signed in as @{username ?? user.email?.split("@")[0] ?? "user"}
         </p>
       )}
 
