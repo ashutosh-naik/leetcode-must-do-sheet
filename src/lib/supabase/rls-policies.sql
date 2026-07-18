@@ -11,10 +11,10 @@ ALTER TABLE problem_progress ENABLE ROW LEVEL SECURITY;
 -- PROFILES table
 -- ===================================================
 
--- Policy: Users can read their own profile
-CREATE POLICY "Users can read own profile"
+-- Policy: Anyone can view any profile (public profiles for /profile/[username] pages)
+CREATE POLICY "Public can view profiles"
   ON profiles FOR SELECT
-  USING (auth.uid() = id);
+  USING (true);
 
 -- Policy: Users can insert their own profile
 CREATE POLICY "Users can insert own profile"
