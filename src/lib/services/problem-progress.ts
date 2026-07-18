@@ -101,6 +101,12 @@ for (const p of PROBLEMS) {
   slugToId.set(extractSlug(p.link), p.id);
 }
 
+// Build id→problem map once at module level for O(1) difficulty lookups
+const idToProblem = new Map<number, (typeof PROBLEMS)[number]>();
+for (const p of PROBLEMS) {
+  idToProblem.set(p.id, p);
+}
+
 export async function syncSolvedProblems(
   userId: string,
   localIds: number[],
@@ -218,9 +224,12 @@ export async function getUserProgressCounts(userId: string): Promise<{ total: nu
   const byDifficulty: Record<string, number> = { Easy: 0, Medium: 0, Hard: 0 };
 
   for (const row of slugs) {
-    const problem = PROBLEMS.find((p) => extractSlug(p.link) === row.problem_slug);
-    if (problem) {
-      byDifficulty[problem.difficulty] = (byDifficulty[problem.difficulty] ?? 0) + 1;
+    const id = slugToId.get(row.problem_slug);
+    if (id != null) {
+      const problem = idToProblem.get(id);
+      if (problem) {
+        byDifficulty[problem.difficulty] = (byDifficulty[problem.difficulty] ?? 0) + 1;
+      }
     }
   }
 

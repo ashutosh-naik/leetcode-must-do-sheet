@@ -1,5 +1,6 @@
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
+import { PROBLEMS } from "@/constants/problems";
 
 interface ProblemState {
   solvedProblemIds: number[];
@@ -53,6 +54,18 @@ export const useProblemStore = create<ProblemState>()(
       }),
       onRehydrateStorage: () => (state) => {
         if (state) {
+          // Validate solvedProblemIds — filter to only IDs that exist in PROBLEMS
+          const validIds = new Set(PROBLEMS.map((p) => p.id));
+          state.solvedProblemIds = state.solvedProblemIds.filter(
+            (id) => typeof id === "number" && validIds.has(id),
+          );
+          // Clean up orphaned dates
+          const idSet = new Set(state.solvedProblemIds);
+          for (const key of Object.keys(state.solvedProblemDates)) {
+            if (!idSet.has(Number(key))) {
+              delete state.solvedProblemDates[Number(key)];
+            }
+          }
           state._solvedSet = new Set(state.solvedProblemIds);
         }
       },

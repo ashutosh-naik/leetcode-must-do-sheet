@@ -50,7 +50,7 @@ function isFullProfile(data: unknown): data is Profile {
 export async function getProfile(userId: string): Promise<Profile | null> {
   const { data, error } = await supabase
     .from("profiles")
-    .select("*")
+    .select("id, name, avatar_url, display_name, username, gender, location, birthday, github_url, linkedin_url")
     .eq("id", userId)
     .single();
 
@@ -58,7 +58,7 @@ export async function getProfile(userId: string): Promise<Profile | null> {
     logger.error("getProfile error:", error.message);
     return null;
   }
-  if (!isFullProfile(data)) {
+  if (!isProfile(data)) {
     logger.error("getProfile: invalid profile shape", data);
     return null;
   }
