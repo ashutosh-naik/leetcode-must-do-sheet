@@ -4,7 +4,7 @@ import { logger } from "@/lib/logger";
 export interface Profile {
   id: string;
   name: string;
-  email: string;
+  email?: string;
   avatar_url: string | null;
   display_name: string | null;
   username: string | null;
